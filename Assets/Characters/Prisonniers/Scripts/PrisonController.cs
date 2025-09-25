@@ -1,6 +1,6 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(CharacterController))]
 public class PrisonController : MonoBehaviour
 {
     public float speed = 7.5f;
