@@ -8,6 +8,18 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ArthurTest.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/DjessyTest.unity
+    guid: 87a07f9f14f747945ae00b0c3ae32a2f
+  - enabled: 1
+    path: Assets/Scenes/Terrain1.unity
+    guid: 0af9e6356a154514599333c8396a7560
+  - enabled: 1
+    path: Assets/Scenes/KaiTestTerrain1.unity
+    guid: 1201321401b3ca74fbb1b7d441b7a77a
+  - enabled: 1
+    path: Assets/Scenes/Menu.unity
+    guid: 81aa85860700267428423bcad389c00a
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 9e7be553448fa2546aea5752021cbcf7, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

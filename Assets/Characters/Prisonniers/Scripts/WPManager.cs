@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class WPManager : MonoBehaviour
 {
-    public Camera playerCamera;
+    /*public Camera playerCamera;
     public PWeapon[] weapons;
     private int selectedWeaponIndex;
 
@@ -83,5 +83,5 @@ public class WPManager : MonoBehaviour
                 weapons[selectedWeaponIndex].ActivateWeapon(false);
             }
         }
-    }
+    }*/
 }
