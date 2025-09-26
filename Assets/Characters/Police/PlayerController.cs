@@ -23,5 +23,12 @@ public class PlayerController : MonoBehaviour
         Vector3 moveVertical = transform.forward * zMove; // Mouvement vertical relatif à la rotation du joueur
 
         Vector3 velocity = (moveHorizontal + moveVertical).normalized * speed; // Vecteur de vélocité final
+
+        motor.Move(velocity); // Appelle la méthode Move du PlayerMotor pour appliquer le mouvement
+
+        // Gérer la rotation du joueur avec la souris
+        float yRot = Input.GetAxisRaw("Mouse X"); // Rotation horizontale de la souris
+        Vector3 rotation = new Vector3(0f, yRot, 0f) * 3f; // Vecteur de rotation
+        transform.Rotate(rotation); // Applique la rotation au transform du joueur  
     }
 }
