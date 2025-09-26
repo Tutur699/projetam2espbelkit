@@ -3,7 +3,7 @@ using UnityEngine;
 public class WPManager : MonoBehaviour
 {
     /*public Camera playerCamera;
-    public PWeapon[] weapons;
+    public Pitems[] weapons;
     private int selectedWeaponIndex;
 
     [HideInInspector]
