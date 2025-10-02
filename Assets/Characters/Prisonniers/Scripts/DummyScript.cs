@@ -5,7 +5,7 @@ public class DummyScript : MonoBehaviour, IEntity
     public float npcHP = 10;
     public GameObject npcDeadPrefab;
     [HideInInspector]
-    public Transform playerTransform;
+    //public Transform playerTransform;
     public void ApplyDamage(float points)
     {
         npcHP -= points;
@@ -14,7 +14,7 @@ public class DummyScript : MonoBehaviour, IEntity
             //Destroy the NPC
             GameObject npcDead = Instantiate(npcDeadPrefab, transform.position, transform.rotation);
             //Slightly bounce the npc dead prefab up
-            npcDead.GetComponent<Rigidbody>().linearVelocity = (-(playerTransform.position - transform.position).normalized * 8) + new Vector3(0, 5, 0);
+            npcDead.GetComponent<Rigidbody>().linearVelocity = (transform.position.normalized * 8) + new Vector3(0, 5, 0);
             Destroy(npcDead, 10);
             Destroy(gameObject);
         }
