@@ -7,7 +7,7 @@ public class PItems : MonoBehaviour
     public bool singleUse = false;
     public float useRate = 0.1f;
     public float weaponDamage = 15; //How much damage should this weapon deal
-    public void ActivateWeapon(bool activate)
+    public void ActivateWeapon(bool activate) //Méthode pour récupérer l'item + faire en sorte que WPManager ne bloque pas
     {
         item = this.gameObject;
         item.SetActive(activate);
