@@ -313,9 +313,10 @@ GameObject:
   - component: {fileID: 673430341}
   - component: {fileID: 673430340}
   - component: {fileID: 673430339}
+  - component: {fileID: 673430343}
   m_Layer: 0
   m_Name: Dummy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -412,6 +413,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &673430343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 673430338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39b82e06adfb9694fb13942158035a79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DummyScript
+  npcHP: 10
+  npcDeadPrefab: {fileID: 9113612139441839263, guid: 69af3f9ce2c51d847a15a4e99a011a1f, type: 3}
 --- !u!1 &817427158
 GameObject:
   m_ObjectHideFlags: 0
@@ -457,11 +472,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8e011000087cef4c86d6799312bd717, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PItems
-  item: {fileID: 0}
-  singleUse: 0
+  item: {fileID: 869033476}
+  singleUse: 1
   useRate: 0.1
-  weaponDamage: 15
+  weaponDamage: 5
+  HitPoint: {fileID: 1818756353}
   manager: {fileID: 0}
+--- !u!1 &869033476 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
+  m_PrefabInstance: {fileID: 268661984}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1097683429
 GameObject:
   m_ObjectHideFlags: 0
@@ -949,6 +970,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1818756353}
   - {fileID: 817427159}
   m_Father: {fileID: 1110726092}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -968,6 +990,37 @@ MonoBehaviour:
   items:
   - {fileID: 817427160}
   selectedItems: {fileID: 0}
+--- !u!1 &1818756352
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1818756353}
+  m_Layer: 0
+  m_Name: HitPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1818756353
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1818756352}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.4756, y: 1.4685, z: 0.4717}
+  m_LocalScale: {x: 1.25, y: 1.25, z: 1.25}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1731992200}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &2046977016 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}

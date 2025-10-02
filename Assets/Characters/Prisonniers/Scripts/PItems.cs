@@ -52,7 +52,7 @@ public class PItems : MonoBehaviour
                 {
                     hitPointPointerPosition = hit.point;
                 }
-                if (hit.transform.CompareTag("Enemy"))
+                if (hit.transform.CompareTag("Enemy")) //Enemy tag here is important because an item can be used on anything
                 {
                     Debug.DrawLine(HitPoint.position, HitPoint.position + HitPoint.forward * 3f, Color.cyan);
 
