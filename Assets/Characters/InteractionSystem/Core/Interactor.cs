@@ -2,9 +2,8 @@ using UnityEngine;
 
 public class Interactor : MonoBehaviour
 {
-    [SerializeField]
     private float interactionRange = 3f;
-    [SerializeField]
+    Interactable currentInteractable;
     private Vector3 _raycastOffset = new Vector3(0, 1f, 0);
 
     /*private void Update()
@@ -21,19 +20,51 @@ public class Interactor : MonoBehaviour
         }
     }*/
 
-    private bool DoInteractionTest(out IInteractable interactable)
+    void checkInteraction()
     {
-        interactable = null;
+        RaycastHit hitInfo;
         Ray ray = new Ray(transform.position + _raycastOffset, transform.forward);
-        if (Physics.Raycast(ray, out RaycastHit hitInfo, interactionRange))
+        if (Physics.Raycast(ray, out hitInfo, interactionRange))
         {
-            interactable = hitInfo.collider.GetComponent<IInteractable>();
-            if (interactable != null)
+            if (hitInfo.collider.CompareTag("Items") || hitInfo.collider.CompareTag("Interactable")) //if the object hit by the ray is an interactable object
             {
-                return true;
+                Interactable newInteractable = hitInfo.collider.GetComponent<Interactable>();
+                if(currentInteractable && newInteractable != currentInteractable) //if we are already looking at an interactable object but it's not the same as the new one
+                {
+                    DisableCurrentInteractable();
+                }
+                if (newInteractable.enabled)
+                {
+                    SetNewCurrentInteractable(newInteractable);
+                }
+                else //if the interactable component is disabled
+                {
+                    DisableCurrentInteractable();
+                }
             }
-            return false;
+            else
+            { //if the object hit by the ray is not an interactable object
+                DisableCurrentInteractable();
+            }
         }
-        return false;
+
+        else
+        { //if nothing is hit by the ray
+            DisableCurrentInteractable();
+        }
+    }
+
+    void SetNewCurrentInteractable(Interactable newInteractable)
+    {
+        currentInteractable = newInteractable;
+        currentInteractable.EnableOutline();
+    }
+    void DisableCurrentInteractable()
+    {
+        if (currentInteractable)
+        {
+            currentInteractable.DisableOutline();
+            currentInteractable = null;
+        }
     }
 }
