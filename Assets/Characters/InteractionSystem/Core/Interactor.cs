@@ -7,7 +7,7 @@ public class Interactor : MonoBehaviour
     [SerializeField]
     private Vector3 _raycastOffset = new Vector3(0, 1f, 0);
 
-    private void Update()
+    /*private void Update()
     {
         if (Input.GetKeyDown(KeyCode.F))
         {
@@ -19,7 +19,7 @@ public class Interactor : MonoBehaviour
                 }
             }
         }
-    }
+    }*/
 
     private bool DoInteractionTest(out IInteractable interactable)
     {
