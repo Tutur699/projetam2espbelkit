@@ -277,9 +277,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RandomMurPorte
   Mur: {fileID: 7909222129892080376, guid: 0b8e2248aa19c3d4da92dcab90cd2a6b, type: 3}
   Porte: {fileID: 2146932813144289120, guid: 275bb952959c08f449fec05476be857e, type: 3}
-  lmur: 20
-  Lmur: 0.5
+  materialMur: {fileID: 2100000, guid: e429c8ff9e485574b8aa09ee44b4da19, type: 2}
+  materialPorte: {fileID: 2100000, guid: b747383878001c94dbaf7aa522f19c05, type: 2}
+  resourcesWallPath: WALL/MyWall
+  resourcesDoorPath: WALL/MyDoor
+  loadWallFromResources: 0
+  loadDoorFromResources: 0
   hmur: 5
+  Lmur: 0.5
+  choixWall: 
+  minLongueurX: 10
+  maxLongueurX: 30
+  minLargeurZ: 8
+  maxLargeurZ: 20
+  lporte: 2
+  hporte: 3
+  Lporte: 0.3
+  marge: 0.5
 --- !u!4 &1451546114
 Transform:
   m_ObjectHideFlags: 0

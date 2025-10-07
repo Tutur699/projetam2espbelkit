@@ -8,9 +8,21 @@ public class RandomMurPorte : MonoBehaviour
     public GameObject Mur;
     public GameObject Porte; // porte
 
+    [Header("Matérials")]
+    public Material materialMur;
+    public Material materialPorte;
+    public string resourcesWallPath = "WALL/MyWall";
+    public string resourcesDoorPath = "WALL/MyDoor"; // chemin pour la porte
+    public bool loadWallFromResources = false;
+    public bool loadDoorFromResources = false;
+
+
+
     [Header("Mur")]
     public float hmur = 5f;     // hauteur
     public float Lmur = 0.5f;   // épaisseur mur
+    public string choixWall = "";   
+    
 
     [Header("Tirage aléatoire des dimensions au sol")]
     public float minLongueurX = 10f;  
@@ -24,11 +36,16 @@ public class RandomMurPorte : MonoBehaviour
     public float hporte = 3f;   // hauteur
     public float Lporte = 0.3f; // épaisseur
     public float marge  = 0.5f; // marge par rapport aux bords du mur
+    
 
+    private Material _resWallMat;
+    private Material _resDoorMat;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        _resWallMat = EstMatOK();//évitez des répétitions
+        _resDoorMat = ResolveDoorMaterial();
         Build();
     }
 
@@ -36,29 +53,104 @@ public class RandomMurPorte : MonoBehaviour
     {
         return min + (float)r.NextDouble() * (max - min);
     }
+    Material EstMatOK()
+    {
+        Material mat = materialMur;
 
+        if (loadWallFromResources)
+        {
+            string fullPath = string.IsNullOrEmpty(choixWall)
+                ? resourcesWallPath
+                : resourcesWallPath + "/" + choixWall;
+
+            mat = Resources.Load<Material>(fullPath);
+            if (mat == null)
+            {
+                Debug.LogError("[RandomMurPorte] Material introuvable via Resources à ce chemin : " + fullPath);
+            }
+        }
+
+        if (mat == null)
+        {
+            Debug.LogWarning("[RandomMurPorte] Aucun material de mur défini. Les murs utiliseront le material par défaut du prefab.");
+        }
+
+        return mat;
+    }
+    Material ResolveDoorMaterial()
+    {
+        Material mat = materialPorte;
+
+        if (loadDoorFromResources)
+        {
+            mat = Resources.Load<Material>(resourcesDoorPath);
+            if (mat == null)
+            {
+                Debug.LogError("[RandomMurPorte] Material porte introuvable : " + resourcesDoorPath);
+            }
+        }
+
+        return mat;
+    }
+
+    void Tilingdumaterial(GameObject go, float tilesParMetre_U, float tilesParMetre_V)
+    {
+        var rend = go.GetComponent<Renderer>();
+        if (!rend)
+        {
+            return;
+        }
+        var mat = rend.material;
+        Vector3 p = go.transform.localScale;
+        float u = Mathf.Max(0.001f, p.x * tilesParMetre_U);
+        float v = Mathf.Max(0.001f, p.y * tilesParMetre_V);
+        mat.SetTextureScale("_BaseMap", new Vector2(u, v));
+    }
+
+    void ApplyMaterialRecursivement(GameObject go, Material mat)
+    {   
+        if (mat == null)
+        {
+            return;
+        }
+        var renderers = go.GetComponentsInChildren<Renderer>(true);
+        foreach (var rend in renderers)
+        {
+            rend.material = mat; // instance par renderer
+        }
+    }
     void Build()
     {
+        float tU = 0.5f;
+        float tV = 0.5f;
         float lX = MyRandom(rnd, minLongueurX, maxLongueurX);
         float lZ = MyRandom(rnd, minLargeurZ, maxLargeurZ);
         var murbas = Instantiate(Mur, transform);
         murbas.name = "MurBas";
         murbas.transform.localScale = new Vector3(lX, hmur, Lmur);
         murbas.transform.localPosition = new Vector3(lX / 2f, hmur / 2f, 0f);
+        ApplyMaterialRecursivement(murbas, _resWallMat);
         var murgauche = Instantiate(Mur, transform);
         murgauche.name = "MurGauche";
         murgauche.transform.localScale = new Vector3(lZ, hmur, Lmur);
         murgauche.transform.localPosition = new Vector3(0f, hmur / 2f, lZ / 2f);
         murgauche.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
+        ApplyMaterialRecursivement(murgauche, _resWallMat);
         var murhaut = Instantiate(Mur, transform);
         murhaut.name = "MurHaut";
         murhaut.transform.localScale = new Vector3(lX, hmur, Lmur);
         murhaut.transform.localPosition = new Vector3(lX / 2f, hmur / 2f, lZ);
+        ApplyMaterialRecursivement(murhaut, _resWallMat);
         var murdroit = Instantiate(Mur, transform);
         murdroit.name = "MurDroit";
         murdroit.transform.localScale = new Vector3(lZ, hmur, Lmur);
         murdroit.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
         murdroit.transform.localPosition = new Vector3(lX, hmur / 2f, lZ / 2f);
+        ApplyMaterialRecursivement(murdroit, _resWallMat);
+        Tilingdumaterial(murbas, tU, tV);
+        Tilingdumaterial(murdroit, tU, tV);
+        Tilingdumaterial(murgauche, tU, tV);
+        Tilingdumaterial(murhaut, tU, tV);
 
 
         int murChoisi = rnd.Next(0, 4); // 0=bas,1=haut,2=gauche,3=droit
@@ -93,11 +185,12 @@ public class RandomMurPorte : MonoBehaviour
             posPorte = new Vector3(lX, py + hporte / 2f, pz + lporte / 2f);
             scalePorte = new Vector3(Lporte, hporte, lporte);
         }
-        
+
         var portecreer = Instantiate(Porte, transform);
         portecreer.name = "PorteSortie";
         portecreer.transform.localScale = scalePorte;
         portecreer.transform.localPosition = posPorte;
+        ApplyMaterialRecursivement(portecreer, _resDoorMat);
     }
 
     // Update is called once per frame
