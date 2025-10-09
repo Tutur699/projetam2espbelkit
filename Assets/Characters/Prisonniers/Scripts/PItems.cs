@@ -28,18 +28,7 @@ public class PItems : MonoBehaviour
         }
 
     }
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0) && singleUse)
-        {
-            Use();
-        }
-        if (Input.GetMouseButton(0) && !singleUse)
-        {
-            Use();
-        }
-    }
-    void Use()
+    public void Use()
     {
         if (canUse)
         {
