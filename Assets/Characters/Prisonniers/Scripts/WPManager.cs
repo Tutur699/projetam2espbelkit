@@ -10,6 +10,19 @@ public class WPManager : MonoBehaviour
     [HideInInspector]
     public PItems selectedItems;
 
+    public void addItem(PItems newItem) //Méthode pour ajouter un item dans l'inventaire
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i] == null)
+            {
+                items[i] = newItem;
+                newItem.manager = this;
+                break;
+            }
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -30,33 +43,33 @@ public class WPManager : MonoBehaviour
         }
     }
 
-     /*// Update is called once per frame
-        /*void Update()
+    // Update is called once per frame
+    void Update()
+    {
+        //Select primary weapon when pressing 1
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            //Select primary weapon when pressing 1
-            if (Input.GetKeyDown(KeyCode.Alpha1))
+            items[0].ActivateWeapon(true);
+            selectedItems = items[0];
+            for (selectedItemIndex = 1; selectedItemIndex < items.Length; selectedItemIndex++)
             {
-             items[0].ActivateWeapon(true);
-                selectedItems = items[0];
-                for (selectedItemIndex = 1; selectedItemIndex < items.Length; selectedItemIndex++)
-                {
-                 items[selectedItemIndex].ActivateWeapon(false);
-                }
+                items[selectedItemIndex].ActivateWeapon(false);
             }
+        }
 
-            //Select secondary weapon when pressing 2
-            if (Input.GetKeyDown(KeyCode.Alpha2))
+        //Select secondary weapon when pressing 2
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            items[1].ActivateWeapon(true);
+            selectedItems = items[1];
+            items[0].ActivateWeapon(false);
+            for (selectedItemIndex = 2; selectedItemIndex < items.Length; selectedItemIndex++)
             {
-             items[1].ActivateWeapon(true);
-                selectedItems = items[1];
-             items[0].ActivateWeapon(false);
-                for (selectedItemIndex = 2; selectedItemIndex < items.Length; selectedItemIndex++)
-                {
-                 items[selectedItemIndex].ActivateWeapon(false);
-                }
+                items[selectedItemIndex].ActivateWeapon(false);
             }
+        }
             //Select third weapon when pressing 3
-            if (Input.GetKeyDown(KeyCode.Alpha3))
+            /*if (Input.GetKeyDown(KeyCode.Alpha3))
             {
              items[2].ActivateWeapon(true);
                 selectedItems = items[2];
@@ -90,6 +103,6 @@ public class WPManager : MonoBehaviour
                  items[selectedItemIndex].ActivateWeapon(false);
                 }
             }
-        }
-    }*/
+        }*/
     }
+}
