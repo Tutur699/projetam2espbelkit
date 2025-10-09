@@ -15,7 +15,7 @@ public class PlayerControler : MonoBehaviour
     // Mouvements
     public float moveSpeed = 2f;             // vitesse de déplacement
     public float mouseSensitivity = 1.5f;    // sensibilité souris (yaw/pitch)
-    public float desiredJumpHeight = 2.5f;   // hauteur de saut
+    public float desiredJumpHeight = 1.5f;   // hauteur de saut
 
     //Armes,items
     public WPManager wpManager;
@@ -28,6 +28,9 @@ public class PlayerControler : MonoBehaviour
 
     void Update()
     {
+        // Si déplacement désactivé, ne pas traiter la rotation ni le saut
+        if (!canMove) return;
+
         // --- Rotation du joueur (yaw) + de la caméra (pitch) avec la souris ---
         // (Garde Input.GetAxis si ton projet est en "Both" pour l'Input System)
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
@@ -59,6 +62,8 @@ public class PlayerControler : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!canMove) return;
+
         // --- Déplacement via Rigidbody, relatif à l'orientation du joueur/caméra ---
         // On transforme l'input local (x=right, z=forward) en direction monde selon le joueur
         Vector3 planarInput = new Vector3(direction.x, 0f, direction.z);
@@ -96,14 +101,17 @@ public class PlayerControler : MonoBehaviour
 
     private void OnMoveActionPerformed(InputAction.CallbackContext context)
     {
-        direction = context.ReadValue<Vector3>();
+        if (canMove)
+            direction = context.ReadValue<Vector3>();
+        else
+            direction = Vector3.zero;
     }
 
     private void OnMoveActionCanceled(InputAction.CallbackContext context)
     {
         direction = Vector3.zero;
     }
-    
+
     private void OnShootStarted(InputAction.CallbackContext context)
     {
         if (wpManager != null && wpManager.selectedItems != null)
@@ -145,4 +153,6 @@ public class PlayerControler : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
             isGrounded = false;
     }
+    
+    public bool canMove = true;
 }
