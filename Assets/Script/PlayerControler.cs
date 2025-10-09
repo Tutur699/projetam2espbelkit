@@ -9,11 +9,15 @@ public class PlayerControler : MonoBehaviour
 
     // Input
     public InputActionReference MoveAction;
+    public InputActionReference ShootAction;
 
     // Mouvements
     public float moveSpeed = 2f;             // vitesse de déplacement
     public float mouseSensitivity = 1.5f;    // sensibilité souris (yaw/pitch)
     public float desiredJumpHeight = 2.5f;   // hauteur de saut
+
+    //Armes,items
+    public WPManager wpManager;
 
     // Physique
     public Rigidbody rb;                     // drag ton Rigidbody ici dans l’inspector
@@ -68,6 +72,9 @@ public class PlayerControler : MonoBehaviour
         MoveAction.action.performed += OnMoveActionPerformed;
         MoveAction.action.canceled += OnMoveActionCanceled;
         MoveAction.action.Enable();
+
+        ShootAction.action.started += OnShootStarted;
+        ShootAction.action.Enable();
     }
 
     void OnDisable()
@@ -75,6 +82,9 @@ public class PlayerControler : MonoBehaviour
         MoveAction.action.performed -= OnMoveActionPerformed;
         MoveAction.action.canceled -= OnMoveActionCanceled;
         MoveAction.action.Disable();
+
+        ShootAction.action.started -= OnShootStarted;
+        ShootAction.action.Disable();
     }
 
     private void OnMoveActionPerformed(InputAction.CallbackContext context)
@@ -86,10 +96,18 @@ public class PlayerControler : MonoBehaviour
     {
         direction = Vector3.zero;
     }
+    
+    private void OnShootStarted(InputAction.CallbackContext context)
+    {
+        if (wpManager != null && wpManager.selectedItems != null)
+        {
+            wpManager.selectedItems.Use();
+        }
+    }
 
     private void Jump()
     {
-        float g  = -Physics.gravity.y;                 // gravité positive (~9.81)
+        float g = -Physics.gravity.y;                 // gravité positive (~9.81)
         float v0 = Mathf.Sqrt(2f * g * desiredJumpHeight);
 
         Vector3 v = rb.linearVelocity;                 // utiliser linearVelocity à la place de velocity
