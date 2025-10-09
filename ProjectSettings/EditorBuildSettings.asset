@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/ArthurTest.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
@@ -20,6 +20,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Menu.unity
     guid: 81aa85860700267428423bcad389c00a
+  - enabled: 1
+    path: Assets/Scenes/Terrain2.unity
+    guid: 961ae5f4cc554af4f9b0fc91d73658db
+  - enabled: 1
+    path: Assets/Scenes/Tutur.unity
+    guid: e4086f1bc1b13fa4d84f17eb361f9b9e
+  - enabled: 1
+    path: Assets/Scenes/Batiment.unity
+    guid: 18e189b02f7f3e24bb78f969bbcc9ffe
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 9e7be553448fa2546aea5752021cbcf7, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
