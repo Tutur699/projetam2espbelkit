@@ -10,6 +10,7 @@ public class PlayerControler : MonoBehaviour
     // Input
     public InputActionReference MoveAction;
     public InputActionReference ShootAction;
+    public InputActionReference SelectAction;
 
     // Mouvements
     public float moveSpeed = 2f;             // vitesse de déplacement
@@ -75,6 +76,9 @@ public class PlayerControler : MonoBehaviour
 
         ShootAction.action.started += OnShootStarted;
         ShootAction.action.Enable();
+
+        SelectAction.action.started += OnSelectStarted;
+        SelectAction.action.Enable();
     }
 
     void OnDisable()
@@ -85,6 +89,9 @@ public class PlayerControler : MonoBehaviour
 
         ShootAction.action.started -= OnShootStarted;
         ShootAction.action.Disable();
+
+        SelectAction.action.started -= OnSelectStarted;
+        SelectAction.action.Disable();
     }
 
     private void OnMoveActionPerformed(InputAction.CallbackContext context)
@@ -103,6 +110,16 @@ public class PlayerControler : MonoBehaviour
         {
             wpManager.selectedItems.Use();
         }
+    }
+
+    private void OnSelectStarted(InputAction.CallbackContext context)
+    {
+        /*int select = InputAction.ReadValue<int>();
+        if (wpManager != null && wpManager.selectedItems != null)
+        {
+            wpManager.SelectItems(select); // Select item based on input value
+        }*/
+
     }
 
     private void Jump()
