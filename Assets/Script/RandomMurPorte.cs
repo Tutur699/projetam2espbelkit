@@ -4,6 +4,19 @@ using System;
 public class RandomMurPorte : MonoBehaviour
 {
     //X ->, Y ^, Z <-
+    [Header("Fenêtre")]
+    public GameObject Fenetre;
+    public Material materialFenetre;
+    public bool loadWindowFromResources = false;
+    public string resourcesWindowPath = "WALL/MyWindow";
+
+    public float lfenetre = 2.0f;  
+    public float hfenetre = 1.5f;  
+    public float Lfenetre = 0.2f;  
+    public float margeFenetre = 0.5f;
+
+    [Range(0f,1f)] public float probaFenetre = 1f; // 1=toujours, 0.5=une fois sur deux
+
     [Header("Prefabs")]
     public GameObject Mur;
     public GameObject Porte; // porte
@@ -40,18 +53,31 @@ public class RandomMurPorte : MonoBehaviour
 
     private Material _resWallMat;
     private Material _resDoorMat;
+    private Material _resWindowMat;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         _resWallMat = EstMatOK();//évitez des répétitions
         _resDoorMat = ResolveDoorMaterial();
+        _resWindowMat = ResolveWindowMaterial();
         Build();
     }
 
     float MyRandom(System.Random r, float min, float max)
     {
         return min + (float)r.NextDouble() * (max - min);
+    }
+    Material ResolveWindowMaterial()
+    {
+        Material mat = materialFenetre;
+        if (loadWindowFromResources)
+        {
+            mat = Resources.Load<Material>(resourcesWindowPath);
+            if (mat == null)
+                Debug.LogError("[RandomMurPorte] Material fenêtre introuvable : " + resourcesWindowPath);
+        }
+        return mat;
     }
     Material EstMatOK()
     {
@@ -92,6 +118,51 @@ public class RandomMurPorte : MonoBehaviour
 
         return mat;
     }
+    // wallIndex : 0=bas (Z=0), 1=haut (Z=lZ), 2=gauche (X=0), 3=droit (X=lX)
+void ComputeOnWall(
+        int wallIndex, float lX, float lZ,
+        float largeur, float hauteur, float epaisseur, float marge,
+        out Vector3 pos, out Vector3 scale, out Quaternion rot)
+    {
+        float px, pz, py;
+        rot = Quaternion.identity;
+
+        switch (wallIndex)
+        {
+            case 0: // bas, le mur est horizontal le long de X, face vers -Z / +Z
+                px = MyRandom(rnd, marge, lX - (largeur + marge));
+                py = MyRandom(rnd, marge, hmur - (hauteur + marge));
+                pos = new Vector3(px + largeur/2f, py + hauteur/2f, 0f);
+                scale = new Vector3(largeur, hauteur, epaisseur);
+                rot   = Quaternion.identity;
+                break;
+
+            case 1: // haut
+                px = MyRandom(rnd, marge, lX - (largeur + marge));
+                py = MyRandom(rnd, marge, hmur - (hauteur + marge));
+                pos = new Vector3(px + largeur/2f, py + hauteur/2f, lZ);
+                scale = new Vector3(largeur, hauteur, epaisseur);
+                rot   = Quaternion.identity;
+                break;
+
+            case 2: // gauche (mur tourné 90°)
+                pz = MyRandom(rnd, marge, lZ - (largeur + marge));
+                py = MyRandom(rnd, marge, hmur - (hauteur + marge));
+                pos = new Vector3(0f, py + hauteur/2f, pz + largeur/2f);
+                scale = new Vector3(epaisseur, hauteur, largeur);
+                rot   = Quaternion.Euler(0f, 90f, 0f);
+                break;
+
+            default: // 3 droit
+                pz = MyRandom(rnd, marge, lZ - (largeur + marge));
+                py = MyRandom(rnd, marge, hmur - (hauteur + marge));
+                pos = new Vector3(lX, py + hauteur/2f, pz + largeur/2f);
+                scale = new Vector3(epaisseur, hauteur, largeur);
+                rot   = Quaternion.Euler(0f, 90f, 0f);
+                break;
+        }
+    }
+
 
     void Tilingdumaterial(GameObject go, float tilesParMetre_U, float tilesParMetre_V)
     {
@@ -191,9 +262,28 @@ public class RandomMurPorte : MonoBehaviour
         portecreer.transform.localScale = scalePorte;
         portecreer.transform.localPosition = posPorte;
         ApplyMaterialRecursivement(portecreer, _resDoorMat);
+
+        if (Fenetre != null && UnityEngine.Random.value <= probaFenetre)
+        {
+            int murPorte = murChoisi; // pour éviter chevauchement
+            int murFenetre = rnd.Next(0, 4);
+
+            float margeFenetreEffective =
+                (murFenetre == murPorte) ? Mathf.Max(margeFenetre, marge + lporte) : margeFenetre;
+
+            ComputeOnWall(murFenetre, lX, lZ, lfenetre, hfenetre, Lfenetre, margeFenetreEffective,
+                        out Vector3 posFen, out Vector3 scaleFen, out Quaternion rotFen);
+
+            var fen = Instantiate(Fenetre, transform);
+            fen.name = "Fenetre";
+            fen.transform.localScale    = scaleFen;
+            fen.transform.localPosition = posFen;
+            fen.transform.localRotation = rotFen;
+            ApplyMaterialRecursivement(fen, _resWindowMat);
+        }
     }
 
-    // Update is called once per frame
+        // Update is called once per frame
     void Update()
     {
         
