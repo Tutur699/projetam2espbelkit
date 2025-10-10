@@ -1,25 +1,28 @@
 using UnityEngine;
+using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class WPManager : MonoBehaviour
 {
     public const int MAXITEMS = 3;
     public Camera playerCamera;
-    public PItems[] items = new PItems[MAXITEMS];
+    public List<PItems> items = new List<PItems>(MAXITEMS);
     public int selectedItemIndex;
+
+    public Image[] itemIcons = new Image[5]; //Array to hold the UI icons for the items
+    public Image[] itemBackgrounds = new Image[5]; //Array to hold the UI backgrounds for the item icons
+    public Sprite defaultIcon; //Default icon to use when no item is equipped
+
 
     [HideInInspector]
     public PItems selectedItems;
 
     public void addItem(PItems newItem) //Méthode pour ajouter un item dans l'inventaire
     {
-        for (int i = 0; i < items.Length; i++)
+        if (items.Count < MAXITEMS)
         {
-            if (items[i] == null)
-            {
-                items[i] = newItem;
-                newItem.manager = this;
-                break;
-            }
+            items.Add(newItem);
+            newItem.manager = this;
         }
     }
 
@@ -27,32 +30,45 @@ public class WPManager : MonoBehaviour
     void Start()
     {
         //At the start we enable the primary weapon and disable the rest
-        for (selectedItemIndex = 0; selectedItemIndex < items.Length; selectedItemIndex++)
+        SelectItems(0);
+    }
+
+    public void Update() //Mise à jour de l'interface utilisateur
+    {
+        /*for (int i = 0; i < 5; i++)
         {
-            if (selectedItemIndex == 0)
+            if (i < items.Count && items[i] != null)
             {
-                items[selectedItemIndex].ActivateWeapon(true);
-                selectedItems = items[selectedItemIndex];
-                items[selectedItemIndex].manager = this;
+                itemIcons[i].sprite = items[i].icon;
+                itemIcons[i].enabled = true;
+                itemBackgrounds[i].enabled = true;
             }
             else
             {
-                items[selectedItemIndex].ActivateWeapon(false);
-                items[selectedItemIndex].manager = this;
+                itemIcons[i].sprite = defaultIcon;
+                itemIcons[i].enabled = false;
+                itemBackgrounds[i].enabled = false;
             }
-        }
+        }*/
     }
     public void SelectItems(int index) //Méthode pour sélectionner une arme dans l'inventaire
     {
-        if (index < items.Length && items[index] != null)
+        if (index < 0 || index >= items.Count)
+        {
+            Debug.LogWarning($"Index {index} invalide pour la liste d'items !");
+            return;
+        }
+        if (index >= 0 && index < items.Count && items[index] != null)
         {
             items[index].ActivateWeapon(true);
             selectedItems = items[index];
-            for (selectedItemIndex = 0; selectedItemIndex < items.Length; selectedItemIndex++)
+            selectedItemIndex = index;
+            //Désactivation des autres armes
+            for (int i = 0; i < items.Count; i++)
             {
-                if (selectedItemIndex != index && items[selectedItemIndex] != null)
+                if (i != index && items[i] != null)
                 {
-                    items[selectedItemIndex].ActivateWeapon(false);
+                    items[i].ActivateWeapon(false);
                 }
             }
         }
