@@ -1,10 +1,11 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class WPManager : MonoBehaviour
 {
     public const int MAXITEMS = 3;
     public Camera playerCamera;
-    public PItems[] items = new PItems[MAXITEMS];
+    public List<PItems> items = new List<PItems>(MAXITEMS);
     public int selectedItemIndex;
 
     [HideInInspector]
@@ -12,14 +13,10 @@ public class WPManager : MonoBehaviour
 
     public void addItem(PItems newItem) //Méthode pour ajouter un item dans l'inventaire
     {
-        for (int i = 0; i < items.Length; i++)
+        if (items.Count < MAXITEMS)
         {
-            if (items[i] == null)
-            {
-                items[i] = newItem;
-                newItem.manager = this;
-                break;
-            }
+            items.Add(newItem);
+            newItem.manager = this;
         }
     }
 
@@ -27,32 +24,26 @@ public class WPManager : MonoBehaviour
     void Start()
     {
         //At the start we enable the primary weapon and disable the rest
-        for (selectedItemIndex = 0; selectedItemIndex < items.Length; selectedItemIndex++)
-        {
-            if (selectedItemIndex == 0)
-            {
-                items[selectedItemIndex].ActivateWeapon(true);
-                selectedItems = items[selectedItemIndex];
-                items[selectedItemIndex].manager = this;
-            }
-            else
-            {
-                items[selectedItemIndex].ActivateWeapon(false);
-                items[selectedItemIndex].manager = this;
-            }
-        }
+        SelectItems(0);
     }
     public void SelectItems(int index) //Méthode pour sélectionner une arme dans l'inventaire
     {
-        if (index < items.Length && items[index] != null)
+        if (index < 0 || index >= items.Count)
+        {
+            Debug.LogWarning($"Index {index} invalide pour la liste d'items !");
+            return;
+        }
+        if (index >= 0 && index < items.Count && items[index] != null)
         {
             items[index].ActivateWeapon(true);
             selectedItems = items[index];
-            for (selectedItemIndex = 0; selectedItemIndex < items.Length; selectedItemIndex++)
+            selectedItemIndex = index;
+            //Désactivation des autres armes
+            for (int i = 0; i < items.Count; i++)
             {
-                if (selectedItemIndex != index && items[selectedItemIndex] != null)
+                if (i != index && items[i] != null)
                 {
-                    items[selectedItemIndex].ActivateWeapon(false);
+                    items[i].ActivateWeapon(false);
                 }
             }
         }
