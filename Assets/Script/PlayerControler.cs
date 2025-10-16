@@ -11,11 +11,17 @@ public class PlayerControler : MonoBehaviour
     public InputActionReference MoveAction;
     public InputActionReference ShootAction;
     public InputActionReference SelectAction;
-
+    public InputActionReference CrouchAction;
     // Mouvements
     public float moveSpeed = 2f;             // vitesse de déplacement
     public float mouseSensitivity = 1.5f;    // sensibilité souris (yaw/pitch)
     public float desiredJumpHeight = 1.5f;   // hauteur de saut
+
+    public bool isCrouching = false;
+    public float crouchHeight = 0.5f; // Hauteur du joueur en
+    public float originalCameraPos = 0.5f; // Décalage de la caméra en position accroupie
+    public float crouchSpeedMultiplier = 0.5f; // Multiplicateur de
+    
 
     //Armes,items
     public WPManager wpManager;
@@ -84,6 +90,10 @@ public class PlayerControler : MonoBehaviour
 
         SelectAction.action.started += OnSelectStarted;
         SelectAction.action.Enable();
+
+        CrouchAction.action.started += OnCrouchStarted;
+        CrouchAction.action.canceled += OnCrouchCanceled;
+        CrouchAction.action.Enable();
     }
 
     void OnDisable()
@@ -97,6 +107,10 @@ public class PlayerControler : MonoBehaviour
 
         SelectAction.action.started -= OnSelectStarted;
         SelectAction.action.Disable();
+
+        CrouchAction.action.started -= OnCrouchStarted;
+        CrouchAction.action.canceled -= OnCrouchCanceled;
+        CrouchAction.action.Disable();
     }
 
     private void OnMoveActionPerformed(InputAction.CallbackContext context)
@@ -177,6 +191,45 @@ public class PlayerControler : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
             isGrounded = false;
     }
+  private void OnCrouchStarted(InputAction.CallbackContext context)
+{
+    if (!isCrouching)
+    {
+        // Réduit la taille du joueur
+        transform.localScale = new Vector3(originalScale.x, originalScale.y * crouchHeight, originalScale.z);
+
+        // Descend la caméra
+        if (playerCamera != null)
+        {
+            playerCamera.transform.localPosition = originalCameraPos - new Vector3(0, crouchCameraOffset, 0);
+        }
+
+        // Réduit la vitesse
+        moveSpeed *= crouchSpeedMultiplier;
+        isCrouching = true;
+    }
+}
+
+private void OnCrouchCanceled(InputAction.CallbackContext context)
+{
+    if (isCrouching)
+    {
+        // Restaure la taille
+        transform.localScale = originalScale;
+
+        // Restaure la caméra
+        if (playerCamera != null)
+        {
+            playerCamera.transform.localPosition = originalCameraPos;
+        }
+
+        // Restaure la vitesse
+        moveSpeed = originalSpeed;
+        isCrouching = false;
+    }
+}
+  }
+
     
     public bool canMove = true;
 }
