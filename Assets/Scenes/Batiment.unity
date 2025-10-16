@@ -296,19 +296,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   selectedItemIndex: 0
-  itemIcons:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  itemBackgrounds:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  defaultIcon: {fileID: 0}
   selectedItems: {fileID: 0}
 --- !u!114 &195597379
 MonoBehaviour:
@@ -917,8 +904,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0292ddc9eda163d46ba5e91122e2dd0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RandomMurPorte
-  Fenetre: {fileID: 0}
-  materialFenetre: {fileID: 0}
+  Fenetre: {fileID: 238626634}
+  materialFenetre: {fileID: 2100000, guid: 574976fee50693d41ba6874e2ed24c9d, type: 2}
   loadWindowFromResources: 0
   resourcesWindowPath: WALL/MyWindow
   lfenetre: 2
@@ -929,7 +916,7 @@ MonoBehaviour:
   Mur: {fileID: 7909222129892080376, guid: 0b8e2248aa19c3d4da92dcab90cd2a6b, type: 3}
   Porte: {fileID: 6424270456704572960, guid: 214b673e61a328f4b97a4c1f1bba63d3, type: 3}
   materialMur: {fileID: 2100000, guid: e429c8ff9e485574b8aa09ee44b4da19, type: 2}
-  materialPorte: {fileID: 2100000, guid: b747383878001c94dbaf7aa522f19c05, type: 2}
+  materialPorte: {fileID: 2100000, guid: 6ab145d3c4567994b8cdd5490fcde60f, type: 2}
   resourcesWallPath: WALL/MyWall
   resourcesDoorPath: WALL/MyDoor
   loadWallFromResources: 0
@@ -941,6 +928,8 @@ MonoBehaviour:
   maxLongueurX: 30
   minLargeurZ: 8
   maxLargeurZ: 20
+  doorTargetScale: {x: 1.5, y: 1.5, z: 1.5}
+  autoFitOpeningToDoor: 1
   lporte: 2
   hporte: 3
   Lporte: 0.3
