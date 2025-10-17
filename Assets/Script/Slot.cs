@@ -5,12 +5,15 @@ using UnityEngine.EventSystems;
 
 public class Slot : MonoBehaviour, IDropHandler
 {
+    public int slotID;
+    public WPManager manager;
     public void OnDrop(PointerEventData eventData)
     {
         if (transform.childCount == 0)
         {
-            InventoryItem item = eventData.pointerDrag.GetComponent<InventoryItem>();
-            item.parentAfterDrag = transform;
+            InventoryItem itemUI = eventData.pointerDrag.GetComponent<InventoryItem>();
+            itemUI.parentAfterDrag = transform;
         }
     }
+
 }
