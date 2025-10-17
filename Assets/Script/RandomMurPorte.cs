@@ -14,7 +14,19 @@ public class RandomMurPorte : MonoBehaviour
     public float hfenetre = 1.5f;              // hauteur ouverture
     public float Lfenetre = 0.2f;              // épaisseur du visuel fenêtre
     public float margeFenetre = 0.5f;          // marge latérale / verticale
-    [Range(0f,1f)] public float probaFenetre = 1f; // 1=toujours
+    [Range(0f, 1f)] public float probaFenetre = 1f; // 1=toujours
+    [Range(0,4)] public int nombreFenetres = 1;     // nb de fenêtres à créer (1 max par face)
+
+    [Header("Placement manuel")]
+    [Tooltip("Si false, le mur est choisi aléatoirement.")]
+    public bool choisirMurManuellement = false;
+
+    [Tooltip("0 = bas, 1 = haut, 2 = gauche, 3 = droit")]
+    [Range(0,3)] public int murPorteManuel = 0;
+
+    [Tooltip("0 = bas, 1 = haut, 2 = gauche, 3 = droit")]
+    [Range(0,3)] public int murFenetreManuel = 1;
+
 
     
     [Header("Prefabs")]
@@ -311,7 +323,13 @@ public class RandomMurPorte : MonoBehaviour
         float offsetZ = (Lmur - doorDepthOnZ_local) * 0.5f;
 
 
-        int murPorte = rnd.Next(0, 4); // 0=bas,1=haut,2=gauche,3=droit
+        int murPorte;
+        if (choisirMurManuellement)
+        {
+            murPorte = murPorteManuel;
+        } else {
+            murPorte = rnd.Next(0, 4); // aléatoire
+        }
         float p_xMin=0, p_xMax=0, p_yMin=0, p_yMax=0; // pour murs X
         float p_zMin=0, p_zMax=0;                      // pour murs Z
 
@@ -334,87 +352,119 @@ public class RandomMurPorte : MonoBehaviour
         }
 
 
-        // FENÊTRE
+        // ======== FENÊTRES MULTIPLES ========
+        // On tire jusqu'à 'nombreFenetres' faces distinctes (0=bas,1=haut,2=gauche,3=droit)
         bool placeFenetre = (Fenetre != null) && UnityEngine.Random.value <= probaFenetre;
-        int murFenetre = -1;
-        float f_xMin=0, f_xMax=0, f_yMin=0, f_yMax=0;
-        float f_zMin=0, f_zMax=0;
+        bool[] hasWindow = new bool[4];
+        float[] f_xMin = new float[4], f_xMax = new float[4], f_yMin = new float[4], f_yMax = new float[4];
+        float[] f_zMin = new float[4], f_zMax = new float[4];
 
-        if (placeFenetre)
+        // liste de faces candidates
+        System.Collections.Generic.List<int> faces = new System.Collections.Generic.List<int>(){0,1,2,3};
+        // On mélange / pioche 'nombreFenetres' faces (sans exclure la face de la porte)
+        int toPick = Mathf.Clamp(nombreFenetres, 0, 4);
+        for (int k=0; k<toPick && faces.Count>0; k++)
         {
-            murFenetre = rnd.Next(0, 4);
-            if (murFenetre == murPorte) murFenetre = (murFenetre + 1) % 4;
+            int idx = rnd.Next(0, faces.Count);
+            int face = faces[idx];
+            faces.RemoveAt(idx);
 
-            if (murFenetre == 0 || murFenetre == 1) // murs X
+            hasWindow[face] = placeFenetre; // selon proba globale
+
+            if (!hasWindow[face]) continue;
+
+            // Position aléatoire, en évitant la superposition avec la porte si même face
+            const int MAX_TRY = 12;
+            int tries = 0;
+            if (face == 0 || face == 1) // murs X
             {
-                float fx = RandomRange(margeFenetre, lX - (lfenetre + margeFenetre));
-                float fy = RandomRange(1.0f, hmur - (hfenetre + 0.5f));
-                f_xMin = fx;
-                f_xMax = fx + lfenetre;
-                f_yMin = fy;
-                f_yMax = fy + hfenetre;
+                // si même face que la porte, on force la fenêtre AU-DESSUS de la porte pour ne jamais croiser
+                float yMinLocal = (face == murPorte) ? Mathf.Min(hmur - (hfenetre + 0.1f), doorHeight + 0.1f) : 1.0f;
+                float yMaxLocal = hmur - (hfenetre + 0.5f);
+                // fallback si hmur trop bas
+                if (yMaxLocal < yMinLocal) { yMinLocal = 1.0f; yMaxLocal = Mathf.Max(1.0f, hmur - (hfenetre + 0.5f)); }
+
+                float fx=0;
+                do
+                {
+                    fx = RandomRange(margeFenetre, lX - (lfenetre + margeFenetre));
+                    // si même face que porte, éviter chevauchement horizontal aussi (au cas où porte très haute)
+                    tries++;
+                } while (face == murPorte && !(fx + lfenetre <= p_xMin || fx >= p_xMax) && tries < MAX_TRY);
+
+                float fy = RandomRange(yMinLocal, Mathf.Max(yMinLocal+0.001f, yMaxLocal));
+                f_xMin[face] = fx; f_xMax[face] = fx + lfenetre;
+                f_yMin[face] = fy; f_yMax[face] = fy + hfenetre;
             }
             else // murs Z
             {
-                float fz = RandomRange(margeFenetre, lZ - (lfenetre + margeFenetre));
-                float fy = RandomRange(1.0f, hmur - (hfenetre + 0.5f));
-                f_zMin = fz;
-                f_zMax = fz + lfenetre;
-                f_yMin = fy;
-                f_yMax = fy + hfenetre;
+                float yMinLocal = (face == murPorte) ? Mathf.Min(hmur - (hfenetre + 0.1f), doorHeight + 0.1f) : 1.0f;
+                float yMaxLocal = hmur - (hfenetre + 0.5f);
+                if (yMaxLocal < yMinLocal) { yMinLocal = 1.0f; yMaxLocal = Mathf.Max(1.0f, hmur - (hfenetre + 0.5f)); }
+
+                float fz=0;
+                do
+                {
+                    fz = RandomRange(margeFenetre, lZ - (lfenetre + margeFenetre));
+                    tries++;
+                } while (face == murPorte && !(fz + lfenetre <= p_zMin || fz >= p_zMax) && tries < MAX_TRY);
+
+                float fy = RandomRange(yMinLocal, Mathf.Max(yMinLocal+0.001f, yMaxLocal));
+                f_zMin[face] = fz; f_zMax[face] = fz + lfenetre;
+                f_yMin[face] = fy; f_yMax[face] = fy + hfenetre;
             }
         }
 
         // Mur BAS (z=0) – aligné X (face extérieure en +Z)
-        bool holeOnBas = (murPorte == 0) || (placeFenetre && murFenetre == 0);
+        bool holeOnBas = (murPorte == 0) || hasWindow[0];
         BuildXWallWithOpening(
             "MurBas",
             +Lmur * 0.5f,
             lX, hmur, Lmur,
             holeOnBas,
-            (murPorte==0)?p_xMin:f_xMin,
-            (murPorte==0)?p_xMax:f_xMax,
-            (murPorte==0)?p_yMin:f_yMin,
-            (murPorte==0)?p_yMax:f_yMax
+            (murPorte==0)?p_xMin:f_xMin[0],
+            (murPorte==0)?p_xMax:f_xMax[0],
+            (murPorte==0)?p_yMin:f_yMin[0],
+            (murPorte==0)?p_yMax:f_yMax[0]
         );
 
         // Mur HAUT (z=lZ) – aligné X (face extérieure en -Z, mais on garde repère cohérent)
-        bool holeOnHaut = (murPorte == 1) || (placeFenetre && murFenetre == 1);
+        bool holeOnHaut = (murPorte == 1) || hasWindow[1];
         BuildXWallWithOpening(
             "MurHaut",
             lZ - Lmur * 0.5f,
             lX, hmur, Lmur,
             holeOnHaut,
-            (murPorte==1)?p_xMin:f_xMin,
-            (murPorte==1)?p_xMax:f_xMax,
-            (murPorte==1)?p_yMin:f_yMin,
-            (murPorte==1)?p_yMax:f_yMax
+            (murPorte==1)?p_xMin:f_xMin[1],
+            (murPorte==1)?p_xMax:f_xMax[1],
+            (murPorte==1)?p_yMin:f_yMin[1],
+            (murPorte==1)?p_yMax:f_yMax[1]
         );
 
         // Mur GAUCHE (x=0) – aligné Z (face extérieure en +X)
-        bool holeOnGauche = (murPorte == 2) || (placeFenetre && murFenetre == 2);
+        bool holeOnGauche = (murPorte == 2) || hasWindow[2];
         BuildZWallWithOpening(
             "MurGauche",
             +Lmur * 0.5f,
             lZ, hmur, Lmur,
             holeOnGauche,
-            (murPorte==2)?p_zMin:f_zMin,
-            (murPorte==2)?p_zMax:f_zMax,
-            (murPorte==2)?p_yMin:f_yMin,
-            (murPorte==2)?p_yMax:f_yMax
+            (murPorte==2)?p_zMin:f_zMin[2],
+            (murPorte==2)?p_zMax:f_zMax[2],
+            (murPorte==2)?p_yMin:f_yMin[2],
+            (murPorte==2)?p_yMax:f_yMax[2]
         );
 
         // Mur DROIT (x=lX) – aligné Z (face extérieure en -X)
-        bool holeOnDroit = (murPorte == 3) || (placeFenetre && murFenetre == 3);
+        bool holeOnDroit = (murPorte == 3) || hasWindow[3];
         BuildZWallWithOpening(
             "MurDroit",
             lX - Lmur * 0.5f,
             lZ, hmur, Lmur,
             holeOnDroit,
-            (murPorte==3)?p_zMin:f_zMin,
-            (murPorte==3)?p_zMax:f_zMax,
-            (murPorte==3)?p_yMin:f_yMin,
-            (murPorte==3)?p_yMax:f_yMax
+            (murPorte==3)?p_zMin:f_zMin[3],
+            (murPorte==3)?p_zMax:f_zMax[3],
+            (murPorte==3)?p_yMin:f_yMin[3],
+            (murPorte==3)?p_yMax:f_yMax[3]
         );
 
         // Porte affleurante à la face extérieure
@@ -448,34 +498,35 @@ public class RandomMurPorte : MonoBehaviour
         }
 
 
-        // Fenêtre visuelle (si prefab fourni)
-        if (placeFenetre)
+        // Fenêtres visuelles (0..4 selon hasWindow)
+        for (int face = 0; face < 4; face++)
         {
+            if (!hasWindow[face]) continue;
             var f = Instantiate(Fenetre, transform);
             ApplyMaterialRecursivement(f, _resWindowMat);
 
-            if (murFenetre == 0)
+            if (face == 0)
             {
-                f.transform.localPosition = new Vector3((f_xMin+f_xMax)/2f, (f_yMin+f_yMax)/2f, +Lmur*0.5f);
-                f.transform.localRotation = Quaternion.Euler(0, 90, 0);
+                f.transform.localPosition = new Vector3((f_xMin[0]+f_xMax[0])/2f, (f_yMin[0]+f_yMax[0])/2f, +Lmur*0.5f);
+                f.transform.localRotation = Quaternion.Euler(0, 0, 0);
                 f.transform.localScale    = new Vector3(lfenetre, hfenetre, Lfenetre);
             }
-            else if (murFenetre == 1)
+            else if (face == 1)
             {
-                f.transform.localPosition = new Vector3((f_xMin+f_xMax)/2f, (f_yMin+f_yMax)/2f, lZ - Lmur*0.5f);
-                f.transform.localRotation = Quaternion.Euler(0, 90, 0);
+                f.transform.localPosition = new Vector3((f_xMin[1]+f_xMax[1])/2f, (f_yMin[1]+f_yMax[1])/2f, lZ - Lmur*0.5f);
+                f.transform.localRotation = Quaternion.Euler(0, 0, 0);
                 f.transform.localScale    = new Vector3(lfenetre, hfenetre, Lfenetre);
             }
-            else if (murFenetre == 2)
+            else if (face == 2)
             {
-                f.transform.localPosition = new Vector3(+Lmur*0.5f, (f_yMin+f_yMax)/2f, (f_zMin+f_zMax)/2f);
-                f.transform.localRotation = Quaternion.identity;
+                f.transform.localPosition = new Vector3(+Lmur*0.5f, (f_yMin[2]+f_yMax[2])/2f, (f_zMin[2]+f_zMax[2])/2f);
+                f.transform.localRotation = Quaternion.Euler(0, 0, 0);
                 f.transform.localScale    = new Vector3(Lfenetre, hfenetre, lfenetre);
             }
-            else // 3
+            else // face == 3
             {
-                f.transform.localPosition = new Vector3(lX - Lmur*0.5f, (f_yMin+f_yMax)/2f, (f_zMin+f_zMax)/2f);
-                f.transform.localRotation = Quaternion.identity;
+                f.transform.localPosition = new Vector3(lX - Lmur*0.5f, (f_yMin[3]+f_yMax[3])/2f, (f_zMin[3]+f_zMax[3])/2f);
+                f.transform.localRotation = Quaternion.Euler(0, 0, 0);
                 f.transform.localScale    = new Vector3(Lfenetre, hfenetre, lfenetre);
             }
         }
