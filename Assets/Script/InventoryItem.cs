@@ -13,10 +13,6 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     public void InitializeItem(Items newItem)
     {
         item = newItem;
-        if (itemImage == null)
-        {
-            itemImage = GetComponent<Image>();
-        }
         itemImage.sprite = newItem.image;   
 
     }
