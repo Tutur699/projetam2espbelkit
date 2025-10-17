@@ -499,13 +499,13 @@ public class RandomMurPorte : MonoBehaviour
             if (face == 0)
             {
                 f.transform.localPosition = new Vector3((f_xMin[0]+f_xMax[0])/2f, (f_yMin[0]+f_yMax[0])/2f, +Lmur*0.5f);
-                f.transform.localRotation = Quaternion.Euler(0, 90, 0); // fenêtre parallèle au mur X
+                f.transform.localRotation = Quaternion.Euler(0, 0, 0); // fenêtre parallèle au mur X
                 f.transform.localScale    = new Vector3(lfenetre, hfenetre, Lfenetre);
             }
             else if (face == 1)
             {
                 f.transform.localPosition = new Vector3((f_xMin[1]+f_xMax[1])/2f, (f_yMin[1]+f_yMax[1])/2f, lZ - Lmur*0.5f);
-                f.transform.localRotation = Quaternion.Euler(0, 90, 0); // fenêtre parallèle au mur X
+                f.transform.localRotation = Quaternion.Euler(0, 0, 0); // fenêtre parallèle au mur X
                 f.transform.localScale    = new Vector3(lfenetre, hfenetre, Lfenetre);
             }
             else if (face == 2)
