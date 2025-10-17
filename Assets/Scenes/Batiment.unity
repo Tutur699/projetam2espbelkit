@@ -291,10 +291,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WPManager
   playerCamera: {fileID: 147066801}
-  items:
-  - {fileID: 199446988}
-  - {fileID: 0}
-  - {fileID: 0}
+  slots: []
+  slotPrefab: {fileID: 0}
   selectedItemIndex: 0
   selectedItems: {fileID: 0}
 --- !u!114 &195597379
@@ -359,9 +357,14 @@ MonoBehaviour:
   MoveAction: {fileID: 3510894254208987783, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
   ShootAction: {fileID: -3149254764556580390, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
   SelectAction: {fileID: 0}
+  CrouchAction: {fileID: 0}
   moveSpeed: 5
   mouseSensitivity: 1.5
   desiredJumpHeight: 1.5
+  isCrouching: 0
+  crouchHeight: 0.5
+  originalCameraPos: 0.5
+  crouchSpeedMultiplier: 0.5
   wpManager: {fileID: 195597378}
   rb: {fileID: 195597382}
   canMove: 1
@@ -438,9 +441,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PItems
   item: {fileID: 199446987}
-  singleUse: 0
-  useRate: 0.1
-  weaponDamage: 5
   HitPoint: {fileID: 0}
   manager: {fileID: 0}
 --- !u!4 &199446989
@@ -913,6 +913,11 @@ MonoBehaviour:
   Lfenetre: 0.2
   margeFenetre: 0.5
   probaFenetre: 1
+  nombreFenetres: 3
+  hauteurBasFenetre: 1.2
+  choisirMurManuellement: 1
+  murPorteManuel: 0
+  murFenetreManuel: 3
   Mur: {fileID: 7909222129892080376, guid: 0b8e2248aa19c3d4da92dcab90cd2a6b, type: 3}
   Porte: {fileID: 6424270456704572960, guid: 214b673e61a328f4b97a4c1f1bba63d3, type: 3}
   materialMur: {fileID: 2100000, guid: e429c8ff9e485574b8aa09ee44b4da19, type: 2}
