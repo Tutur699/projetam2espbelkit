@@ -7,8 +7,11 @@ public class Items : ScriptableObject
 {
     [Header("Item Properties")]
     public itemType type;
-    public Sprite icon;
+    public ActionType action;
+    public Sprite image;
     public bool isDefaultItem = false;
+    public bool isStackable = true;
 
 }
-public enum itemType { Fork, Knife, Gun};
+public enum itemType {Fork, Knife, Gun};
+public enum ActionType {Attack, Utility};

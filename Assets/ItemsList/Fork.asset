@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Items
   type: 0
   icon: {fileID: 0}
-  isDefaultItem: 0
+  isDefaultItem: 1

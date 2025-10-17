@@ -457,25 +457,25 @@ public class RandomMurPorte : MonoBehaviour
             if (murFenetre == 0)
             {
                 f.transform.localPosition = new Vector3((f_xMin+f_xMax)/2f, (f_yMin+f_yMax)/2f, +Lmur*0.5f);
-                f.transform.localRotation = Quaternion.identity;
+                f.transform.localRotation = Quaternion.Euler(0, 90, 0);
                 f.transform.localScale    = new Vector3(lfenetre, hfenetre, Lfenetre);
             }
             else if (murFenetre == 1)
             {
                 f.transform.localPosition = new Vector3((f_xMin+f_xMax)/2f, (f_yMin+f_yMax)/2f, lZ - Lmur*0.5f);
-                f.transform.localRotation = Quaternion.identity;
+                f.transform.localRotation = Quaternion.Euler(0, 90, 0);
                 f.transform.localScale    = new Vector3(lfenetre, hfenetre, Lfenetre);
             }
             else if (murFenetre == 2)
             {
                 f.transform.localPosition = new Vector3(+Lmur*0.5f, (f_yMin+f_yMax)/2f, (f_zMin+f_zMax)/2f);
-                f.transform.localRotation = Quaternion.Euler(0, 90, 0);
+                f.transform.localRotation = Quaternion.identity;
                 f.transform.localScale    = new Vector3(Lfenetre, hfenetre, lfenetre);
             }
             else // 3
             {
                 f.transform.localPosition = new Vector3(lX - Lmur*0.5f, (f_yMin+f_yMax)/2f, (f_zMin+f_zMax)/2f);
-                f.transform.localRotation = Quaternion.Euler(0, 90, 0);
+                f.transform.localRotation = Quaternion.identity;
                 f.transform.localScale    = new Vector3(Lfenetre, hfenetre, lfenetre);
             }
         }
