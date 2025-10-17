@@ -91,9 +91,9 @@ public class PlayerControler : MonoBehaviour
         SelectAction.action.started += OnSelectStarted;
         SelectAction.action.Enable();
 
-        CrouchAction.action.started += OnCrouchStarted;
+       /* CrouchAction.action.started += OnCrouchStarted;
         CrouchAction.action.canceled += OnCrouchCanceled;
-        CrouchAction.action.Enable();
+        CrouchAction.action.Enable(); */
     }
 
     void OnDisable()
@@ -108,9 +108,9 @@ public class PlayerControler : MonoBehaviour
         SelectAction.action.started -= OnSelectStarted;
         SelectAction.action.Disable();
 
-        CrouchAction.action.started -= OnCrouchStarted;
+        /*CrouchAction.action.started -= OnCrouchStarted;
         CrouchAction.action.canceled -= OnCrouchCanceled;
-        CrouchAction.action.Disable();
+        CrouchAction.action.Disable();*/
     }
 
     private void OnMoveActionPerformed(InputAction.CallbackContext context)
@@ -191,7 +191,7 @@ public class PlayerControler : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
             isGrounded = false;
     }
-  private void OnCrouchStarted(InputAction.CallbackContext context)
+/*  private void OnCrouchStarted(InputAction.CallbackContext context)
 {
     if (!isCrouching)
     {
@@ -208,9 +208,9 @@ public class PlayerControler : MonoBehaviour
         moveSpeed *= crouchSpeedMultiplier;
         isCrouching = true;
     }
-}
+}*/
 
-private void OnCrouchCanceled(InputAction.CallbackContext context)
+/*private void OnCrouchCanceled(InputAction.CallbackContext context)
 {
     if (isCrouching)
     {
@@ -227,8 +227,7 @@ private void OnCrouchCanceled(InputAction.CallbackContext context)
         moveSpeed = originalSpeed;
         isCrouching = false;
     }
-}
-  }
+}*/
 
     
     public bool canMove = true;
