@@ -8,19 +8,19 @@ public class WPManager : MonoBehaviour
     public Camera playerCamera;
 
     private List<PItems> pItems = new List<PItems>(MAXITEMS); //List of PItems (the actual item objects in the scene)
-    public int selectedItemIndex;
+    
     [Header("Inventory UI")]
     public List<Slot> slots = new List<Slot>(MAXITEMS); //List of items(Scriptable Objects)
     public GameObject slotPrefab;
-    [HideInInspector]
-    public PItems selectedItems;
+    [HideInInspector] public int selectedItemIndex;
+    [HideInInspector] public PItems selectedItems;
 
-    public void addItem(Items newItem,PItems newItem3D) //Méthode pour ajouter un item dans l'inventaire
+    public bool addItem(Items newItem,PItems newItem3D) //Méthode pour ajouter un item dans l'inventaire
     {
         if (pItems.Count >= MAXITEMS)
         {
             Debug.LogWarning("Inventaire plein !");
-            return;
+            return false;
         }
         pItems.Add(newItem3D);
         newItem3D.manager = this;
@@ -33,10 +33,10 @@ public class WPManager : MonoBehaviour
                 InventoryItem invItem = newPItems.GetComponent<InventoryItem>();
                 invItem.InitializeItem(newItem);
                 invItem.itemImage.raycastTarget = true;
-                break;
+                return true;
             }
         }
-
+        return false;
     }
 
     // Start is called before the first frame update

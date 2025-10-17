@@ -1075,9 +1075,14 @@ MonoBehaviour:
   MoveAction: {fileID: 3510894254208987783, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
   ShootAction: {fileID: -3149254764556580390, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
   SelectAction: {fileID: -1195065267834298981, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
+  CrouchAction: {fileID: 0}
   moveSpeed: 10
   mouseSensitivity: 4
   desiredJumpHeight: 2.5
+  isCrouching: 0
+  crouchHeight: 0.5
+  originalCameraPos: 0.5
+  crouchSpeedMultiplier: 0.5
   wpManager: {fileID: 1731992201}
   rb: {fileID: 1110726096}
   canMove: 1
@@ -1694,7 +1699,7 @@ MonoBehaviour:
   - {fileID: 1696559020}
   - {fileID: 1284922300}
   - {fileID: 1585903569}
-  slotPrefab: {fileID: 0}
+  slotPrefab: {fileID: 688619254099043799, guid: f57fea9bf02de104f8952db084d45b54, type: 3}
   selectedItems: {fileID: 0}
 --- !u!1 &1831715974
 GameObject:
