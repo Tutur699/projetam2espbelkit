@@ -296,6 +296,19 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   selectedItemIndex: 0
+  itemIcons:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  itemBackgrounds:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  defaultIcon: {fileID: 0}
   selectedItems: {fileID: 0}
 --- !u!114 &195597379
 MonoBehaviour:
@@ -359,7 +372,7 @@ MonoBehaviour:
   MoveAction: {fileID: 3510894254208987783, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
   ShootAction: {fileID: -3149254764556580390, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
   SelectAction: {fileID: 0}
-  moveSpeed: 2
+  moveSpeed: 5
   mouseSensitivity: 1.5
   desiredJumpHeight: 1.5
   wpManager: {fileID: 195597378}
