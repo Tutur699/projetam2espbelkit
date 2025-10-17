@@ -3,7 +3,7 @@ using UnityEngine;
 public class Interactor : MonoBehaviour
 {
     public WPManager wpManager;
-    private float interactionRange = 3f;
+    //private float interactionRange = 3f;
     Interactable currentInteractable;
     private Vector3 _raycastOffset = new Vector3(0, 1f, 0);
 
@@ -21,7 +21,7 @@ public class Interactor : MonoBehaviour
         }
     }*/
 
-    void checkInteraction()
+    /*void checkInteraction()
     {
         RaycastHit hitInfo;
         Ray ray = new Ray(transform.position + _raycastOffset, transform.forward);
@@ -79,5 +79,5 @@ public class Interactor : MonoBehaviour
             currentInteractable.DisableOutline();
             currentInteractable = null;
         }
-    }
+    }*/
 }

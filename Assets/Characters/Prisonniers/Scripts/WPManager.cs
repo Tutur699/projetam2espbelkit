@@ -6,19 +6,37 @@ public class WPManager : MonoBehaviour
 {
     public const int MAXITEMS = 3;
     public Camera playerCamera;
-    public List<PItems> items = new List<PItems>(MAXITEMS);
-    public int selectedItemIndex;
 
+    private List<PItems> pItems = new List<PItems>(MAXITEMS); //List of PItems (the actual item objects in the scene)
+    public int selectedItemIndex;
+    [Header("Inventory UI")]
+    public List<Slot> slots = new List<Slot>(MAXITEMS); //List of items(Scriptable Objects)
+    public GameObject slotPrefab;
     [HideInInspector]
     public PItems selectedItems;
 
-    public void addItem(PItems newItem) //Méthode pour ajouter un item dans l'inventaire
+    public void addItem(Items newItem,PItems newItem3D) //Méthode pour ajouter un item dans l'inventaire
     {
-        if (items.Count < MAXITEMS)
+        if (pItems.Count >= MAXITEMS)
         {
-            items.Add(newItem);
-            newItem.manager = this;
+            Debug.LogWarning("Inventaire plein !");
+            return;
         }
+        pItems.Add(newItem3D);
+        newItem3D.manager = this;
+        newItem3D.ActivateWeapon(false);
+        foreach (Slot slot in slots)
+        {
+            if (slot.transform.childCount == 0)
+            {
+                GameObject newPItems = Instantiate(slotPrefab, slot.transform);
+                InventoryItem invItem = newPItems.GetComponent<InventoryItem>();
+                invItem.InitializeItem(newItem);
+                invItem.itemImage.raycastTarget = true;
+                break;
+            }
+        }
+
     }
 
     // Start is called before the first frame update
@@ -30,22 +48,22 @@ public class WPManager : MonoBehaviour
 
     public void SelectItems(int index) //Méthode pour sélectionner une arme dans l'inventaire
     {
-        if (index < 0 || index >= items.Count)
+        if (index < 0 || index >= pItems.Count)
         {
             Debug.LogWarning($"Index {index} invalide pour la liste d'items !");
             return;
         }
-        if (index >= 0 && index < items.Count && items[index] != null)
+        if (index >= 0 && index < pItems.Count && pItems[index] != null)
         {
-            items[index].ActivateWeapon(true);
-            selectedItems = items[index];
+            pItems[index].ActivateWeapon(true);
+            selectedItems = pItems[index];
             selectedItemIndex = index;
             //Désactivation des autres armes
-            for (int i = 0; i < items.Count; i++)
+            for (int i = 0; i < pItems.Count; i++)
             {
-                if (i != index && items[i] != null)
+                if (i != index && pItems[i] != null)
                 {
-                    items[i].ActivateWeapon(false);
+                    pItems[i].ActivateWeapon(false);
                 }
             }
         }

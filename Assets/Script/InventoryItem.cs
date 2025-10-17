@@ -10,12 +10,13 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     [HideInInspector]public Image itemImage;
     [HideInInspector]public Transform parentAfterDrag;
     // Start is called before the first frame update
-    void Start()
-    {
-        InitializeItem(item);   
-    }
     public void InitializeItem(Items newItem)
     {
+        item = newItem;
+        if (itemImage == null)
+        {
+            itemImage = GetComponent<Image>();
+        }
         itemImage.sprite = newItem.image;   
 
     }
