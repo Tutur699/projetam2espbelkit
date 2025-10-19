@@ -15,7 +15,19 @@ public class WPManager : MonoBehaviour
     [HideInInspector] public int selectedItemIndex;
     [HideInInspector] public PItems selectedItems;
 
-    public bool addItem(Items newItem,PItems newItem3D) //Méthode pour ajouter un item dans l'inventaire
+    int selectedSlot = -1;
+
+    void ChangeSelectedSlot(int newIndex)
+    {
+        if (selectedSlot >= 0 && selectedSlot < slots.Count)
+        {
+            slots[selectedSlot].Deselect();
+        }
+        slots[newIndex].Select();
+        selectedSlot = newIndex;
+    }
+
+    public bool AddItem(Items newItem,PItems newItem3D) //Méthode pour ajouter un item dans l'inventaire
     {
         if (pItems.Count >= MAXITEMS)
         {

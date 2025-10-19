@@ -114,6 +114,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b527c677b8323304c8ed023751f18f48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  slotImage: {fileID: 3845518928000477145}
+  selectedColor: {r: 1, g: 1, b: 1, a: 0}
+  normalColor: {r: 0.21960786, g: 0.21960786, b: 0.21960786, a: 0}
+  slotID: 0
+  manager: {fileID: 0}
 --- !u!1001 &1593201058738650087
 PrefabInstance:
   m_ObjectHideFlags: 0
