@@ -45,7 +45,6 @@ public class RandomMurPorte : MonoBehaviour
     public bool loadWallFromResources = false;
     public bool loadDoorFromResources = false;
 
-    // === Paramètres mur / bâtiment =========================================
     [Header("Mur")]
     public float hmur = 5f;       // hauteur des murs
     public float Lmur = 0.5f;     // épaisseur des murs
@@ -69,16 +68,37 @@ public class RandomMurPorte : MonoBehaviour
     public float Lporte = 0.3f;   // épaisseur du visuel porte
     public float marge  = 0.5f;   // marge latérale / verticale
 
+    [Header("Toit - pignon (triangle)")]
+    [Tooltip("Active le toit en triangle (pignon) au lieu de la dalle plate.")]
+    public bool useGableRoof = true;
+
+    [Tooltip("Hauteur supplémentaire entre le haut des murs et le faîtage.")]
+    public float roofHeight = 1.2f;
+
+    [Tooltip("Débord du toit en X (pignons) et en Z (égouts).")]
+    public float roofOverhang = 0.4f;
+
+    [Tooltip("Épaisseur visuelle de chaque pan de toit.")]
+    public float roofThickness = 0.2f;
+
+    [Tooltip("Matériau du toit (si nul, matérial mur par défaut).")]
+    public Material materialToit;
+
+    public bool loadRoofFromResources = false;
+    public string resourcesRoofPath = "WALL/MyRoof";
+
     
     private Material _resWallMat;
     private Material _resDoorMat;
     private Material _resWindowMat;
+    private Material _resRoofMat;
 
     void Start()
     {
         _resWallMat   = ResolveWallMaterial();
         _resDoorMat   = ResolveDoorMaterial();
         _resWindowMat = ResolveWindowMaterial();
+        _resRoofMat   = ResolveRoofMaterial();
         Build();
     }
 
@@ -120,6 +140,17 @@ public class RandomMurPorte : MonoBehaviour
             if (mat == null) Debug.LogError("[RandomMurPorte] Matériau fenêtre introuvable: " + resourcesWindowPath);
         }
         return mat;
+    }
+
+    Material ResolveRoofMaterial()
+    {
+        Material mat = materialToit;
+        if (loadRoofFromResources)
+        {
+            mat = Resources.Load<Material>(resourcesRoofPath);
+            if (mat == null) Debug.LogError("[RandomMurPorte] Matériau toit introuvable: " + resourcesRoofPath);
+        }
+        return mat != null ? mat : _resWallMat;
     }
 
     void ApplyMaterialRecursivement(GameObject go, Material mat)
@@ -190,6 +221,18 @@ public class RandomMurPorte : MonoBehaviour
         seg.transform.localScale    = size;
         ApplyMaterialRecursivement(seg, _resWallMat);
         Tilingdumaterial(seg, 0.5f, 0.5f);
+        return seg;
+    }
+
+    // Spécifique toit : applique le matériau toit et laisse le scale tel quel
+    GameObject CreateRoofSeg(string name, Vector3 center, Vector3 size, Quaternion rot)
+    {
+        var seg = Instantiate(Mur, transform);
+        seg.name = name;
+        seg.transform.localRotation = rot;
+        seg.transform.localPosition = center;
+        seg.transform.localScale    = size;
+        ApplyMaterialRecursivement(seg, _resRoofMat);
         return seg;
     }
 
@@ -488,7 +531,6 @@ public class RandomMurPorte : MonoBehaviour
             AlignDoorBottomToGround(p);
         }
 
-
         // Fenêtres visuelles (0..4 selon hasWindow)
         for (int face = 0; face < 4; face++)
         {
@@ -522,16 +564,123 @@ public class RandomMurPorte : MonoBehaviour
             }
         }
 
-        // ======== TOIT (dalle simple) ========
-        // Dalle posée horizontalement, centrée sur le bâtiment
-        // Position Y = hmur + Lmur/2 pour qu’elle repose au-dessus des murs.
-        CreateWallSeg(
-            "Toit",
-            new Vector3(lX / 2f, hmur + Lmur * 0.5f, lZ / 2f),
-            new Vector3(lX, Lmur, lZ),
-            Quaternion.identity
-        );
+        // soit toit simple soit en pignon
+        if (useGableRoof)
+        {
+            BuildGableRoof(lX, lZ);
+            BuildGableEnds(lX, lZ);   // <= AJOUT : ferme les deux côtés
+        }
+        else
+        {
+            // Dalle plate (ancienne version)
+            CreateWallSeg(
+                "Toit",
+                new Vector3(lX / 2f, hmur + Lmur * 0.5f, lZ / 2f),
+                new Vector3(lX, Lmur, lZ),
+                Quaternion.identity
+            );
+        }
+    }
 
+    
+    GameObject CreateTriPrism(string name, float widthX, float baseY, float apexY, float thicknessZ, float z0, Material mat)
+    {
+        // Triangle en plan X-Y (0,baseY)-(widthX,baseY)-(widthX/2,apexY), extrudé en Z sur [0..thicknessZ]
+        Vector3[] v = new Vector3[6];
+        v[0] = new Vector3(0f,        baseY, 0f);
+        v[1] = new Vector3(widthX,    baseY, 0f);
+        v[2] = new Vector3(widthX*0.5f, apexY, 0f);
+        v[3] = new Vector3(0f,        baseY, thicknessZ);
+        v[4] = new Vector3(widthX,    baseY, thicknessZ);
+        v[5] = new Vector3(widthX*0.5f, apexY, thicknessZ);
+
+        int[] t = new int[]
+        {
+            // face avant (z=0)
+            0,2,1,
+            // face arrière (z=thickness)
+            3,4,5,
+
+            // côté bas (rectangle coupé en 2)
+            0,1,4,
+            0,4,3,
+
+            // côté gauche (rectangle coupé en 2)
+            0,3,5,
+            0,5,2,
+
+            // côté droit (rectangle coupé en 2)
+            1,2,5,
+            1,5,4
+        };
+
+        var go = new GameObject(name, typeof(MeshFilter), typeof(MeshRenderer));
+        go.transform.SetParent(transform, false);
+
+        var mesh = new Mesh();
+        mesh.name = name + "_Mesh";
+        mesh.vertices = v;
+        mesh.triangles = t;
+        mesh.RecalculateNormals();
+        mesh.RecalculateBounds();
+
+        go.GetComponent<MeshFilter>().mesh = mesh;
+        var mr = go.GetComponent<MeshRenderer>();
+        mr.sharedMaterial = mat != null ? mat : _resWallMat;
+
+        // Positionne le prisme sur la façade voulue (en local)
+        go.transform.localPosition = new Vector3(0f, 0f, z0);
+
+        return go;
+    }
+
+    // Construit les 2 pignons (façades bas et haut)
+    void BuildGableEnds(float lX, float lZ)
+    {
+        float baseY = hmur;                 // haut du mur
+        float apexY = hmur + roofHeight;    // faîtage
+        float thick = Lmur;                 // on remplit l’épaisseur du mur
+
+        // Façade BAS (z = 0)
+        CreateTriPrism("Pignon_Bas", lX, baseY, apexY, thick, 0f, _resWallMat);
+
+        // Façade HAUT (z = lZ - Lmur), on colle au mur du fond
+        CreateTriPrism("Pignon_Haut", lX, baseY, apexY, thick, lZ - Lmur, _resWallMat);
+    }
+
+    void BuildGableRoof(float lX, float lZ)
+    {
+        // demi-portée + débord
+        float halfSpanXWithOverhang = lX * 0.5f + roofOverhang;
+        float widthZWithOverhang    = lZ + 2f * roofOverhang;
+
+        // longueur de pente (hypoténuse) et angle
+        float hyp = Mathf.Sqrt(halfSpanXWithOverhang * halfSpanXWithOverhang + roofHeight * roofHeight);
+        float thetaDeg = Mathf.Atan2(roofHeight, halfSpanXWithOverhang) * Mathf.Rad2Deg;
+
+        float yTopWall = hmur;  // au ras du haut des murs
+
+
+        // Point du faîtage (au centre)
+        Vector3 ridge = new Vector3(lX * 0.5f, yTopWall + roofHeight, lZ * 0.5f);
+
+        // Pan gauche : eave côté x = -overhang -> ridge
+        Vector3 eaveLeft = new Vector3(-roofOverhang, yTopWall, lZ * 0.5f);
+        Vector3 centerLeft = (eaveLeft + ridge) * 0.5f;
+
+        // Pan droit : eave côté x = lX + overhang -> ridge
+        Vector3 eaveRight = new Vector3(lX + roofOverhang, yTopWall, lZ * 0.5f);
+        Vector3 centerRight = (eaveRight + ridge) * 0.5f;
+
+        // Taille des pans : (longueur le long de la pente, épaisseur, largeur en Z)
+        Vector3 size = new Vector3(hyp, roofThickness, widthZWithOverhang);
+
+        // Création des deux pans
+        var left = CreateRoofSeg("Toit_PanGauche", centerLeft, size, Quaternion.Euler(0f, 0f,  thetaDeg));
+        var right= CreateRoofSeg("Toit_PanDroit",  centerRight, size, Quaternion.Euler(0f, 0f, -thetaDeg));
+
+        // Tilingdumaterial(left, 0.5f, 0.5f);
+        // Tilingdumaterial(right, 0.5f, 0.5f);
     }
 
     // Petit helper Random float
