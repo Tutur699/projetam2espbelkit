@@ -935,10 +935,26 @@ MonoBehaviour:
   maxLargeurZ: 20
   doorTargetScale: {x: 1.5, y: 1.5, z: 1.5}
   autoFitOpeningToDoor: 1
+  doorThicknessRatio: 0.25
   lporte: 2
   hporte: 3
   Lporte: 0.3
   marge: 0.5
+  useGableRoof: 1
+  roofHeight: 1.2
+  roofOverhang: 0.4
+  roofThickness: 0.2
+  materialToit: {fileID: 2100000, guid: 1106203a3a01f624991504eb0837a5d8, type: 2}
+  loadRoofFromResources: 0
+  resourcesRoofPath: WALL/MyRoof
+  generateRooms: 1
+  nombrePieces: 6
+  minPieceX: 4
+  minPieceZ: 4
+  largeurOuvertureInterne: 1.6
+  hauteurOuvertureInterne: 2.2
+  margeOuvertureInterne: 0.4
+  margeIntersection: 0.6
 --- !u!4 &1451546114
 Transform:
   m_ObjectHideFlags: 0

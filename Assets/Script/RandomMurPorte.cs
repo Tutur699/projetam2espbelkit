@@ -60,7 +60,10 @@ public class RandomMurPorte : MonoBehaviour
     [Header("Porte – calibration auto")]
     public Vector3 doorTargetScale = new Vector3(1.5f, 1.5f, 1.5f); // remplace ton 1.5f hardcodé
     public bool autoFitOpeningToDoor = true; // si true, on taille l’ouverture sur la vraie porte
+    [Tooltip("Épaisseur visuelle de la porte en proportion de l'épaisseur du mur (0.1 = 10%)")]
+    [Range(0.05f, 1f)] public float doorThicknessRatio = 0.25f;
 
+    
 
     [Header("Dimensions porte")]
     public float lporte = 7f;     // largeur ouverture
@@ -528,11 +531,11 @@ public class RandomMurPorte : MonoBehaviour
         bool hasDoor = Porte != null && autoFitOpeningToDoor;
 
         Vector3 doorSzZ_world = hasDoor
-            ? MeasurePrefabAABBSize(Porte, transform, Quaternion.identity, Vector3.one)          // porte // Z
+            ? MeasurePrefabAABBSize(Porte, transform, Quaternion.identity, doorTargetScale)
             : new Vector3(Lporte, hporte, lporte);
 
         Vector3 doorSzX_world = hasDoor
-            ? MeasurePrefabAABBSize(Porte, transform, Quaternion.Euler(0f, 90f, 0f), Vector3.one) // porte // X
+            ? MeasurePrefabAABBSize(Porte, transform, Quaternion.Euler(0f, 90f, 0f), doorTargetScale)
             : new Vector3(lporte, hporte, Lporte);
 
         // Conversion monde -> local
@@ -1027,33 +1030,40 @@ public class RandomMurPorte : MonoBehaviour
         if (baseSize.x < 1e-4f || baseSize.y < 1e-4f || baseSize.z < 1e-4f)
             return;
 
-        // Selon l’orientation du mur, la "largeur" de l’ouverture n’est pas sur le même axe du mesh
-        // - Mur // Z (rotation = identity)  : largeur -> Z, profondeur -> X
-        // - Mur // X (rotation = Y 90°)     : largeur -> X, profondeur -> Z
-        bool isZAligned = rot == Quaternion.identity;
+        // Détermine si la porte est alignée "mur // Z" (rotation ~ identity)
+        bool isZAligned = Mathf.Abs(Quaternion.Angle(rot, Quaternion.identity)) < 0.1f;
 
-        float meshWidth   = isZAligned ? baseSize.z : baseSize.x;
-        float meshHeight  = baseSize.y;
-        float meshDepth   = isZAligned ? baseSize.x : baseSize.z;
+        // Axes interprétés:
+        // - isZAligned == true  -> largeur d'ouverture sur Z, profondeur du mesh sur X
+        // - isZAligned == false -> largeur d'ouverture sur X, profondeur du mesh sur Z
+        float meshWidth  = isZAligned ? baseSize.z : baseSize.x;
+        float meshHeight = baseSize.y;
+        float meshDepth  = isZAligned ? baseSize.x : baseSize.z;
 
+        // Épaisseur visuelle cible de la porte (fraction de l'épaisseur du mur)
+        // Ajoute dans ta classe : [Range(0.05f,1f)] public float doorThicknessRatio = 0.25f;
+        float targetDepth = Mathf.Max(0.01f, Mathf.Min(wallThickness * doorThicknessRatio, wallThickness));
+
+        // Facteurs d'échelle pour remplir l'ouverture (largeur/hauteur) sans "gonfler" toute l'épaisseur du mur
         float sx, sy, sz;
         if (isZAligned)
         {
-            // largeur sur Z, profondeur sur X
-            sx = wallThickness / Mathf.Max(1e-4f, meshDepth);
-            sy = openHeight   / Mathf.Max(1e-4f, meshHeight);
-            sz = openWidth    / Mathf.Max(1e-4f, meshWidth);
+            // Largeur sur Z, profondeur sur X
+            sx = targetDepth / Mathf.Max(1e-4f, meshDepth);  // épaisseur de la porte (petite)
+            sy = openHeight / Mathf.Max(1e-4f, meshHeight);  // hauteur
+            sz = openWidth  / Mathf.Max(1e-4f, meshWidth);   // largeur
         }
         else
         {
-            // largeur sur X, profondeur sur Z
-            sx = openWidth    / Mathf.Max(1e-4f, meshWidth);
-            sy = openHeight   / Mathf.Max(1e-4f, meshHeight);
-            sz = wallThickness/ Mathf.Max(1e-4f, meshDepth);
+            // Largeur sur X, profondeur sur Z
+            sx = openWidth  / Mathf.Max(1e-4f, meshWidth);   // largeur
+            sy = openHeight / Mathf.Max(1e-4f, meshHeight);  // hauteur
+            sz = targetDepth/ Mathf.Max(1e-4f, meshDepth);   // épaisseur de la porte (petite)
         }
 
         doorPrefabInstance.transform.localScale = new Vector3(sx, sy, sz);
     }
+
 
 
     void BuildGableRoof(float lX, float lZ)
