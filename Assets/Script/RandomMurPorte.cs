@@ -86,6 +86,33 @@ public class RandomMurPorte : MonoBehaviour
 
     public bool loadRoofFromResources = false;
     public string resourcesRoofPath = "WALL/MyRoof";
+    [Header("Pièces intérieures (BSP)")]
+    public bool generateRooms = true;
+
+    [Tooltip("Nombre de pièces à créer à l'intérieur du volume")]
+    [Range(1, 24)] public int nombrePieces = 6;
+
+    [Tooltip("Taille minimale (X) d'une pièce")]
+    public float minPieceX = 4f;
+
+    [Tooltip("Taille minimale (Z) d'une pièce")]
+    public float minPieceZ = 4f;
+
+    [Header("Ouvertures entre pièces")]
+    [Tooltip("Largeur d'ouverture entre pièces (sera clampée si mur trop court)")]
+    public float largeurOuvertureInterne = 1.6f;
+
+    [Tooltip("Hauteur d'ouverture entre pièces")]
+    public float hauteurOuvertureInterne = 2.2f;
+
+    [Tooltip("Marge de chaque côté de l'ouverture à l'intérieur de la cloison")]
+    public float margeOuvertureInterne = 0.4f;
+    // Enregistre les partitions pour les contrôles d'intersection
+    System.Collections.Generic.List<Partition> _partsForValidation = new System.Collections.Generic.List<Partition>();
+
+    [Tooltip("Distance de sécurité autour d'une jonction mur/cloison où on interdit les ouvertures en façade")]
+    public float margeIntersection = 0.6f;
+
 
     
     private Material _resWallMat;
@@ -284,6 +311,343 @@ public class RandomMurPorte : MonoBehaviour
     }
 
     // Mur aligné Z (gauche/droit) avec éventuelle ouverture
+    void BuildXWallWithOpeningOffset(
+        string baseName, float xOrigin, float zFix, float lenX, float h, float thick,
+        bool hasOpening, float xMin=0, float xMax=0, float yMin=0, float yMax=0)
+    {
+        Quaternion rot = Quaternion.identity;
+
+        if (!hasOpening)
+        {
+            CreateWallSeg(baseName, new Vector3(xOrigin + lenX/2f, h/2f, zFix), new Vector3(lenX, h, thick), rot);
+            return;
+        }
+
+        // Gauche
+        if (xMin > 0f)
+        {
+            float L = xMin;
+            CreateWallSeg(baseName+"_Left",
+                new Vector3(xOrigin + L/2f, h/2f, zFix),
+                new Vector3(L, h, thick), rot);
+        }
+        // Droite
+        if (xMax < lenX)
+        {
+            float L = lenX - xMax;
+            CreateWallSeg(baseName+"_Right",
+                new Vector3(xOrigin + xMax + L/2f, h/2f, zFix),
+                new Vector3(L, h, thick), rot);
+        }
+        // Dessus
+        if (yMax < h)
+        {
+            float H = h - yMax;
+            CreateWallSeg(baseName+"_Top",
+                new Vector3(xOrigin + (xMin+xMax)/2f, yMax + H/2f, zFix),
+                new Vector3(xMax - xMin, H, thick), rot);
+        }
+        // Dessous
+        if (yMin > 0f)
+        {
+            float H = yMin;
+            CreateWallSeg(baseName+"_Bottom",
+                new Vector3(xOrigin + (xMin+xMax)/2f, H/2f, zFix),
+                new Vector3(xMax - xMin, H, thick), rot);
+        }
+    }
+
+    // Variante de mur aligné Z avec "origine" en Z
+    void BuildZWallWithOpeningOffset(
+        string baseName, float xFix, float zOrigin, float lenZ, float h, float thick,
+        bool hasOpening, float zMin=0, float zMax=0, float yMin=0, float yMax=0)
+    {
+        Quaternion rot = Quaternion.Euler(0f, 90f, 0f);
+
+        if (!hasOpening)
+        {
+            CreateWallSeg(baseName,
+                new Vector3(xFix, h/2f, zOrigin + lenZ/2f),
+                new Vector3(lenZ, h, thick), rot);
+            return;
+        }
+
+        // Gauche (Z-)
+        if (zMin > 0f)
+        {
+            float L = zMin;
+            CreateWallSeg(baseName+"_Left",
+                new Vector3(xFix, h/2f, zOrigin + L/2f),
+                new Vector3(L, h, thick), rot);
+        }
+        // Droite (Z+)
+        if (zMax < lenZ)
+        {
+            float L = lenZ - zMax;
+            CreateWallSeg(baseName+"_Right",
+                new Vector3(xFix, h/2f, zOrigin + zMax + L/2f),
+                new Vector3(L, h, thick), rot);
+        }
+        // Dessus
+        if (yMax < h)
+        {
+            float H = h - yMax;
+            CreateWallSeg(baseName+"_Top",
+                new Vector3(xFix, yMax + H/2f, zOrigin + (zMin+zMax)/2f),
+                new Vector3(zMax - zMin, H, thick), rot);
+        }
+        // Dessous
+        if (yMin > 0f)
+        {
+            float H = yMin;
+            CreateWallSeg(baseName+"_Bottom",
+                new Vector3(xFix, H/2f, zOrigin + (zMin+zMax)/2f),
+                new Vector3(zMax - zMin, H, thick), rot);
+        }
+    }
+
+    // ===================== BSP : DECOUPE EN PIECES + OUVERTURES =====================
+    struct Cell
+    {
+        public float x0, x1, z0, z1;
+        public float W => x1 - x0;
+        public float D => z1 - z0;
+        public float Area => W * D;
+        public Cell(float X0, float X1, float Z0, float Z1){ x0=X0; x1=X1; z0=Z0; z1=Z1; }
+    }
+
+    struct Partition // une cloison à poser + ouverture
+    {
+        public bool vertical;     // true: mur // Z (x=const), false: mur // X (z=const)
+        public float pos;         // x (si vertical) ou z (si horizontal)
+        public float start,end;   // intervalle [start..end] le long de la cloison (Z si vertical, X si horizontal)
+    }
+    struct Interval { public float a, b; public Interval(float A, float B){ a=A; b=B; } }
+
+    // Construit la liste des intervalles "interdits" sur la façade donnée, à partir des cloisons qui y arrivent.
+    System.Collections.Generic.List<Interval> GetForbiddenIntervalsForFace(int face, float lX, float lZ, float pad)
+    {
+        var res = new System.Collections.Generic.List<Interval>();
+        const float EPS = 1e-3f;
+
+        // 0=bas(z=0) et 1=haut(z=lZ) -> coordonnée le long de X (0..lX)
+        if (face == 0 || face == 1)
+        {
+            foreach (var p in _partsForValidation)
+            {
+                if (!p.vertical) continue; // il faut une cloison verticale (x=const) pour toucher ces façades
+                bool toucheBas  = Mathf.Abs(p.start - 0f)   < EPS;
+                bool toucheHaut = Mathf.Abs(p.end   - lZ)   < EPS;
+                if ((face==0 && toucheBas) || (face==1 && toucheHaut))
+                {
+                    float a = Mathf.Max(0f, p.pos - pad);
+                    float b = Mathf.Min(lX, p.pos + pad);
+                    if (b > a) res.Add(new Interval(a,b));
+                }
+            }
+        }
+        // 2=gauche(x=0) et 3=droit(x=lX) -> coordonnée le long de Z (0..lZ)
+        else
+        {
+            foreach (var p in _partsForValidation)
+            {
+                if (p.vertical) continue; // il faut une cloison horizontale (z=const) pour toucher ces façades
+                bool toucheGauche = Mathf.Abs(p.start - 0f)  < EPS;
+                bool toucheDroit  = Mathf.Abs(p.end   - lX)  < EPS;
+                if ((face==2 && toucheGauche) || (face==3 && toucheDroit))
+                {
+                    float a = Mathf.Max(0f, p.pos - pad);
+                    float b = Mathf.Min(lZ, p.pos + pad);
+                    if (b > a) res.Add(new Interval(a,b));
+                }
+            }
+        }
+
+        // (Optionnel) fusionne les intervalles qui se chevauchent
+        res.Sort((u,v) => u.a.CompareTo(v.a));
+        var merged = new System.Collections.Generic.List<Interval>();
+        foreach (var iv in res)
+        {
+            if (merged.Count==0 || iv.a > merged[merged.Count-1].b)
+                merged.Add(iv);
+            else
+                merged[merged.Count-1] = new Interval(merged[merged.Count-1].a, Mathf.Max(merged[merged.Count-1].b, iv.b));
+        }
+        return merged;
+    }
+
+    // Vérifie si [a,b] est entièrement à l’extérieur de tous les intervalles interdits
+    bool IsClear(System.Collections.Generic.List<Interval> forb, float a, float b)
+    {
+        for (int i=0;i<forb.Count;i++)
+        {
+            var iv = forb[i];
+            if (!(b <= iv.a || a >= iv.b)) return false; // recouvrement
+        }
+        return true;
+    }
+
+    // Tente de tirer aléatoirement une position centrée qui évite les interdits ; sinon renvoie une position "greffée" au plus grand trou.
+    float PickOpeningStart(float len, float openW, float margin, System.Collections.Generic.List<Interval> forb)
+    {
+        float min = margin;
+        float max = len - (openW + margin);
+        if (max < min) return margin; // pas de place, on fera avec…
+
+        const int MAX_TRY = 24;
+        for (int t=0;t<MAX_TRY;t++)
+        {
+            float x = RandomRange(min, max);
+            float a = x;
+            float b = x + openW;
+            if (IsClear(forb, a, b)) return x;
+        }
+
+        // Fallback : scanne linéairement pour trouver le premier créneau libre
+        float step = Mathf.Max(0.05f, openW * 0.1f);
+        for (float x=min; x<=max; x+=step)
+        {
+            float a = x;
+            float b = x + openW;
+            if (IsClear(forb, a, b)) return x;
+        }
+
+        // Dernier recours : colle l’ouverture juste après le plus gros interdit (ou au margin)
+        if (forb.Count==0) return min;
+        float bestEnd = forb[0].b;
+        for (int i=1;i<forb.Count;i++) if (forb[i].b > bestEnd) bestEnd = forb[i].b;
+        float candidate = Mathf.Clamp(bestEnd + margin, min, max);
+        return candidate;
+    }
+
+    void BuildRoomsBSP(float lX, float lZ)
+    {
+        _partsForValidation.Clear();
+        // === Mesures du prefab de PORTE pour dimensionner les OUVERTURES internes ===
+        Vector3 parentScale = transform.lossyScale;
+        bool hasDoor = Porte != null && autoFitOpeningToDoor;
+
+        Vector3 doorSzZ_world = hasDoor
+            ? MeasurePrefabAABBSize(Porte, transform, Quaternion.identity, Vector3.one)          // porte // Z
+            : new Vector3(Lporte, hporte, lporte);
+
+        Vector3 doorSzX_world = hasDoor
+            ? MeasurePrefabAABBSize(Porte, transform, Quaternion.Euler(0f, 90f, 0f), Vector3.one) // porte // X
+            : new Vector3(lporte, hporte, Lporte);
+
+        // Conversion monde -> local
+        float doorHeightLocal = Mathf.Max(0.001f, (hasDoor ? doorSzZ_world.y : hporte) / Mathf.Max(0.0001f, parentScale.y));
+        float doorWidthForZ   = Mathf.Max(0.001f, (hasDoor ? doorSzZ_world.z : lporte) / Mathf.Max(0.0001f, parentScale.z)); // murs // Z
+        float doorWidthForX   = Mathf.Max(0.001f, (hasDoor ? doorSzX_world.x : lporte) / Mathf.Max(0.0001f, parentScale.x)); // murs // X
+        if (!generateRooms || nombrePieces <= 1) return;
+
+        // 1) Génère N cellules par BSP
+        var cells = new System.Collections.Generic.List<Cell>();
+        var parts = new System.Collections.Generic.List<Partition>();
+        cells.Add(new Cell(0f, lX, 0f, lZ));
+
+        int safety = 0;
+        while (cells.Count < nombrePieces && safety < 200)
+        {
+            safety++;
+            // prend la plus grande cellule
+            int idx = 0;
+            float bestA = cells[0].Area;
+            for (int i = 1; i < cells.Count; i++)
+                if (cells[i].Area > bestA) { bestA = cells[i].Area; idx = i; }
+
+            var c = cells[idx];
+
+            bool canV = c.W >= 2f * Mathf.Max(0.1f, minPieceX);
+            bool canH = c.D >= 2f * Mathf.Max(0.1f, minPieceZ);
+            if (!canV && !canH) break; // plus rien à couper
+
+            bool verticalSplit = (canV && canH) ? (UnityEngine.Random.value < 0.5f) : canV;
+
+            if (verticalSplit)
+            {
+                float minS = c.x0 + minPieceX;
+                float maxS = c.x1 - minPieceX;
+                if (maxS <= minS) { continue; }
+                float s = RandomRange(minS, maxS);
+
+                var a = new Cell(c.x0, s,   c.z0, c.z1);
+                var b = new Cell(s,   c.x1, c.z0, c.z1);
+                cells[idx] = a;
+                cells.Add(b);
+
+                parts.Add(new Partition { vertical = true, pos = s, start = c.z0, end = c.z1 });
+            }
+            else
+            {
+                float minS = c.z0 + minPieceZ;
+                float maxS = c.z1 - minPieceZ;
+                if (maxS <= minS) { continue; }
+                float s = RandomRange(minS, maxS);
+
+                var a = new Cell(c.x0, c.x1, c.z0, s);
+                var b = new Cell(c.x0, c.x1, s,   c.z1);
+                cells[idx] = a;
+                cells.Add(b);
+
+                parts.Add(new Partition { vertical = false, pos = s, start = c.x0, end = c.x1 });
+            }
+        }
+
+        // 2) Pose les cloisons + ouvre une porte dans CHAQUE cloison (+ instancie la porte visuelle)
+        for (int i = 0; i < parts.Count; i++)
+        {
+            var p = parts[i];
+            float len = p.end - p.start;
+            if (len <= 0.05f) continue;
+
+            
+            // Dimensions d’ouverture CIBLE issues du prefab (selon orientation)
+            float targetW = p.vertical ? doorWidthForZ : doorWidthForX;
+            float targetH = doorHeightLocal;
+
+            // Clamp par la longueur dispo et la hauteur de mur / réglages
+            float openW = Mathf.Clamp(targetW, 0.5f, Mathf.Max(0.5f, len - 2f * margeOuvertureInterne));
+            float openH = Mathf.Clamp(targetH, 0.5f, Mathf.Min(hmur, hauteurOuvertureInterne));
+
+            // Positionner l’ouverture au hasard en respectant la marge
+            float center = RandomRange(p.start + margeOuvertureInterne + openW * 0.5f,
+                                    p.end   - margeOuvertureInterne - openW * 0.5f);
+            float minRel = Mathf.Clamp(center - openW * 0.5f - p.start, 0f, len);
+            float maxRel = Mathf.Clamp(center + openW * 0.5f - p.start, 0f, len);
+
+            if (p.vertical)
+            {
+                // Ouverture dans le mur
+                BuildZWallWithOpeningOffset("CloisonV_" + i, p.pos, p.start, len, hmur, Lmur, true, minRel, maxRel, 0f, openH);
+
+                // Instancier la porte au centre de l’ouverture
+                float zCenter = p.start + (minRel + maxRel) * 0.5f;
+                var d = Instantiate(Porte, transform);
+                ApplyMaterialRecursivement(d, _resDoorMat);
+                d.transform.localRotation = Quaternion.identity;          // porte // Z
+                d.transform.localPosition = new Vector3(p.pos, 0f, zCenter);
+                FitDoorToOpening(d, d.transform.localRotation, openW, openH, Lmur);
+                AlignDoorBottomToGround(d);
+
+            }
+            else
+            {
+                BuildXWallWithOpeningOffset("CloisonH_" + i, p.start, p.pos, len, hmur, Lmur, true, minRel, maxRel, 0f, openH);
+                float xCenter = p.start + (minRel + maxRel) * 0.5f;
+                var d = Instantiate(Porte, transform);
+                ApplyMaterialRecursivement(d, _resDoorMat);
+                d.transform.localRotation = Quaternion.Euler(0f, 90f, 0f); // porte // X
+                d.transform.localPosition = new Vector3(xCenter, 0f, p.pos);
+                FitDoorToOpening(d, d.transform.localRotation, openW, openH, Lmur);
+                AlignDoorBottomToGround(d);
+
+            }
+        }
+
+        _partsForValidation = parts;
+    }
+
     void BuildZWallWithOpening(
         string baseName, float xFix, float lenZ, float h, float thick,
         bool hasOpening, float zMin = 0, float zMax = 0, float yMin = 0, float yMax = 0)
@@ -342,6 +706,7 @@ public class RandomMurPorte : MonoBehaviour
     {
         float lX = RandomRange(minLongueurX, maxLongueurX);
         float lZ = RandomRange(minLargeurZ, maxLargeurZ);
+        BuildRoomsBSP(lX, lZ);
 
         // Mesure de la porte avec ses rotations réelles d’installation
         // - Murs alignés X : porte tournée à 90° autour de Y dans ton code
@@ -385,7 +750,10 @@ public class RandomMurPorte : MonoBehaviour
         {
             float widthDesired = autoFitOpeningToDoor ? doorWidthForX : lporte;
             float width = ClampOpeningWidth(lX, widthDesired, marge);
-            float px = (lX - width <= 2f*marge) ? marge : RandomRange(marge, lX - (width + marge));
+
+            var forb = GetForbiddenIntervalsForFace(murPorte, lX, lZ, margeIntersection);
+            float px = PickOpeningStart(lX, width, marge, forb);
+
             p_xMin = px; p_xMax = px + width;
             p_yMin = 0f; p_yMax = Mathf.Min(hmur, doorHeight);
         }
@@ -393,7 +761,11 @@ public class RandomMurPorte : MonoBehaviour
         {
             float widthDesired = autoFitOpeningToDoor ? doorWidthForZ : lporte;
             float width = ClampOpeningWidth(lZ, widthDesired, marge);
-            float pz = (lZ - width <= 2f*marge) ? marge : RandomRange(marge, lZ - (width + marge));
+
+            // Utilise les intervalles interdits le long de Z
+            var forb = GetForbiddenIntervalsForFace(murPorte, lX, lZ, margeIntersection);
+            float pz = PickOpeningStart(lZ, width, marge, forb);
+
             p_zMin = pz; p_zMax = pz + width;
             p_yMin = 0f; p_yMax = Mathf.Min(hmur, doorHeight);
         }
@@ -540,35 +912,36 @@ public class RandomMurPorte : MonoBehaviour
 
             if (face == 0)
             {
-                f.transform.localPosition = new Vector3((f_xMin[0]+f_xMax[0])/2f, (f_yMin[0]+f_yMax[0])/2f, +Lmur*0.5f);
+                f.transform.localPosition = new Vector3((f_xMin[0] + f_xMax[0]) / 2f, (f_yMin[0] + f_yMax[0]) / 2f, +Lmur * 0.5f);
                 f.transform.localRotation = Quaternion.Euler(0, 0, 0); // fenêtre parallèle au mur X
-                f.transform.localScale    = new Vector3(lfenetre, hfenetre, Lfenetre);
+                f.transform.localScale = new Vector3(lfenetre, hfenetre, Lfenetre);
             }
             else if (face == 1)
             {
-                f.transform.localPosition = new Vector3((f_xMin[1]+f_xMax[1])/2f, (f_yMin[1]+f_yMax[1])/2f, lZ - Lmur*0.5f);
+                f.transform.localPosition = new Vector3((f_xMin[1] + f_xMax[1]) / 2f, (f_yMin[1] + f_yMax[1]) / 2f, lZ - Lmur * 0.5f);
                 f.transform.localRotation = Quaternion.Euler(0, 0, 0); // fenêtre parallèle au mur X
-                f.transform.localScale    = new Vector3(lfenetre, hfenetre, Lfenetre);
+                f.transform.localScale = new Vector3(lfenetre, hfenetre, Lfenetre);
             }
             else if (face == 2)
             {
-                f.transform.localPosition = new Vector3(+Lmur*0.5f, (f_yMin[2]+f_yMax[2])/2f, (f_zMin[2]+f_zMax[2])/2f);
+                f.transform.localPosition = new Vector3(+Lmur * 0.5f, (f_yMin[2] + f_yMax[2]) / 2f, (f_zMin[2] + f_zMax[2]) / 2f);
                 f.transform.localRotation = Quaternion.Euler(0, 0, 0);  // fenêtre parallèle au mur Z
-                f.transform.localScale    = new Vector3(Lfenetre, hfenetre, lfenetre);
+                f.transform.localScale = new Vector3(Lfenetre, hfenetre, lfenetre);
             }
             else // face == 3
             {
-                f.transform.localPosition = new Vector3(lX - Lmur*0.5f, (f_yMin[3]+f_yMax[3])/2f, (f_zMin[3]+f_zMax[3])/2f);
+                f.transform.localPosition = new Vector3(lX - Lmur * 0.5f, (f_yMin[3] + f_yMax[3]) / 2f, (f_zMin[3] + f_zMax[3]) / 2f);
                 f.transform.localRotation = Quaternion.Euler(0, 0, 0);  // fenêtre parallèle au mur Z
-                f.transform.localScale    = new Vector3(Lfenetre, hfenetre, lfenetre);
+                f.transform.localScale = new Vector3(Lfenetre, hfenetre, lfenetre);
             }
         }
-
+        
         // soit toit simple soit en pignon
         if (useGableRoof)
         {
             BuildGableRoof(lX, lZ);
             BuildGableEnds(lX, lZ);   // <= AJOUT : ferme les deux côtés
+            
         }
         else
         {
@@ -647,6 +1020,41 @@ public class RandomMurPorte : MonoBehaviour
         // Façade HAUT (z = lZ - Lmur), on colle au mur du fond
         CreateTriPrism("Pignon_Haut", lX, baseY, apexY, thick, lZ - Lmur, _resWallMat);
     }
+    void FitDoorToOpening(GameObject doorPrefabInstance, Quaternion rot, float openWidth, float openHeight, float wallThickness)
+    {
+        // Mesure la taille AABB du prefab à scale=(1,1,1) avec la rotation voulue
+        Vector3 baseSize = MeasurePrefabAABBSize(Porte, transform, rot, Vector3.one);
+        if (baseSize.x < 1e-4f || baseSize.y < 1e-4f || baseSize.z < 1e-4f)
+            return;
+
+        // Selon l’orientation du mur, la "largeur" de l’ouverture n’est pas sur le même axe du mesh
+        // - Mur // Z (rotation = identity)  : largeur -> Z, profondeur -> X
+        // - Mur // X (rotation = Y 90°)     : largeur -> X, profondeur -> Z
+        bool isZAligned = rot == Quaternion.identity;
+
+        float meshWidth   = isZAligned ? baseSize.z : baseSize.x;
+        float meshHeight  = baseSize.y;
+        float meshDepth   = isZAligned ? baseSize.x : baseSize.z;
+
+        float sx, sy, sz;
+        if (isZAligned)
+        {
+            // largeur sur Z, profondeur sur X
+            sx = wallThickness / Mathf.Max(1e-4f, meshDepth);
+            sy = openHeight   / Mathf.Max(1e-4f, meshHeight);
+            sz = openWidth    / Mathf.Max(1e-4f, meshWidth);
+        }
+        else
+        {
+            // largeur sur X, profondeur sur Z
+            sx = openWidth    / Mathf.Max(1e-4f, meshWidth);
+            sy = openHeight   / Mathf.Max(1e-4f, meshHeight);
+            sz = wallThickness/ Mathf.Max(1e-4f, meshDepth);
+        }
+
+        doorPrefabInstance.transform.localScale = new Vector3(sx, sy, sz);
+    }
+
 
     void BuildGableRoof(float lX, float lZ)
     {
@@ -658,12 +1066,13 @@ public class RandomMurPorte : MonoBehaviour
         float hyp = Mathf.Sqrt(halfSpanXWithOverhang * halfSpanXWithOverhang + roofHeight * roofHeight);
         float thetaDeg = Mathf.Atan2(roofHeight, halfSpanXWithOverhang) * Mathf.Rad2Deg;
 
-        float yTopWall = hmur;  // au ras du haut des murs
+        float yTopWall = hmur + Mathf.Max(0.01f, roofThickness * 0.5f);
 
 
         // Point du faîtage (au centre)
         Vector3 ridge = new Vector3(lX * 0.5f, yTopWall + roofHeight, lZ * 0.5f);
 
+    
         // Pan gauche : eave côté x = -overhang -> ridge
         Vector3 eaveLeft = new Vector3(-roofOverhang, yTopWall, lZ * 0.5f);
         Vector3 centerLeft = (eaveLeft + ridge) * 0.5f;
