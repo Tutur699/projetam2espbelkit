@@ -20,6 +20,7 @@ public class PItems : MonoBehaviour
         }
 
     }
+
     public void ActivateWeapon(bool activate) //Méthode pour récupérer l'item + faire en sorte que WPManager ne bloque pas
     {
         gameObject.SetActive(activate);

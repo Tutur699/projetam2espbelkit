@@ -40,6 +40,7 @@ public class WPManager : MonoBehaviour
 
                 // Add the 3D item to the list
                 pItems.Add(newItem3D);
+                //UpdateUI();
                 newItem3D.manager = this;
                 newItem3D.ActivateWeapon(false);
 
@@ -57,6 +58,7 @@ public class WPManager : MonoBehaviour
         //At the start we enable the primary weapon and disable the rest
         SelectItems(0);
         ChangeSelectedSlot(0);
+        UpdateUI();
     }
 
     public void SelectItems(int index) //Méthode pour sélectionner une arme dans l'inventaire
@@ -80,10 +82,9 @@ public class WPManager : MonoBehaviour
                 }
             }
         }
-        if (index >= 0 && index < pItems.Count && pItems[index] == null) //Si l'index est valide mais qu'il n'y a pas d'item
+        else if (index >= 0 && index < pItems.Count && pItems[index] == null) //Si l'index est valide mais qu'il n'y a pas d'item
         {
             Debug.LogWarning($"Aucun item trouvé à l'index {index} !");
-            selectedItemIndex = -1;
             //Désactivation des autres armes
             for (int i = 0; i < pItems.Count; i++)
             {
@@ -93,5 +94,51 @@ public class WPManager : MonoBehaviour
                 }
             }
         }
+        else
+        {
+            for (int i = 0; i < pItems.Count; i++)
+            {
+                if (pItems[i] != null)
+                {
+                    pItems[i].ActivateWeapon(false);
+                }
+            }
+        }
+    }
+    public void UpdateItemAtSlot(Items newItem, int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= pItems.Count)
+            return;
+
+        pItems[slotIndex] = FindWeaponForItem(newItem);
+        UpdateUI();
+    }
+    public void UpdateUI()
+    {
+        for (int i = 0; i < slots.Count; i++)
+        {
+            if (i < pItems.Count && pItems[i] != null)
+            {
+                //slots[i].SetItem(pItems[i].item); // on remplit le slot visuel
+            }   
+            else
+            {
+                //slots[i].ClearSlot(); // vide le slot si pas d’item
+            }
+        }
+    }
+    private PItems FindWeaponForItem(Items itemSO)
+    {
+        // Récupère tous les PItems dans la scène, y compris désactivés
+        PItems[] allWeapons = FindObjectsByType<PItems>(FindObjectsSortMode.None);
+
+        foreach (PItems weapon in allWeapons)
+        {
+            if (weapon.item == itemSO) // itemData = référence vers le ScriptableObject
+                return weapon;
+        }
+
+        // Aucun weapon trouvé
+        return null;
     }
 }

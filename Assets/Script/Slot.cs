@@ -8,6 +8,9 @@ public class Slot : MonoBehaviour, IDropHandler
 {
     public Image slotImage;
     public Color normalColor, selectedColor;
+    [HideInInspector] public WPManager manager;
+    //private Items currentItem;
+
 
      public void Awake()
      {
@@ -29,7 +32,20 @@ public class Slot : MonoBehaviour, IDropHandler
             GameObject droopedItem = eventData.pointerDrag;
             InventoryItem itemUI = droopedItem.GetComponent<InventoryItem>();
             itemUI.parentAfterDrag = transform;
+            manager.UpdateItemAtSlot(itemUI.item, transform.GetSiblingIndex());
         }
 
     }
+    /*public void SetItem(Items newItem)
+    {
+        currentItem = newItem;
+        slotImage.sprite = newItem.image;
+        slotImage.enabled = true;
+    }
+    public void ClearSlot()
+    {
+        currentItem = null;
+        slotImage.sprite = null;
+        slotImage.enabled = false;
+    }*/
 }
