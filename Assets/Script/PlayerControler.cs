@@ -139,7 +139,7 @@ public class PlayerControler : MonoBehaviour
         if (context.started)
         {
             var touche = context.control.name;
-            int select = -1;
+            int select = wpManager.selectedSlot;
             switch (touche)
             {
                 case "1":
@@ -156,11 +156,12 @@ public class PlayerControler : MonoBehaviour
                     break;
                 case "5":
                     select = 4;
-                    break;  
+                    break;
                 default:
                     select = -1;
                     break;
             }
+            wpManager.ChangeSelectedSlot(select);
             if (wpManager != null && wpManager.selectedItems != null)
             {
                 wpManager.SelectItems(select); // Select item based on input value

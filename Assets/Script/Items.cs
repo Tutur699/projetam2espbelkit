@@ -6,7 +6,6 @@ using System.Collections.Generic;
 public class Items : ScriptableObject
 {
     [Header("Item Properties")]
-    public itemType type;
     public ActionType action;
     public Sprite image;
     public bool isDefaultItem = false;

@@ -7,30 +7,29 @@ using UnityEngine.UI;
 public class Slot : MonoBehaviour, IDropHandler
 {
     public Image slotImage;
-    public Color selectedColor, normalColor;
-    [HideInInspector] public int slotID;
-    public WPManager manager;
+    public Color normalColor, selectedColor;
 
-    public void Awake()
-    {
-        Deselect();
-    }
+     public void Awake()
+     {
+         Deselect();
+     }
 
-    public void Select()
-    {
+     public void Select()
+     {
         slotImage.color = selectedColor;
-    }
-    public void Deselect()
-    {
+     }
+     public void Deselect()
+     {
         slotImage.color = normalColor;
-    }
+     }
     public void OnDrop(PointerEventData eventData)
     {
         if (transform.childCount == 0)
         {
-            InventoryItem itemUI = eventData.pointerDrag.GetComponent<InventoryItem>();
+            GameObject droopedItem = eventData.pointerDrag;
+            InventoryItem itemUI = droopedItem.GetComponent<InventoryItem>();
             itemUI.parentAfterDrag = transform;
         }
-    }
 
+    }
 }

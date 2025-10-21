@@ -391,6 +391,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6800136401339710079, guid: 9a9a2d3a2461a1e4699321e273a9ddc7, type: 3}
+      propertyPath: manager
+      value: 
+      objectReference: {fileID: 1731992201}
     - target: {fileID: 8602785627615016140, guid: 9a9a2d3a2461a1e4699321e273a9ddc7, type: 3}
       propertyPath: m_Name
       value: Slot5
@@ -832,6 +836,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6800136401339710079, guid: 9a9a2d3a2461a1e4699321e273a9ddc7, type: 3}
+      propertyPath: manager
+      value: 
+      objectReference: {fileID: 1731992201}
     - target: {fileID: 8602785627615016140, guid: 9a9a2d3a2461a1e4699321e273a9ddc7, type: 3}
       propertyPath: m_Name
       value: Slot3
@@ -953,6 +961,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6800136401339710079, guid: 9a9a2d3a2461a1e4699321e273a9ddc7, type: 3}
+      propertyPath: manager
+      value: 
+      objectReference: {fileID: 1731992201}
     - target: {fileID: 8602785627615016140, guid: 9a9a2d3a2461a1e4699321e273a9ddc7, type: 3}
       propertyPath: m_Name
       value: Slot4
@@ -1692,7 +1704,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WPManager
   playerCamera: {fileID: 1489390490}
-  selectedItemIndex: 0
   slots:
   - {fileID: 1208411877}
   - {fileID: 1635966296}
@@ -1700,6 +1711,7 @@ MonoBehaviour:
   - {fileID: 1284922300}
   - {fileID: 1585903569}
   slotPrefab: {fileID: 688619254099043799, guid: f57fea9bf02de104f8952db084d45b54, type: 3}
+  selectedItemIndex: 0
   selectedItems: {fileID: 0}
 --- !u!1 &1831715974
 GameObject:
@@ -1953,6 +1965,10 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: f1c8680df19159e4ab902ee910691f58, type: 3}
+    - target: {fileID: 6800136401339710079, guid: 9a9a2d3a2461a1e4699321e273a9ddc7, type: 3}
+      propertyPath: manager
+      value: 
+      objectReference: {fileID: 1731992201}
     - target: {fileID: 7589999825340759276, guid: 9a9a2d3a2461a1e4699321e273a9ddc7, type: 3}
       propertyPath: item
       value: 
@@ -2309,6 +2325,10 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 05c9402625ea375469f7943d09a41f88, type: 3}
+    - target: {fileID: 6800136401339710079, guid: 9a9a2d3a2461a1e4699321e273a9ddc7, type: 3}
+      propertyPath: manager
+      value: 
+      objectReference: {fileID: 1731992201}
     - target: {fileID: 7589999825340759276, guid: 9a9a2d3a2461a1e4699321e273a9ddc7, type: 3}
       propertyPath: item
       value: 
