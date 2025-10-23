@@ -1160,7 +1160,7 @@ MonoBehaviour:
   desiredJumpHeight: 2.5
   isCrouching: 0
   crouchHeight: 0.5
-  originalCameraPos: 0.5
+  crouchCameraOffset: 0.5
   crouchSpeedMultiplier: 0.5
   wpManager: {fileID: 1731992201}
   rb: {fileID: 1110726096}
@@ -1827,6 +1827,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 020d0ed7ac2be64499cb19150f7a3ade, type: 2}
     - target: {fileID: 9171922912776734475, guid: f57fea9bf02de104f8952db084d45b54, type: 3}
+      propertyPath: manager
+      value: 
+      objectReference: {fileID: 1731992201}
+    - target: {fileID: 9171922912776734475, guid: f57fea9bf02de104f8952db084d45b54, type: 3}
       propertyPath: itemImage
       value: 
       objectReference: {fileID: 1969398335}
@@ -2340,6 +2344,10 @@ PrefabInstance:
       propertyPath: item
       value: 
       objectReference: {fileID: 11400000, guid: b990f30368e71d246b69d99f5453c470, type: 2}
+    - target: {fileID: 9171922912776734475, guid: f57fea9bf02de104f8952db084d45b54, type: 3}
+      propertyPath: manager
+      value: 
+      objectReference: {fileID: 1731992201}
     - target: {fileID: 9171922912776734475, guid: f57fea9bf02de104f8952db084d45b54, type: 3}
       propertyPath: itemImage
       value: 

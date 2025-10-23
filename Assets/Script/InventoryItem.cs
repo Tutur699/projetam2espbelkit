@@ -9,6 +9,7 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     public Items item;
     public Image itemImage;
     [HideInInspector] public Transform parentAfterDrag;
+    public WPManager manager;
     // Start is called before the first frame update
     
     private void Start()
