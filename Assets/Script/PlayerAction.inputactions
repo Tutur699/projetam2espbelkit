@@ -217,6 +217,17 @@
                     "action": "Croutch",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "740adf9b-ac0b-4bdd-93c9-7072214071a9",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Croutch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }
