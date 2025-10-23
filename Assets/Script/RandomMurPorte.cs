@@ -227,19 +227,25 @@ public class RandomMurPorte : MonoBehaviour
         return size;
     }
 
-    // Aligne le bas de la porte au sol (y=0 local du parent) après placement.
-    // Utile si le pivot du prefab n’est pas au pied de la porte.
-    void AlignDoorBottomToGround(GameObject door)
+    // Aligne le bas de la porte sur un Y local donné du parent (par défaut 0)
+    // sans changer l'altitude globale du parent.
+    void AlignDoorBottomToParentGround(GameObject door, Transform parent, float localGroundY = 0f)
     {
         var rends = door.GetComponentsInChildren<Renderer>(true);
         if (rends.Length == 0) return;
 
-        Bounds b = rends[0].bounds;
+        Bounds b = rends[0].bounds; // bounds en ESPACE MONDE
         for (int i = 1; i < rends.Length; i++) b.Encapsulate(rends[i].bounds);
 
-        float deltaY = -b.min.y; // combien il faut remonter pour que min.y == 0 monde
-        door.transform.position += new Vector3(0f, deltaY, 0f);
+        // Y monde de la "référence sol" du parent (Y local = localGroundY)
+        float targetWorldY = parent.TransformPoint(new Vector3(0f, localGroundY, 0f)).y;
+
+        // Décalage nécessaire pour que le bas de la porte touche ce plan
+        float deltaY = targetWorldY - b.min.y;
+        if (Mathf.Abs(deltaY) > 1e-5f)
+            door.transform.position += new Vector3(0f, deltaY, 0f);
     }
+
 
 
     GameObject CreateWallSeg(string name, Vector3 center, Vector3 size, Quaternion rot)
@@ -631,7 +637,7 @@ public class RandomMurPorte : MonoBehaviour
                 d.transform.localRotation = Quaternion.identity;          // porte // Z
                 d.transform.localPosition = new Vector3(p.pos, 0f, zCenter);
                 FitDoorToOpening(d, d.transform.localRotation, openW, openH, Lmur);
-                AlignDoorBottomToGround(d);
+                AlignDoorBottomToParentGround(d, transform);
 
             }
             else
@@ -643,7 +649,7 @@ public class RandomMurPorte : MonoBehaviour
                 d.transform.localRotation = Quaternion.Euler(0f, 90f, 0f); // porte // X
                 d.transform.localPosition = new Vector3(xCenter, 0f, p.pos);
                 FitDoorToOpening(d, d.transform.localRotation, openW, openH, Lmur);
-                AlignDoorBottomToGround(d);
+                AlignDoorBottomToParentGround(d, transform);
 
             }
         }
@@ -903,7 +909,7 @@ public class RandomMurPorte : MonoBehaviour
                 p.transform.localRotation = Quaternion.identity;
             }
 
-            AlignDoorBottomToGround(p);
+            AlignDoorBottomToParentGround(p, transform);
         }
 
         // Fenêtres visuelles (0..4 selon hasWindow)
