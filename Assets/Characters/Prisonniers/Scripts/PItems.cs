@@ -11,7 +11,6 @@ public class PItems : MonoBehaviour
     private float nextUseTime = 0;
     private bool canUse = true;
 
-
     void Start()
     {
         if (manager == null)

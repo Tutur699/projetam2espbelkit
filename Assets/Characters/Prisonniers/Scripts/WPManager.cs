@@ -67,27 +67,13 @@ public class WPManager : MonoBehaviour
 
     public void SelectItems(int index) //Méthode pour sélectionner une arme dans l'inventaire
     {
-        if  (index < 0 || index >= pItems.Count) //Si l'index n'est pas valide
+        if (index < 0 || index >= pItems.Count) //Si l'index n'est pas valide
         {
             Debug.LogWarning($"Index {index} invalide pour la liste d'items !");
             selectedItems = null;
             return;
         }
-        if (index >= 0 && index < pItems.Count && pItems[index] != null) //Si l'index est valide et qu'il y a un item
-        {
-            pItems[index].ActivateWeapon(true);
-            selectedItems = pItems[index];
-            selectedItemIndex = index;
-            //Désactivation des autres armes
-            for (int i = 0; i < pItems.Count; i++)
-            {
-                if (i != index && pItems[i] != null)
-                {
-                    pItems[i].ActivateWeapon(false);
-                }
-            }
-        }
-        else if (index >= 0 && index < pItems.Count && pItems[index] == null) //Si l'index est valide mais qu'il n'y a pas d'item
+        if (index >= 0 && index < pItems.Count && pItems[index] == null) //Si l'index est valide mais qu'il n'y a pas d'item
         {
             Debug.LogWarning($"Aucun item trouvé à l'index {index} !");
             //Désactivation des autres armes
@@ -98,8 +84,20 @@ public class WPManager : MonoBehaviour
                     pItems[i].ActivateWeapon(false);
                 }
             }
-            selectedItems = null;
             return;
+        }
+        //Activation de l'item sélectionné
+        pItems[index].ActivateWeapon(true);
+        selectedItems = pItems[index];
+        selectedItemIndex = index;
+        //Désactivation des autres armes
+        for (int i = 0; i < pItems.Count; i++)
+        {
+            if (i != index && pItems[i] != null)
+            {
+                pItems[i].ActivateWeapon(false);
+            }
+
         }
     }
     public void MoveItemSlot(int oldIndex, int newIndex)
