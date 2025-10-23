@@ -43,6 +43,7 @@ public class WPManager : MonoBehaviour
                 //UpdateUI();
                 newItem3D.manager = this;
                 newItem3D.ActivateWeapon(false);
+                Debug.Log("Added item: " + newItem.name + " to slot " + i);
 
                 return true; // Item added successfully
             }
@@ -56,19 +57,23 @@ public class WPManager : MonoBehaviour
     void Start()
     {
         //At the start we enable the primary weapon and disable the rest
-        SelectItems(0);
+        if (pItems.Count > 0 && pItems[0] != null)
+            SelectItems(0);
+        else
+            selectedItems = null;
         ChangeSelectedSlot(0);
         UpdateUI();
     }
 
     public void SelectItems(int index) //Méthode pour sélectionner une arme dans l'inventaire
     {
-        if (index < 0 || index >= pItems.Count)
+        if  (index < 0 || index >= pItems.Count) //Si l'index n'est pas valide
         {
             Debug.LogWarning($"Index {index} invalide pour la liste d'items !");
+            selectedItems = null;
             return;
         }
-        if (index >= 0 && index < pItems.Count && pItems[index] != null)
+        if (index >= 0 && index < pItems.Count && pItems[index] != null) //Si l'index est valide et qu'il y a un item
         {
             pItems[index].ActivateWeapon(true);
             selectedItems = pItems[index];
@@ -93,52 +98,55 @@ public class WPManager : MonoBehaviour
                     pItems[i].ActivateWeapon(false);
                 }
             }
-        }
-        else
-        {
-            for (int i = 0; i < pItems.Count; i++)
-            {
-                if (pItems[i] != null)
-                {
-                    pItems[i].ActivateWeapon(false);
-                }
-            }
+            selectedItems = null;
+            return;
         }
     }
-    public void UpdateItemAtSlot(Items newItem, int slotIndex)
+    public void MoveItemSlot(int oldIndex, int newIndex)
     {
-        if (slotIndex < 0 || slotIndex >= pItems.Count)
-            return;
+    // Vérification de bornes
+    if (oldIndex < 0 || oldIndex >= pItems.Count || newIndex < 0 || newIndex >= pItems.Count )
+        return;
 
-        pItems[slotIndex] = FindWeaponForItem(newItem);
-        UpdateUI();
+    // Si le slot source est vide, rien à faire
+    if (pItems[oldIndex] == null)
+        return;
+
+    // On déplace la référence logique
+    PItems movedItem = pItems[oldIndex];    
+
+    // Assure-toi que la liste est assez grande
+         while (pItems.Count <= newIndex)
+            pItems.Add(null);
+
+        pItems[newIndex] = movedItem;
+        pItems[oldIndex] = null; // ⚡ important : on vide l'ancien
+
+        Debug.Log($"Item {movedItem.name} déplacé de {oldIndex} vers {newIndex}");
+
+        UpdateUI(); // 🔁 maintenant tu peux le rappeler ici
+        if (selectedSlot == oldIndex)
+        {
+            selectedItems = pItems[newIndex];
+            selectedItemIndex = newIndex;
+        }
+        else if (selectedSlot == newIndex)
+        {
+            selectedItems = pItems[newIndex];
+        }
     }
     public void UpdateUI()
     {
-        for (int i = 0; i < slots.Count; i++)
+        /*for (int i = 0; i < slots.Count; i++)
         {
             if (i < pItems.Count && pItems[i] != null)
             {
-                //slots[i].SetItem(pItems[i].item); // on remplit le slot visuel
-            }   
+                slots[i].SetItem(pItems[i].item);
+            }
             else
             {
-                //slots[i].ClearSlot(); // vide le slot si pas d’item
+                slots[i].ClearSlot();
             }
-        }
-    }
-    private PItems FindWeaponForItem(Items itemSO)
-    {
-        // Récupère tous les PItems dans la scène, y compris désactivés
-        PItems[] allWeapons = FindObjectsByType<PItems>(FindObjectsSortMode.None);
-
-        foreach (PItems weapon in allWeapons)
-        {
-            if (weapon.item == itemSO) // itemData = référence vers le ScriptableObject
-                return weapon;
-        }
-
-        // Aucun weapon trouvé
-        return null;
+        }*/
     }
 }
