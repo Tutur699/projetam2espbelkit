@@ -165,16 +165,36 @@ public class PlayerControler : MonoBehaviour
 
     private void OnSelectStarted(InputAction.CallbackContext context)
     {
-        if (!context.started) return;
-
-        int select = -1;
-        switch (context.control.name)
+        if (!context.started);
         {
-            case "1": select = 0; break;
-            case "2": select = 1; break;
-            case "3": select = 2; break;
-            case "4": select = 3; break;
-            case "5": select = 4; break;
+            var touche = context.control.name;
+            int select = wpManager.selectedSlot;
+            switch (touche)
+            {
+                case "1":
+                    select = 0;
+                    break;
+                case "2":
+                    select = 1;
+                    break;
+                case "3":
+                    select = 2;
+                    break;
+                case "4":
+                    select = 3;
+                    break;
+                case "5":
+                    select = 4;
+                    break;
+                default:
+                    select = -1;
+                    break;
+            }
+            wpManager.ChangeSelectedSlot(select);
+            if (wpManager != null && wpManager.selectedItems != null)
+            {
+                wpManager.SelectItems(select); // Select item based on input value
+            }
         }
         if (select >= 0 && wpManager != null)
             wpManager.SelectItems(select);
