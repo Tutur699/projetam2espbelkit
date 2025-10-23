@@ -165,7 +165,7 @@ public class PlayerControler : MonoBehaviour
 
     private void OnSelectStarted(InputAction.CallbackContext context)
     {
-        if (!context.started);
+        if (context.started)
         {
             var touche = context.control.name;
             int select = wpManager.selectedSlot;
@@ -196,9 +196,8 @@ public class PlayerControler : MonoBehaviour
                 wpManager.SelectItems(select); // Select item based on input value
             }
         }
-        if (select >= 0 && wpManager != null)
-            wpManager.SelectItems(select);
     }
+
 
     // --- Crouch ---
     private void OnCrouchStarted(InputAction.CallbackContext context)
