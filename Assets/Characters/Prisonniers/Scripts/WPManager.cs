@@ -57,19 +57,23 @@ public class WPManager : MonoBehaviour
     void Start()
     {
         //At the start we enable the primary weapon and disable the rest
-        SelectItems(0);
+        if (pItems.Count > 0 && pItems[0] != null)
+            SelectItems(0);
+        else
+            selectedItems = null;
         ChangeSelectedSlot(0);
         UpdateUI();
     }
 
     public void SelectItems(int index) //Méthode pour sélectionner une arme dans l'inventaire
     {
-        if (index < 0 || index >= pItems.Count)
+        if  (index < 0 || index >= pItems.Count) //Si l'index n'est pas valide
         {
             Debug.LogWarning($"Index {index} invalide pour la liste d'items !");
+            selectedItems = null;
             return;
         }
-        if (index >= 0 && index < pItems.Count && pItems[index] != null)
+        if (index >= 0 && index < pItems.Count && pItems[index] != null) //Si l'index est valide et qu'il y a un item
         {
             pItems[index].ActivateWeapon(true);
             selectedItems = pItems[index];
@@ -94,20 +98,9 @@ public class WPManager : MonoBehaviour
                     pItems[i].ActivateWeapon(false);
                 }
             }
-        }
-        else
-        {
-            for (int i = 0; i < pItems.Count; i++)
-            {
-                if (pItems[i] != null)
-                {
-                    pItems[i].ActivateWeapon(false);
-                }
-            }
             selectedItems = null;
-            selectedItemIndex = -1;
+            return;
         }
-        
     }
     public void MoveItemSlot(int oldIndex, int newIndex)
     {
