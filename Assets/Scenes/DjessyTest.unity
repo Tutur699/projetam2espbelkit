@@ -1154,7 +1154,7 @@ MonoBehaviour:
   MoveAction: {fileID: 3510894254208987783, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
   ShootAction: {fileID: -3149254764556580390, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
   SelectAction: {fileID: -1195065267834298981, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
-  CrouchAction: {fileID: 0}
+  CrouchAction: {fileID: -7588760859488165850, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
   moveSpeed: 10
   mouseSensitivity: 4
   desiredJumpHeight: 2.5
@@ -1907,8 +1907,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 923648328}
   - {fileID: 817427159}
+  - {fileID: 923648328}
   m_Father: {fileID: 1110726092}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1731992201
@@ -2491,15 +2491,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1220024618498199781, guid: 3a777384125bfe1418349d82b8e1cb51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.28989
+      value: 0.2898903
       objectReference: {fileID: 0}
     - target: {fileID: 1220024618498199781, guid: 3a777384125bfe1418349d82b8e1cb51, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.38
+      value: -1.3799999
       objectReference: {fileID: 0}
     - target: {fileID: 1220024618498199781, guid: 3a777384125bfe1418349d82b8e1cb51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.34812
+      value: 0.34811997
       objectReference: {fileID: 0}
     - target: {fileID: 1220024618498199781, guid: 3a777384125bfe1418349d82b8e1cb51, type: 3}
       propertyPath: m_LocalRotation.w
