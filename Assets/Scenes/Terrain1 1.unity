@@ -1047,6 +1047,11 @@ MonoBehaviour:
   hauteurOuvertureInterne: 2.2
   margeOuvertureInterne: 0.4
   margeIntersection: 0.6
+  creerSol: 1
+  epaisseurSol: 0.25
+  materialSol: {fileID: 2100000, guid: a46ddefb78a484643af07aed081bf055, type: 2}
+  creerSoubassement: 1
+  hauteurSoubassement: 1
 --- !u!4 &1821261366
 Transform:
   m_ObjectHideFlags: 0

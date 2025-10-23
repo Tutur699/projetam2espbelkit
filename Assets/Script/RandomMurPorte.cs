@@ -115,6 +115,15 @@ public class RandomMurPorte : MonoBehaviour
 
     [Tooltip("Distance de sécurité autour d'une jonction mur/cloison où on interdit les ouvertures en façade")]
     public float margeIntersection = 0.6f;
+    [Header("Sol & Soubassement")]
+    public bool creerSol = true;
+    public float epaisseurSol = 0.25f;
+    public Material materialSol;
+
+    public bool creerSoubassement = true;
+    [Tooltip("Hauteur supplémentaire sous le bâtiment")]
+    public float hauteurSoubassement = 1.0f;
+
 
 
     
@@ -267,10 +276,71 @@ public class RandomMurPorte : MonoBehaviour
         seg.name = name;
         seg.transform.localRotation = rot;
         seg.transform.localPosition = center;
-        seg.transform.localScale    = size;
+        seg.transform.localScale = size;
         ApplyMaterialRecursivement(seg, _resRoofMat);
         return seg;
     }
+    // Sol: une dalle pleine sous le bâtiment
+    GameObject CreateFloor(string name, float lX, float lZ, float ep)
+    {
+        var floor = Instantiate(Mur, transform);
+        floor.name = name;
+        floor.transform.localRotation = Quaternion.identity;
+        floor.transform.localPosition = new Vector3(lX * 0.5f, ep * 0.5f, lZ * 0.5f);
+        floor.transform.localScale = new Vector3(lX, ep, lZ);
+
+        ApplyMaterialRecursivement(floor, materialSol ? materialSol : _resWallMat);
+        if (!floor.TryGetComponent<Collider>(out _)) floor.AddComponent<BoxCollider>();
+        return floor;
+    }
+
+    // Raycast (ou Terrain) pour connaître le Y du sol monde sous un point
+    float GetGroundYUnder(Vector3 worldPos)
+    {
+        // 1) Raycast
+        var origin = worldPos + Vector3.up * 2000f;
+        if (Physics.Raycast(origin, Vector3.down, out var hit, 4000f))
+            return hit.point.y;
+
+        // 2) Terrain Unity (fallback)
+        if (Terrain.activeTerrain)
+            return Terrain.activeTerrain.SampleHeight(worldPos) + Terrain.activeTerrain.transform.position.y;
+
+        // 3) défaut
+        return 0f;
+    }
+
+    // 4 murs minces qui descendent sous le bâtiment
+    void CreateSkirtWalls(float lX, float lZ, float heightDown)
+    {
+        // on descend vers Y négatif en local
+        float yMid = -heightDown * 0.5f;
+
+        // bas (mur // X)
+        CreateWallSeg("Soub_Bas",
+            new Vector3(lX * 0.5f, yMid, +Lmur * 0.5f),
+            new Vector3(lX, heightDown, Lmur),
+            Quaternion.identity);
+
+        // haut (mur // X)
+        CreateWallSeg("Soub_Haut",
+            new Vector3(lX * 0.5f, yMid, lZ - Lmur * 0.5f),
+            new Vector3(lX, heightDown, Lmur),
+            Quaternion.identity);
+
+        // gauche (mur // Z)
+        CreateWallSeg("Soub_Gauche",
+            new Vector3(+Lmur * 0.5f, yMid, lZ * 0.5f),
+            new Vector3(lZ, heightDown, Lmur),
+            Quaternion.Euler(0f, 90f, 0f));
+
+        // droit (mur // Z)
+        CreateWallSeg("Soub_Droit",
+            new Vector3(lX - Lmur * 0.5f, yMid, lZ * 0.5f),
+            new Vector3(lZ, heightDown, Lmur),
+            Quaternion.Euler(0f, 90f, 0f));
+    }
+
 
     // Mur aligné X (bas/haut) avec éventuelle ouverture rectangulaire
     void BuildXWallWithOpening(
@@ -716,6 +786,28 @@ public class RandomMurPorte : MonoBehaviour
         float lX = RandomRange(minLongueurX, maxLongueurX);
         float lZ = RandomRange(minLargeurZ, maxLargeurZ);
         BuildRoomsBSP(lX, lZ);
+        // sol
+        if (creerSol)
+            CreateFloor("Sol", lX, lZ, epaisseurSol);
+
+        // soubassement
+        if (creerSoubassement)
+        {
+            // Y monde du bas du bâtiment (local y=0)
+            float baseWorldY = transform.TransformPoint(Vector3.zero).y;
+
+            // Sol monde sous le centre
+            Vector3 centerWorld = transform.TransformPoint(new Vector3(lX * 0.5f, 0f, lZ * 0.5f));
+            float groundY = GetGroundYUnder(centerWorld);
+
+            // Espace à combler + marge voulue
+            float gap = Mathf.Max(0f, baseWorldY - groundY);
+            float skirtHeight = gap + Mathf.Max(0.05f, hauteurSoubassement);
+
+            if (skirtHeight > 0.01f)
+                CreateSkirtWalls(lX, lZ, skirtHeight);
+        }
+
 
         // Mesure de la porte avec ses rotations réelles d’installation
         // - Murs alignés X : porte tournée à 90° autour de Y dans ton code
