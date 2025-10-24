@@ -4,16 +4,16 @@ using System.Collections;
 public class DoorHingeInteraction : MonoBehaviour
 {
     [Header("Références")]
-    public Transform doorLeaf;   // -> 01.Low (le panneau de porte)
+    public Transform doorLeaf;   // -> 01_Low (le panneau de porte)
     public Transform hinge;      // -> Empty "Hinge" placé sur les gonds
 
     [Header("Animation")]
     public float openAngle = 90f;    // mets -90 si tu veux l’autre sens
     public float animTime  = 0.35f;  // durée d’ouverture/fermeture
-    public KeyCode key     = KeyCode.E;
 
     // état
     bool isOpen = false;
+    bool isAnimating = false;
     float currentAngle = 0f;
 
     // base fermée (en WORLD), pour éviter toute dérive
@@ -24,26 +24,26 @@ public class DoorHingeInteraction : MonoBehaviour
     {
         if (!doorLeaf || !hinge)
         {
-            Debug.LogError("[DoorHingeInteraction] Assigne doorLeaf et hinge.");
+            Debug.LogError("[DoorHingeInteraction] Assigne doorLeaf et hinge.", this);
             enabled = false; return;
         }
 
-        // On mémorise la géométrie fermée
         r0   = doorLeaf.position - hinge.position;
         rot0 = doorLeaf.rotation;
-
-        // On force l’état fermé au démarrage
         SetAngle(0f);
     }
 
-    void Update()
+    // Appelée par le joueur via Raycast
+    public void Toggle()
     {
-        if (Input.GetKeyDown(key))
-            StartCoroutine(AnimateTo(isOpen ? 0f : openAngle));
+        if (isAnimating) return;
+        StartCoroutine(AnimateTo(isOpen ? 0f : openAngle));
     }
 
     IEnumerator AnimateTo(float targetAngle)
     {
+        isAnimating = true;
+
         float start = currentAngle;
         float t = 0f;
         while (t < 1f)
@@ -55,18 +55,16 @@ public class DoorHingeInteraction : MonoBehaviour
         }
         SetAngle(targetAngle);
         isOpen = Mathf.Abs(targetAngle) > 0.01f;
+
+        isAnimating = false;
     }
 
     // Applique l’angle autour de la charnière, sans cumuler
     void SetAngle(float angleDeg)
     {
         currentAngle = angleDeg;
-
-        // Axe en WORLD (charnière locale transformée)
-        Vector3 axis = hinge.TransformDirection(Vector3.up);
-
+        Vector3 axis = hinge.TransformDirection(Vector3.up); // axe monde
         Quaternion R = Quaternion.AngleAxis(angleDeg, axis);
-
         doorLeaf.position = hinge.position + R * r0;
         doorLeaf.rotation = R * rot0;
     }
