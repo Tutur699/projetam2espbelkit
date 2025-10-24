@@ -10,6 +10,7 @@ public class PItems : MonoBehaviour
     public WPManager manager;
     private float nextUseTime = 0;
     private bool canUse = true;
+    [HideInInspector] public bool isEquipped = false;
 
     void Start()
     {

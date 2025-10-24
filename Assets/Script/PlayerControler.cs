@@ -159,8 +159,9 @@ public class PlayerControler : MonoBehaviour
 
     private void OnShootStarted(InputAction.CallbackContext context)
     {
-        if (wpManager != null && wpManager.selectedItems != null)
+        if (wpManager.selectedItems != null && wpManager.selectedItems.isEquipped)
         {
+            Debug.Log("Using item: " + wpManager.selectedItems.item);
             wpManager.selectedItems.Use();
         }
         else

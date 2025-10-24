@@ -73,23 +73,27 @@ public class WPManager : MonoBehaviour
             selectedItems = null;
             return;
         }
-        if (index >= 0 && index < pItems.Count && pItems[index] == null) //Si l'index est valide mais qu'il n'y a pas d'item
+        if (pItems[index] == null) //Si l'index est valide mais qu'il n'y a pas d'item
         {
             Debug.LogWarning($"Aucun item trouvé à l'index {index} !");
+            if (selectedItems != null)
+            {
+                selectedItems.isEquipped = false;
+                selectedItems.ActivateWeapon(false);
+                //selectedItems = null;
+                //selectedItemIndex = -1;
+            }
             //Désactivation des autres armes
             for (int i = 0; i < pItems.Count; i++)
             {
                 if (pItems[i] != null)
-                {
+                {  
                     pItems[i].ActivateWeapon(false);
+                    pItems[i].isEquipped = false;
                 }
             }
             return;
         }
-        //Activation de l'item sélectionné
-        pItems[index].ActivateWeapon(true);
-        selectedItems = pItems[index];
-        selectedItemIndex = index;
         //Désactivation des autres armes
         for (int i = 0; i < pItems.Count; i++)
         {
@@ -99,7 +103,16 @@ public class WPManager : MonoBehaviour
             }
 
         }
+        //Activation de l'item sélectionné
+        pItems[index].ActivateWeapon(true);
+        pItems[index].isEquipped = true;
+        selectedItems = pItems[index];
+        selectedItemIndex = index;
+        
+        Debug.Log("Selected item: " + selectedItems.item.name + " at index " + index);
+    
     }
+
     public void MoveItemSlot(int oldIndex, int newIndex)
     {
     // Vérification de bornes
@@ -122,7 +135,7 @@ public class WPManager : MonoBehaviour
 
         Debug.Log($"Item {movedItem.name} déplacé de {oldIndex} vers {newIndex}");
 
-        UpdateUI(); // 🔁 maintenant tu peux le rappeler ici
+        UpdateUI(); // Met à jour l'UI après le déplacement
         if (selectedSlot == oldIndex)
         {
             selectedItems = pItems[newIndex];
