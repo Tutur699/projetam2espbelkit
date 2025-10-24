@@ -1,0 +1,16 @@
+Reste à faire :
+[si ok : FAIT avec son nom, si en cours : EN COURS avec son nom, si non fait : laisser vide]
+[] - Mettre un système de vie qui descend avec les armes utilisées
+[] - Faire un personnage complet et pas juste une capsule
+[] - Finir le bâtiment avec des escaliers
+[] - Adapter le raycast aux nouveaux objets avec un système indiquant au joueur ce qu'il peut prendre ou pas (like hover)
+[] - Ajouter les derniers assets et nettoyer le tout
+[] - Faire une scène principale
+[] - Commencer le mode en ligne
+[] - Commenter tous les codes via la convention
+[] - Préparer les test de régressions
+[] - Finir les différents personnages (visuel et fonctionnel)
+[] - Finir le menu propre pointant vers les bonnes scènes
+[] - Faire un système de points avec un système de FIN
+[] - Faire un système de sauvegarde du score
+[] - Finir les différents collectibles
