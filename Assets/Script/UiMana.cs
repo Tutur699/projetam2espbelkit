@@ -20,11 +20,11 @@ public class UiMana : MonoBehaviour
         {
             if (NetworkManager.Singleton.StartHost())
             {
-                Debug.Log("Started Host...");
+                Debug.Log("Started Server...");
             }
             else
             {
-                Debug.Log("Failed to start Host...");
+                Debug.Log("Failed to start Server...");
             }
         });
 
