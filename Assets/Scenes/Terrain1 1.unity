@@ -307,6 +307,8 @@ MonoBehaviour:
   startHostButton: {fileID: 0}
   PlayerNameText: {fileID: 0}
   PlayerInGameText: {fileID: 0}
+  ipInput: {fileID: 0}
+  port: 7777
 --- !u!4 &460555243
 Transform:
   m_ObjectHideFlags: 0

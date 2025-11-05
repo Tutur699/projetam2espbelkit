@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 public class UiMana : MonoBehaviour
 {
     [SerializeField] private Button startServerButton;
@@ -9,6 +10,8 @@ public class UiMana : MonoBehaviour
     [SerializeField] private Button startHostButton;
     [SerializeField] private TextMeshProUGUI PlayerNameText;
     [SerializeField] private TextMeshProUGUI PlayerInGameText;
+    [SerializeField] private TMP_InputField ipInput;
+    [SerializeField] private ushort port = 7777;
     private void Awake()
     {
         Cursor.visible = true;
@@ -18,7 +21,10 @@ public class UiMana : MonoBehaviour
     {
         startServerButton.onClick.AddListener(() =>
         {
-            if (NetworkManager.Singleton.StartHost())
+            var transport = (UnityTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;
+            transport.SetConnectionData("0.0.0.0", port); // serveur uniquement
+
+            if (NetworkManager.Singleton.StartServer())
             {
                 Debug.Log("Started Server...");
             }
@@ -30,6 +36,9 @@ public class UiMana : MonoBehaviour
 
         startClientButton.onClick.AddListener(() =>
         {
+            var transport = (Unity.Netcode.Transports.UTP.UnityTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;
+            var ip = string.IsNullOrWhiteSpace(ipInput.text) ? "127.0.0.1" : ipInput.text.Trim();
+            transport.SetConnectionData(ip, port);
             if (NetworkManager.Singleton.StartClient())
             {
                 Debug.Log("Started Client...");
