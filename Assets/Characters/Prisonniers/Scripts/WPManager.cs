@@ -49,14 +49,12 @@ public class WPManager : MonoBehaviour
             }
         }
         Debug.Log("Inventory full! Cannot add item: " + newItem.name);
-        return false; // Inventory full
+        return false; 
 
     }
 
-    // Start is called before the first frame update
     void Start()
     {
-        //At the start we enable the primary weapon and disable the rest
         if (pItems.Count > 0 && pItems[0] != null)
             SelectItems(0);
         else
@@ -103,7 +101,6 @@ public class WPManager : MonoBehaviour
             }
 
         }
-        //Activation de l'item sélectionné
         pItems[index].ActivateWeapon(true);
         pItems[index].isEquipped = true;
         selectedItems = pItems[index];
@@ -115,27 +112,26 @@ public class WPManager : MonoBehaviour
 
     public void MoveItemSlot(int oldIndex, int newIndex)
     {
-    // Vérification de bornes
     if (oldIndex < 0 || oldIndex >= pItems.Count || newIndex < 0 || newIndex >= pItems.Count )
         return;
 
-    // Si le slot source est vide, rien à faire
+    
     if (pItems[oldIndex] == null)
         return;
 
     // On déplace la référence logique
     PItems movedItem = pItems[oldIndex];    
 
-    // Assure-toi que la liste est assez grande
+    
          while (pItems.Count <= newIndex)
             pItems.Add(null);
 
         pItems[newIndex] = movedItem;
-        pItems[oldIndex] = null; // ⚡ important : on vide l'ancien
+        pItems[oldIndex] = null; 
 
         Debug.Log($"Item {movedItem.name} déplacé de {oldIndex} vers {newIndex}");
 
-        UpdateUI(); // Met à jour l'UI après le déplacement
+        UpdateUI();
         if (selectedSlot == oldIndex)
         {
             selectedItems = pItems[newIndex];

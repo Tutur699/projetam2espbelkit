@@ -4,10 +4,12 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - Items
   - Enemy
   - CinemachineTarget
   - Ground
+  - Objet
+  - Interactable
+  - Items
   layers:
   - Default
   - TransparentFX

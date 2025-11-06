@@ -3,32 +3,48 @@ using UnityEngine;
 public class Interactor : MonoBehaviour
 {
     public WPManager wpManager;
-    //private float interactionRange = 3f;
+    public float interactionRange = 3f;
     Interactable currentInteractable;
-    private Vector3 _raycastOffset = new Vector3(0, 1f, 0);
 
-    /*private void Update()
+    private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F))
+        checkInteraction();
+        if (Input.GetKeyDown(KeyCode.F) && currentInteractable != null)
         {
-            if (DoInteractionTest(out IInteractable interactable))
-            {
-                if (interactable.CanInteract())
-                {
-                    interactable.Interact(this);
-                }
-            }
+            currentInteractable.Interact();
         }
-    }*/
+    }
 
-    /*void checkInteraction()
+    void checkInteraction()
     {
         RaycastHit hitInfo;
-        Ray ray = new Ray(transform.position + _raycastOffset, transform.forward);
+        Ray ray = new Ray(wpManager.playerCamera.transform.position, wpManager.playerCamera.transform.forward);
         if (Physics.Raycast(ray, out hitInfo, interactionRange))
         {
-            if (hitInfo.collider.CompareTag("Interactable")) //if the object hit by the ray is an interactable object
+            if (hitInfo.collider.tag == "Interactable") //if the object hit by the ray is an interactable object
             {
+                Interactable newInteractable = hitInfo.collider.GetComponent<Interactable>();
+                if (currentInteractable && newInteractable != currentInteractable) //if we are already looking at an interactable object but it's not the same as the new one
+                {
+                    currentInteractable.DisableOutline();
+                }
+                if (newInteractable.enabled)
+                {
+                    SetNewCurrentInteractable(newInteractable);
+                }
+                else //if the interactable component is disabled
+                {
+                    DisableCurrentInteractable();
+                }
+            }
+            else
+            {
+                DisableCurrentInteractable();
+            }
+            /*if (hitInfo.collider.CompareTag("Objet") && wpManager != null) //if the object hit by the ray is an item
+            {
+                PItems item = hitInfo.collider.GetComponent<PItems>();
+                Items itemData = hitInfo.collider.GetComponent<Items>();
                 Interactable newInteractable = hitInfo.collider.GetComponent<Interactable>();
                 if (currentInteractable && newInteractable != currentInteractable) //if we are already looking at an interactable object but it's not the same as the new one
                 {
@@ -42,26 +58,18 @@ public class Interactor : MonoBehaviour
                 {
                     DisableCurrentInteractable();
                 }
-            }
-            else if (hitInfo.collider.CompareTag("Items") && wpManager != null) //if the object hit by the ray is an item
-            {
-                PItems item = hitInfo.collider.GetComponent<PItems>();
-                if (item != null)
+                if (Input.GetKeyDown(KeyCode.E))
                 {
-                    wpManager.addItem(item);
-                    hitInfo.collider.gameObject.SetActive(false); //disable the item in the scene after picking it up
+                    wpManager.AddItem(itemData, item);
+                    Destroy(hitInfo.collider.gameObject); //destroy the item in the scene after picking it up
                 }
-                DisableCurrentInteractable(); //disable any interactable outline if we were looking at one before picking up the item
-            }
-            else
-            { //if the object hit by the ray is not an interactable object
-                DisableCurrentInteractable();
+                
             }
         }
-
         else
-        { //if nothing is hit by the ray
+        {
             DisableCurrentInteractable();
+        }*/
         }
     }
 
@@ -79,5 +87,6 @@ public class Interactor : MonoBehaviour
             currentInteractable.DisableOutline();
             currentInteractable = null;
         }
-    }*/
+    }
 }
+
