@@ -1,4 +1,4 @@
-using UnityEngine;
+/*using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using Unity.Netcode;
@@ -66,3 +66,4 @@ public class UiMana : MonoBehaviour
         else Debug.Log("Failed to start Host...");
     }
 }
+*/
