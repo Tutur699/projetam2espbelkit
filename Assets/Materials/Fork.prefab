@@ -10,11 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1220024618498199781}
   - component: {fileID: 6713712602111004060}
-  - component: {fileID: 1711666788882543557}
-  - component: {fileID: 3437614156840266907}
   m_Layer: 0
   m_Name: Fork
-  m_TagString: Items
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -48,58 +46,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8e011000087cef4c86d6799312bd717, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PItems
-  item: {fileID: 3967265782921104627}
-  singleUse: 0
-  useRate: 0.1
-  weaponDamage: 5
+  item: {fileID: 11400000, guid: b990f30368e71d246b69d99f5453c470, type: 2}
   HitPoint: {fileID: 1578076784016881642}
   manager: {fileID: 0}
---- !u!114 &1711666788882543557
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1458996202781163874}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84524147c2c1eb943b8b141caa64c1eb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Interactable
-  message: Pick Fork
-  interactAction:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3967265782921104635}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
---- !u!114 &3437614156840266907
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1458996202781163874}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Outline
-  outlineMode: 0
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 2
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
+  isEquipped: 0
 --- !u!1 &6516926218557007374
 GameObject:
   m_ObjectHideFlags: 0
@@ -145,7 +95,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 100008, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
       propertyPath: m_TagString
-      value: Untagged
+      value: Interactable
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
       propertyPath: m_LocalPosition.x
@@ -238,18 +188,65 @@ PrefabInstance:
     - {fileID: 100010, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
     - {fileID: 100002, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 100008, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 307114740010600258}
+    - targetCorrespondingSourceObject: {fileID: 100008, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3185150573073503310}
   m_SourcePrefab: {fileID: 100100000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
 --- !u!1 &3967265782921104627 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100008, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
   m_PrefabInstance: {fileID: 3967265782921071195}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &3967265782921104635 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 100000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
-  m_PrefabInstance: {fileID: 3967265782921071195}
+--- !u!114 &307114740010600258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3967265782921104627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84524147c2c1eb943b8b141caa64c1eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interactable
+  message: Pick Fork
+  interactAction:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3967265782921104627}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &3185150573073503310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3967265782921104627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!4 &3967265782921203931 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
