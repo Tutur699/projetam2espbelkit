@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.Netcode;
 
-public class PlayerControler : MonoBehaviour
+public class PlayerControler : NetworkBehaviour
 {
     // Camera
     public Camera playerCamera;
@@ -37,6 +38,41 @@ public class PlayerControler : MonoBehaviour
     private bool isGrounded = true;
 
     public bool canMove = true;
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsOwner)
+        {
+            // checher avec .find le body où y'a la capsule à colorer en rouge
+            Renderer bodyRenderer = FindChildRenderer("body");
+            Renderer gunRenderer  = FindChildRenderer("Cube"); // ton Gun visible
+
+            // Teinte (MaterialPropertyBlock = propre et sans dupliquer les matériaux)
+            Tint(bodyRenderer, Color.red);
+            Tint(gunRenderer,  Color.red);
+            }
+    }
+    Renderer FindChildRenderer(string childName)
+    {
+        foreach (var t in GetComponentsInChildren<Transform>(true))
+            if (t.name == childName)
+            {
+                return t.GetComponent<Renderer>();
+            }
+        Debug.LogWarning($"Renderer introuvable pour '{childName}' sous {name}");
+        return null; //pas trouvé
+    }
+
+    void Tint(Renderer r, Color c)
+    {
+        if (r == null) return;
+        var mpb = new MaterialPropertyBlock();
+        r.GetPropertyBlock(mpb);
+        mpb.SetColor("_BaseColor", c); // URP/HDRP
+        mpb.SetColor("_Color", c);     // Built-in
+        //les deux cas peuvent être nécessaire malgré notre projet en urp....
+        r.SetPropertyBlock(mpb);
+    }
 
     void Start()
     {
