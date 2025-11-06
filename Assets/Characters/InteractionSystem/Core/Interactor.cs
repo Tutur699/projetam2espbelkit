@@ -3,23 +3,22 @@ using UnityEngine;
 public class Interactor : MonoBehaviour
 {
     public WPManager wpManager;
-    public float interactionRange = 3f;
+    public Raycast_player raycastPlayer;
     Interactable currentInteractable;
 
     private void Update()
     {
         checkInteraction();
-        if (Input.GetKeyDown(KeyCode.F) && currentInteractable != null)
+        if (Input.GetKeyDown(raycastPlayer.key) && currentInteractable != null)
         {
             currentInteractable.Interact();
         }
     }
-
     void checkInteraction()
     {
         RaycastHit hitInfo;
         Ray ray = new Ray(wpManager.playerCamera.transform.position, wpManager.playerCamera.transform.forward);
-        if (Physics.Raycast(ray, out hitInfo, interactionRange))
+        if (Physics.Raycast(ray, out hitInfo, raycastPlayer.distmax))
         {
             if (hitInfo.collider.tag == "Interactable") //if the object hit by the ray is an interactable object
             {

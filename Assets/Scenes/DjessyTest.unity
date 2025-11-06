@@ -1899,6 +1899,11 @@ RectTransform:
   m_AnchoredPosition: {x: 1.8231201, y: -50.8}
   m_SizeDelta: {x: 347.4124, y: 145.8442}
   m_Pivot: {x: 0.5, y: 0.437329}
+--- !u!4 &1891126819 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5434371060346260043, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
+  m_PrefabInstance: {fileID: 83874029980587559}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1892729078
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2169,6 +2174,52 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f57fea9bf02de104f8952db084d45b54, type: 3}
+--- !u!1 &2009945330
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2009945331}
+  - component: {fileID: 2009945332}
+  m_Layer: 0
+  m_Name: Raycast
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2009945331
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2009945330}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1281.8231, y: 703.9, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1891126819}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2009945332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2009945330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93006d906c0d14e4c9bed7ae6ed830e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Raycast_player
+  key: 112
+  distmax: 5
 --- !u!114 &2069226067 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3845518928000477145, guid: 9a9a2d3a2461a1e4699321e273a9ddc7, type: 3}
@@ -2216,6 +2267,10 @@ PrefabInstance:
       propertyPath: 'slots.Array.data[4]'
       value: 
       objectReference: {fileID: 1585903569}
+    - target: {fileID: 4649579179492759028, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
+      propertyPath: raycastPlayer
+      value: 
+      objectReference: {fileID: 2009945332}
     - target: {fileID: 4729546763162667945, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: m_TagString
       value: Untagged
@@ -2274,7 +2329,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 5434371060346260043, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
+      insertIndex: 0
+      addedObject: {fileID: 2009945331}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
 --- !u!1001 &6584025961296295453
