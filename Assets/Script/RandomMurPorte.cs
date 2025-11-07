@@ -144,12 +144,34 @@ public class RandomMurPorte : MonoBehaviour
     // Appelé par GameWorldSeed quand le seed est connu
     public void Generate(int seed)
     {
-        _rng = new System.Random(seed + gameObject.GetInstanceID()); // sel local pour varier par objet si tu veux
+        _rng = new System.Random(seed ^ StableHash(GetHierarchyPath(transform)));// sel local pour varier par objet si tu veux
         // Option : force la même qualité partout
         QualitySettings.SetQualityLevel(2, true);
 
         Build(); // ta méthode existante
     }
+    string GetHierarchyPath(Transform t)
+    {
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        while (t != null)
+        {
+            sb.Insert(0, "/" + t.name + "#" + t.GetSiblingIndex());
+            t = t.parent;
+        }
+        return sb.ToString();
+    }
+
+    int StableHash(string s)
+    {
+        unchecked
+        {
+            int h = 23;
+            for (int i = 0; i < s.Length; i++)
+                h = h * 31 + s[i];
+            return h;
+        }
+    }
+
 
     // Utilitaires déterministes
     float RandomRange(float min, float max) => min + (float)_rng.NextDouble() * (max - min);

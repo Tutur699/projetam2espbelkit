@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
+using System.Linq;
 
 public class NetworkStartUI : MonoBehaviour
 {
@@ -13,7 +14,8 @@ public class NetworkStartUI : MonoBehaviour
 
     void Start()
     {
-        QualitySettings.SetQualityLevel(5, true);
+        QualitySettings.SetQualityLevel(QualitySettings.names.ToList().IndexOf("PC"), true);
+        Debug.Log("[INIT] Quality level forcé sur : " + QualitySettings.names[QualitySettings.GetQualityLevel()]);
         ipRuntime = defaultIp;
 
         if (!nm) nm = NetworkManager.Singleton;
