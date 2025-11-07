@@ -13,7 +13,10 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     
     private void Start()
     {
-      InitializeItem(item);   
+        if (item != null)
+        {
+            InitializeItem(item);
+        }
     }
     public void InitializeItem(Items newItem)
     {
