@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using Unity.Netcode;
 
 public class RandomMurPorte : MonoBehaviour
 {
@@ -55,7 +56,7 @@ public class RandomMurPorte : MonoBehaviour
     public float maxLongueurX = 30f;
     public float minLargeurZ  = 8f;
     public float maxLargeurZ  = 20f;
-    private static System.Random rnd = new System.Random();
+    System.Random _rng;
 
     [Header("Porte – calibration auto")]
     public Vector3 doorTargetScale = new Vector3(1.5f, 1.5f, 1.5f); // remplace ton 1.5f hardcodé
@@ -138,9 +139,22 @@ public class RandomMurPorte : MonoBehaviour
         _resDoorMat   = ResolveDoorMaterial();
         _resWindowMat = ResolveWindowMaterial();
         _resRoofMat   = ResolveRoofMaterial();
-        Build();
     }
 
+    // Appelé par GameWorldSeed quand le seed est connu
+    public void Generate(int seed)
+    {
+        _rng = new System.Random(seed + gameObject.GetInstanceID()); // sel local pour varier par objet si tu veux
+        // Option : force la même qualité partout
+        QualitySettings.SetQualityLevel(2, true);
+
+        Build(); // ta méthode existante
+    }
+
+    // Utilitaires déterministes
+    float RandomRange(float min, float max) => min + (float)_rng.NextDouble() * (max - min);
+    int   RandomInt(int min, int max)       => _rng.Next(min, max); // max exclu
+    bool  RandomBool(float proba=0.5f)      => _rng.NextDouble() < proba;
 
     Material ResolveWallMaterial()
     {
@@ -641,7 +655,7 @@ public class RandomMurPorte : MonoBehaviour
             bool canH = c.D >= 2f * Mathf.Max(0.1f, minPieceZ);
             if (!canV && !canH) break; // plus rien à couper
 
-            bool verticalSplit = (canV && canH) ? (UnityEngine.Random.value < 0.5f) : canV;
+            bool verticalSplit = (canV && canH) ? RandomBool(0.5f) : canV;
 
             if (verticalSplit)
             {
@@ -841,7 +855,7 @@ public class RandomMurPorte : MonoBehaviour
         {
             murPorte = murPorteManuel;
         } else {
-            murPorte = rnd.Next(0, 4); // aléatoire
+            murPorte = RandomInt(0, 4); // aléatoire
         }
         float p_xMin=0, p_xMax=0, p_yMin=0, p_yMax=0; // pour murs X
         float p_zMin=0, p_zMax=0;                      // pour murs Z
@@ -873,7 +887,7 @@ public class RandomMurPorte : MonoBehaviour
 
 
         // ======== FENÊTRES MULTIPLES (hauteur uniforme) ========
-        bool placeFenetre = (Fenetre != null) && UnityEngine.Random.value <= probaFenetre;
+        bool placeFenetre = (Fenetre != null) && RandomBool(probaFenetre);
         bool[] hasWindow = new bool[4];
         float[] f_xMin = new float[4], f_xMax = new float[4], f_yMin = new float[4], f_yMax = new float[4];
         float[] f_zMin = new float[4], f_zMax = new float[4];
@@ -888,7 +902,7 @@ public class RandomMurPorte : MonoBehaviour
 
         for (int k=0; k<toPick && faces.Count>0; k++)
         {
-            int idx = rnd.Next(0, faces.Count);
+            int idx = RandomInt(0, faces.Count);
             int face = faces[idx];
             faces.RemoveAt(idx);
 
@@ -1200,6 +1214,4 @@ public class RandomMurPorte : MonoBehaviour
         // Tilingdumaterial(right, 0.5f, 0.5f);
     }
 
-    // Petit helper Random float
-    float RandomRange(float min, float max) => min + (float)rnd.NextDouble() * (max - min);
 }
