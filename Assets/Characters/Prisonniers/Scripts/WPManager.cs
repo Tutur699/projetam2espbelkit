@@ -29,6 +29,7 @@ public class WPManager : MonoBehaviour
 
     public void AddItem(Items newItem, PItems newItem3D)
     {   // Find an empty slot
+        Debug.Log($" AddItem reçoit {newItem.name} | sprite = {newItem.image}");
         for (int i = 0; i < slots.Count; i++)
         {
             if (slots[i].transform.childCount == 0)

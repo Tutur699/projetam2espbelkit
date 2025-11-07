@@ -40,7 +40,6 @@ public class Interactor : MonoBehaviour
             if (hitInfo.collider.tag == "Pickable")
             {
                 ItemPickable itemPick = hitInfo.collider.GetComponent<ItemPickable>();
-                Debug.Log($"Pickable = {itemPick.name}, Scriptable = {itemPick.itemScriptable}, sprite = {itemPick.itemScriptable.image}");
                 if (currentPickable && itemPick != currentPickable)
                 {
                     currentPickable.DisableOutline();
