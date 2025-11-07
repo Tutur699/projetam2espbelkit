@@ -7,9 +7,9 @@ TagManager:
   - Enemy
   - CinemachineTarget
   - Ground
-  - Objet
   - Interactable
   - Items
+  - Pickable
   layers:
   - Default
   - TransparentFX

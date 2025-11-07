@@ -205,7 +205,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8780878461579384799, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
       propertyPath: m_TagString
-      value: Pickable
+      value: Interactable
       objectReference: {fileID: 0}
     - target: {fileID: 8780878461579742205, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -214,18 +214,6 @@ PrefabInstance:
     - target: {fileID: 8780878461579742205, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.212
-      objectReference: {fileID: 0}
-    - target: {fileID: 8780878461579742207, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8780878461579742207, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8780878461579742207, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 2.2
       objectReference: {fileID: 0}
     - target: {fileID: 8780878461579742207, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -267,15 +255,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 49.082
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 3959972051931692905, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
-    - {fileID: 8769494194107586354, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 8780878461579384799, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 236881164}
+    - targetCorrespondingSourceObject: {fileID: 8780878461579384799, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 236881163}
     - targetCorrespondingSourceObject: {fileID: 8780878461579384799, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 236881165}
@@ -364,6 +353,34 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8780878461579384799, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
   m_PrefabInstance: {fileID: 7078312}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &236881163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 236881159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84524147c2c1eb943b8b141caa64c1eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interactable
+  message: Pick Knife
+  interactAction:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 236881159}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &236881164
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2204,7 +2221,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 755879878583032897, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: m_TagString
-      value: Untagged
+      value: Objet
       objectReference: {fileID: 0}
     - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: 'slots.Array.data[0]'
@@ -2280,19 +2297,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6413913807925445945, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: m_TagString
-      value: Untagged
-      objectReference: {fileID: 0}
-    - target: {fileID: 7663286278148810712, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
-      propertyPath: m_Enabled
-      value: 0
+      value: Objet
       objectReference: {fileID: 0}
     - target: {fileID: 7998250959574280178, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: m_Name
       value: Perso
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 992618931752184442, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 5434371060346260043, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       insertIndex: 0

@@ -95,7 +95,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 100008, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
       propertyPath: m_TagString
-      value: Interactable
+      value: Pickable
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
       propertyPath: m_LocalPosition.x
@@ -191,44 +191,16 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 100008, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 307114740010600258}
+      addedObject: {fileID: 3185150573073503310}
     - targetCorrespondingSourceObject: {fileID: 100008, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3185150573073503310}
+      addedObject: {fileID: 3333533361037097473}
   m_SourcePrefab: {fileID: 100100000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
 --- !u!1 &3967265782921104627 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100008, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
   m_PrefabInstance: {fileID: 3967265782921071195}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &307114740010600258
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3967265782921104627}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84524147c2c1eb943b8b141caa64c1eb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Interactable
-  message: Pick Fork
-  interactAction:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3967265782921104627}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!114 &3185150573073503310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -247,6 +219,36 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &3333533361037097473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3967265782921104627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4a63a9d4d40cf544bd9df31b4c687e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemPickable
+  message: 
+  interactAction:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3967265782921104627}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  itemScriptable: {fileID: 11400000, guid: b990f30368e71d246b69d99f5453c470, type: 2}
+  itemP: {fileID: 6713712602111004060}
 --- !u!4 &3967265782921203931 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}

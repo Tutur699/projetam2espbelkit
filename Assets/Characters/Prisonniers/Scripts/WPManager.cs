@@ -27,7 +27,7 @@ public class WPManager : MonoBehaviour
         selectedSlot = newIndex;
     }
 
-    public bool AddItem(Items newItem, PItems newItem3D) //Méthode pour ajouter un item dans l'inventaire
+    public void AddItem(Items newItem, PItems newItem3D)
     {   // Find an empty slot
         for (int i = 0; i < slots.Count; i++)
         {
@@ -45,11 +45,9 @@ public class WPManager : MonoBehaviour
                 newItem3D.ActivateWeapon(false);
                 Debug.Log("Added item: " + newItem.name + " to slot " + i);
 
-                return true; // Item added successfully
             }
         }
-        Debug.Log("Inventory full! Cannot add item: " + newItem.name);
-        return false; 
+
 
     }
 
@@ -85,7 +83,7 @@ public class WPManager : MonoBehaviour
             for (int i = 0; i < pItems.Count; i++)
             {
                 if (pItems[i] != null)
-                {  
+                {
                     pItems[i].ActivateWeapon(false);
                     pItems[i].isEquipped = false;
                 }
@@ -105,29 +103,29 @@ public class WPManager : MonoBehaviour
         pItems[index].isEquipped = true;
         selectedItems = pItems[index];
         selectedItemIndex = index;
-        
+
         Debug.Log("Selected item: " + selectedItems.item.name + " at index " + index);
-    
+
     }
 
     public void MoveItemSlot(int oldIndex, int newIndex)
     {
-    if (oldIndex < 0 || oldIndex >= pItems.Count || newIndex < 0 || newIndex >= pItems.Count )
-        return;
+        if (oldIndex < 0 || oldIndex >= pItems.Count || newIndex < 0 || newIndex >= pItems.Count)
+            return;
 
-    
-    if (pItems[oldIndex] == null)
-        return;
 
-    // On déplace la référence logique
-    PItems movedItem = pItems[oldIndex];    
+        if (pItems[oldIndex] == null)
+            return;
 
-    
-         while (pItems.Count <= newIndex)
+        // On déplace la référence logique
+        PItems movedItem = pItems[oldIndex];
+
+
+        while (pItems.Count <= newIndex)
             pItems.Add(null);
 
         pItems[newIndex] = movedItem;
-        pItems[oldIndex] = null; 
+        pItems[oldIndex] = null;
 
         Debug.Log($"Item {movedItem.name} déplacé de {oldIndex} vers {newIndex}");
 
@@ -154,6 +152,7 @@ public class WPManager : MonoBehaviour
             {
                 slots[i].ClearSlot();
             }
-        }*/
+        }
+    }*/
     }
 }

@@ -5,13 +5,14 @@ public class Interactor : MonoBehaviour
     public WPManager wpManager;
     public Raycast_player raycastPlayer;
     Interactable currentInteractable;
+    ItemPickable currentPickable;
 
     private void Update()
     {
         checkInteraction();
-        if (Input.GetKeyDown(raycastPlayer.key) && currentInteractable != null)
+        if (Input.GetKeyDown(raycastPlayer.key) && currentPickable != null)
         {
-            currentInteractable.Interact();
+            currentPickable.Interact();
         }
     }
     void checkInteraction()
@@ -36,39 +37,35 @@ public class Interactor : MonoBehaviour
                     DisableCurrentInteractable();
                 }
             }
+            if (hitInfo.collider.tag == "Pickable")
+            {
+                ItemPickable itemPick = hitInfo.collider.GetComponent<ItemPickable>();
+                if (currentPickable && itemPick != currentPickable)
+                {
+                    currentPickable.DisableOutline();
+                }
+                if (itemPick.enabled)
+                {
+                    SetNewCurrentInteractable(itemPick);
+                }
+                if (itemPick != null)
+                {
+                    if (Input.GetKeyDown(raycastPlayer.key))
+                    {
+                        wpManager.AddItem(hitInfo.collider.GetComponent<ItemPickable>().itemScriptable, hitInfo.collider.GetComponent<ItemPickable>().itemP);
+                        itemPick.PickItem();
+                    }
+                }
+                else //if the pickable component is disabled
+                {
+                    DisableCurrentInteractable();
+                }
+
+            }
             else
             {
                 DisableCurrentInteractable();
             }
-            /*if (hitInfo.collider.CompareTag("Objet") && wpManager != null) //if the object hit by the ray is an item
-            {
-                PItems item = hitInfo.collider.GetComponent<PItems>();
-                Items itemData = hitInfo.collider.GetComponent<Items>();
-                Interactable newInteractable = hitInfo.collider.GetComponent<Interactable>();
-                if (currentInteractable && newInteractable != currentInteractable) //if we are already looking at an interactable object but it's not the same as the new one
-                {
-                    DisableCurrentInteractable();
-                }
-                if (newInteractable.enabled)
-                {
-                    SetNewCurrentInteractable(newInteractable);
-                }
-                else //if the interactable component is disabled
-                {
-                    DisableCurrentInteractable();
-                }
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    wpManager.AddItem(itemData, item);
-                    Destroy(hitInfo.collider.gameObject); //destroy the item in the scene after picking it up
-                }
-                
-            }
-        }
-        else
-        {
-            DisableCurrentInteractable();
-        }*/
         }
     }
 
@@ -78,6 +75,14 @@ public class Interactor : MonoBehaviour
         currentInteractable.EnableOutline();
         HUDController.instance.EnableInteractionText(currentInteractable.message);
     }
+
+    void SetNewCurrentInteractable(ItemPickable item)
+    {
+        currentPickable = item;
+        currentPickable.EnableOutline();
+        HUDController.instance.EnableInteractionText(currentPickable.message);
+    }
+
     void DisableCurrentInteractable()
     {
         HUDController.instance.DisableInteractionText();
@@ -85,6 +90,11 @@ public class Interactor : MonoBehaviour
         {
             currentInteractable.DisableOutline();
             currentInteractable = null;
+        }
+        if (currentPickable)
+        {
+            currentPickable.DisableOutline();
+            currentPickable = null;
         }
     }
 }
