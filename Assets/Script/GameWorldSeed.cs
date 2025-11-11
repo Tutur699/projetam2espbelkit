@@ -43,7 +43,7 @@ public class GameWorldSeed : NetworkBehaviour
     void GenerateAll()
     {
         // Rattrapage : enregistre tout ce qui existerait déjà dans la scène
-        foreach (var g in FindObjectsOfType<RandomMurPorte>(true))
+        foreach (var g in Object.FindObjectsByType<RandomMurPorte>(FindObjectsSortMode.None))
             if (!generators.Contains(g)) generators.Add(g);
 
         foreach (var g in generators)
