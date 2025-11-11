@@ -11,13 +11,13 @@ GameObject:
   - component: {fileID: 8737431373864735718}
   - component: {fileID: 6978067090344383623}
   - component: {fileID: 7043508542659783957}
+  - component: {fileID: 7505997919382344954}
+  - component: {fileID: 9047770717811344283}
   - component: {fileID: 7215405888275147436}
   - component: {fileID: 3299404643998225763}
   - component: {fileID: 1816899921249490650}
-  - component: {fileID: 9047770717811344283}
   - component: {fileID: 3416957117099859582}
   - component: {fileID: 222516108993424726}
-  - component: {fileID: 3667593865182750307}
   - component: {fileID: 259366424688195242}
   m_Layer: 0
   m_Name: Player
@@ -54,7 +54,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2556442422
+  GlobalObjectIdHash: 2208218545
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -95,6 +95,55 @@ MonoBehaviour:
   wpManager: {fileID: 1816899921249490650}
   rb: {fileID: 9047770717811344283}
   canMove: 1
+--- !u!114 &7505997919382344954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 614809699670107412}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b22fd4cb7a22eb041838fe4c38ab01e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  ShowTopMostFoldoutHeaderGroup: 1
+  playerCamera: {fileID: 6627340190155275251}
+  audioListener: {fileID: 2537578725982609814}
+  localControllers:
+  - {fileID: 7043508542659783957}
+  - {fileID: 7215405888275147436}
+  localOnlyObjects:
+  - {fileID: 2831396593433219263}
+  - {fileID: 8028156325478163382}
+  worldModel: {fileID: 5405009075700472064}
+--- !u!54 &9047770717811344283
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 614809699670107412}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 112
+  m_CollisionDetection: 0
 --- !u!114 &7215405888275147436
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159,33 +208,6 @@ MonoBehaviour:
   selectedItemIndex: 0
   selectedItems: {fileID: 0}
   selectedSlot: -1
---- !u!54 &9047770717811344283
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 614809699670107412}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 112
-  m_CollisionDetection: 0
 --- !u!114 &3416957117099859582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -246,22 +268,6 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &3667593865182750307
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 614809699670107412}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfebf2f3602eefc48a1861918f419abb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  ShowTopMostFoldoutHeaderGroup: 1
-  PlayerCamera: {fileID: 6627340190155275251}
-  WorldModel: {fileID: 5609727118000491947}
-  LocalOnly: {fileID: 2831396593433219263}
 --- !u!114 &259366424688195242
 MonoBehaviour:
   m_ObjectHideFlags: 0
