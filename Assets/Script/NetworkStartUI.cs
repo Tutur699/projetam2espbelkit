@@ -44,7 +44,17 @@ public class NetworkStartUI : MonoBehaviour
 
         if (!nm.IsClient && !nm.IsServer)
         {
-            if (GUI.Button(new Rect(x, y, w, h), "Host"))   { ConfigureForServer(); nm.StartHost(); }
+            if (GUI.Button(new Rect(x, y, w, h), "Host"))
+            {
+                ConfigureForServer();
+                nm.StartHost();
+                if (nm.IsServer)
+                {
+                    var sm = nm.SceneManager;
+                    if (sm != null && UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "Terrain1 1")
+                        sm.LoadScene("Terrain1 1", UnityEngine.SceneManagement.LoadSceneMode.Single);
+                }
+            }
             y += h + p;
             if (GUI.Button(new Rect(x, y, w, h), "Client")) { ConfigureForClient(); nm.StartClient(); }
             y += h + p;

@@ -431,6 +431,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameWorldSeed
   ShowTopMostFoldoutHeaderGroup: 1
+  seedInEditor: 1337
 --- !u!4 &801783138
 Transform:
   m_ObjectHideFlags: 0

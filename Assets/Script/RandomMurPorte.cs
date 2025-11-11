@@ -133,13 +133,22 @@ public class RandomMurPorte : MonoBehaviour
     private Material _resWindowMat;
     private Material _resRoofMat;
 
-    void Start()
+    void Awake()
     {
         _resWallMat   = ResolveWallMaterial();
         _resDoorMat   = ResolveDoorMaterial();
         _resWindowMat = ResolveWindowMaterial();
         _resRoofMat   = ResolveRoofMaterial();
+
+        StartCoroutine(WaitAndRegister());
     }
+
+    System.Collections.IEnumerator WaitAndRegister()
+    {
+        while (GameWorldSeed.Instance == null) yield return null;
+        GameWorldSeed.Instance.Register(this);
+    }
+
 
     // Appelé par GameWorldSeed quand le seed est connu
     public void Generate(int seed)
