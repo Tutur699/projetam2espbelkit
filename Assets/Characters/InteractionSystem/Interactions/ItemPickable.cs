@@ -33,6 +33,11 @@ public class ItemPickable : MonoBehaviour, IPickable
     }
     public void PickItem()
     {
+        Debug.Log("Picking item: " + gameObject.name);
+        if (outline != null)
+        {
+            outline.enabled = false;
+        }
         Destroy(this.gameObject);
     }
 }

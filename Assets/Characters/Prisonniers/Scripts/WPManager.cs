@@ -28,38 +28,64 @@ public class WPManager : MonoBehaviour
     }
 
     public void AddItem(Items newItem, PItems newItem3D)
-    {   // Find an empty slot
-        Debug.Log($" AddItem reçoit {newItem.name} | sprite = {newItem.image}");
+    {
+        if (newItem == null)
+        {
+            Debug.LogError("Trying to add null item to inventory");
+            return;
+        }
+        Debug.Log("Trying to add item: " + newItem.name);
+        Debug.Log("Number of slots: " + slots.Count);
         for (int i = 0; i < slots.Count; i++)
         {
-            if (slots[i].transform.childCount == 0)
+            Transform slotTransform = slots[i].transform;
+            Debug.Log($"Slot {i} child count: {slotTransform.childCount}");
+            if (slotTransform.childCount == 0)
             {
                 // Create a new InventoryItem UI element
                 GameObject newItemUIObj = Instantiate(slotPrefab, slots[i].transform);
                 InventoryItem newItemUI = newItemUIObj.GetComponent<InventoryItem>();
-                newItemUI.InitializeItem(newItem);
+                if (newItemUI != null)
+                {
+                    newItemUI.InitializeItem(newItem);
+                    Debug.Log("Successfully added item: " + newItem.name + " to slot " + i);
+                }
+                else
+                {
+                    Debug.LogError("InventoryItem component missing on slotPrefab");
+                }
 
                 // Add the 3D item to the list
-                pItems.Add(newItem3D);
-                //UpdateUI();
-                newItem3D.manager = this;
-                newItem3D.ActivateWeapon(false);
-                Debug.Log("Added item: " + newItem.name + " to slot " + i);
-
+                if (newItem3D != null)
+                {
+                    pItems.Add(newItem3D);
+                    //UpdateUI();
+                    newItem3D.manager = this;
+                    newItem3D.ActivateWeapon(false);
+                    Debug.Log("Added item: " + newItem.name + " to slot " + i);
+                }
+                return;
             }
         }
-
-
+         Debug.LogWarning("No empty slots available for item: " + newItem.name);
     }
 
     void Start()
     {
+        if (slots == null || slots.Count == 0)
+        {
+            Debug.LogError("Slots list is empty in WPManager!");
+        }
+        else
+        {
+            Debug.Log($"WPManager initialized with {slots.Count} slots");
+        }
         if (pItems.Count > 0 && pItems[0] != null)
             SelectItems(0);
         else
             selectedItems = null;
         ChangeSelectedSlot(0);
-        UpdateUI();
+        
     }
 
     public void SelectItems(int index) //Méthode pour sélectionner une arme dans l'inventaire

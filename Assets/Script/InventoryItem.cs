@@ -20,10 +20,24 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     }*/
     public void InitializeItem(Items newItem)
     {
+        if (newItem == null)
+        {
+            Debug.LogWarning("InitializeItem() received a null item.");
+            return;
+        }
         item = newItem;
-        Debug.Log($"InitializeItem() → {newItem.name}, sprite = {newItem.image}");
-        itemImage.sprite = newItem.image;   
+        if (newItem.image != null)
+        {
+            itemImage.sprite = newItem.image;
+            itemImage.enabled = true;
+        }
+        else
+        {
+            Debug.LogWarning("Item image is null for item: " + newItem.name);
+            itemImage.enabled = false;
+        }
     }
+        
 
     public void OnBeginDrag(PointerEventData eventData)
     {

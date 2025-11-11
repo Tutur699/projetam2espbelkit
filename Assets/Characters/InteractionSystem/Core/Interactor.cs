@@ -40,6 +40,11 @@ public class Interactor : MonoBehaviour
             if (hitInfo.collider.tag == "Pickable")
             {
                 ItemPickable itemPick = hitInfo.collider.GetComponent<ItemPickable>();
+                if (itemPick == null)
+                {
+                    DisableCurrentInteractable();
+                    return;
+                }
                 if (currentPickable && itemPick != currentPickable)
                 {
                     currentPickable.DisableOutline();
@@ -48,24 +53,19 @@ public class Interactor : MonoBehaviour
                 {
                     SetNewCurrentInteractable(itemPick);
                 }
-                if (itemPick != null)
+                if (itemPick.itemScriptable != null && itemPick.itemP != null)
                 {
                     if (Input.GetKeyDown(raycastPlayer.key))
                     {
-                        wpManager.AddItem(hitInfo.collider.GetComponent<ItemPickable>().itemScriptable, hitInfo.collider.GetComponent<ItemPickable>().itemP);
+                        wpManager.AddItem(itemPick.itemScriptable, itemPick.itemP);
                         itemPick.PickItem();
                     }
                 }
-                else //if the pickable component is disabled
-                {
-                    DisableCurrentInteractable();
-                }
-
             }
-            else
-            {
-                DisableCurrentInteractable();
-            }
+        else
+        {
+            DisableCurrentInteractable();
+        }
         }
     }
 
