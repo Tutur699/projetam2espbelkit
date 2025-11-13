@@ -16,6 +16,7 @@ public class PlayerNetwork : NetworkBehaviour
         // On n’active la caméra que pour le propriétaire local
         if (IsOwner && playerCamera != null)
             playerCamera.gameObject.SetActive(true);
+
     }
 }
 
