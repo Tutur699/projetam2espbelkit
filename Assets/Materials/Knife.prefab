@@ -40,12 +40,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6306082773304683358}
-  - component: {fileID: 3959972051931692905}
-  - component: {fileID: 8769494194107586354}
   - component: {fileID: 2912058414410117217}
   m_Layer: 0
   m_Name: Knife
-  m_TagString: Items
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67,52 +65,6 @@ Transform:
   - {fileID: 8780878461579742205}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3959972051931692905
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7024356929894291791}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Outline
-  outlineMode: 0
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 2
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
---- !u!114 &8769494194107586354
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7024356929894291791}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84524147c2c1eb943b8b141caa64c1eb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Interactable
-  message: Pick Knife
-  interactAction:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8780878461579384797}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!114 &2912058414410117217
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125,12 +77,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8e011000087cef4c86d6799312bd717, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PItems
-  item: {fileID: 8780878461579384799}
-  singleUse: 0
-  useRate: 0.1
-  weaponDamage: 5
+  item: {fileID: 11400000, guid: 020d0ed7ac2be64499cb19150f7a3ade, type: 2}
   HitPoint: {fileID: 6294194720170951437}
   manager: {fileID: 0}
+  isEquipped: 0
 --- !u!1001 &8780878461579350397
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -145,11 +95,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
       propertyPath: m_TagString
-      value: Items
+      value: Untagged
       objectReference: {fileID: 0}
     - target: {fileID: 100002, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
       propertyPath: m_TagString
-      value: Items
+      value: Pickable
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
       propertyPath: m_LocalPosition.x
@@ -257,65 +207,22 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 100000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2357166390978317577}
-    - targetCorrespondingSourceObject: {fileID: 100000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4331900435360331962}
-    - targetCorrespondingSourceObject: {fileID: 100000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 1014921750959080954}
+    - targetCorrespondingSourceObject: {fileID: 100002, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2321511412566848655}
+    - targetCorrespondingSourceObject: {fileID: 100002, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5976400796471445738}
+    - targetCorrespondingSourceObject: {fileID: 100002, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 851045356051985408}
   m_SourcePrefab: {fileID: 100100000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
 --- !u!1 &8780878461579384797 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
   m_PrefabInstance: {fileID: 8780878461579350397}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2357166390978317577
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8780878461579384797}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Outline
-  outlineMode: 0
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 2
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
---- !u!114 &4331900435360331962
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8780878461579384797}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84524147c2c1eb943b8b141caa64c1eb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Interactable
-  message: Pick Knife
-  interactAction:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8780878461579384797}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!64 &1014921750959080954
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -343,6 +250,75 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 100002, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}
   m_PrefabInstance: {fileID: 8780878461579350397}
   m_PrefabAsset: {fileID: 0}
+--- !u!65 &2321511412566848655
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8780878461579384799}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.019340696, y: 0.22584678, z: 0.005320072}
+  m_Center: {x: 0.00014474809, y: 0.10471846, z: 0.00009346494}
+--- !u!114 &5976400796471445738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8780878461579384799}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
+--- !u!114 &851045356051985408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8780878461579384799}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4a63a9d4d40cf544bd9df31b4c687e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemPickable
+  message: Pick Knife
+  interactAction:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8780878461579384799}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  itemScriptable: {fileID: 11400000, guid: 020d0ed7ac2be64499cb19150f7a3ade, type: 2}
+  itemP: {fileID: 2912058414410117217}
 --- !u!4 &8780878461579742205 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 63047feaf49140741bec2aba00c8f0de, type: 3}

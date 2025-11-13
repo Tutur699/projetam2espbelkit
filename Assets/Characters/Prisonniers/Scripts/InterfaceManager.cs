@@ -1,7 +1,13 @@
 using UnityEngine;
 
 //Entity interafce
-interface IEntity
-{ 
+public interface IEntity
+{
     void ApplyDamage(float points);
+}
+
+//Pickable item interface
+public interface IPickable
+{
+    void PickItem(GameObject pickedObject);
 }

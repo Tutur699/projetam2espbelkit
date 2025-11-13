@@ -266,6 +266,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Interactor
   wpManager: {fileID: 2029438932372060698}
+  raycastPlayer: {fileID: 0}
 --- !u!114 &710754510016905300
 MonoBehaviour:
   m_ObjectHideFlags: 0
