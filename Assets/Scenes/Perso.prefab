@@ -279,11 +279,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fd95afc99211bc448636b30b7034c9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerControler
+  ShowTopMostFoldoutHeaderGroup: 1
   playerCamera: {fileID: 8871858195290635164}
+  audioListener: {fileID: 0}
   MoveAction: {fileID: 3510894254208987783, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
   ShootAction: {fileID: -3149254764556580390, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
   SelectAction: {fileID: -1195065267834298981, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
   CrouchAction: {fileID: -7588760859488165850, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
+  LookAction: {fileID: 0}
   moveSpeed: 10
   mouseSensitivity: 4
   desiredJumpHeight: 2.5
@@ -292,7 +295,6 @@ MonoBehaviour:
   crouchCameraOffset: 0.5
   crouchSpeedMultiplier: 0.5
   wpManager: {fileID: 2029438932372060698}
-  rb: {fileID: 3731998557386874087}
   canMove: 1
 --- !u!114 &8691786616067137394
 MonoBehaviour:
