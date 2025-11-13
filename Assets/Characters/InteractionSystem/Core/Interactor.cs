@@ -58,7 +58,7 @@ public class Interactor : MonoBehaviour
                     if (Input.GetKeyDown(raycastPlayer.key))
                     {
                         wpManager.AddItem(itemPick.itemScriptable, itemPick.itemP);
-                        itemPick.PickItem();
+                        itemPick.PickItem(hitInfo.collider.gameObject);
                     }
                 }
             }

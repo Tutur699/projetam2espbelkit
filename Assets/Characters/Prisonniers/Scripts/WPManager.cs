@@ -4,10 +4,10 @@ using System.Collections;
 
 public class WPManager : MonoBehaviour
 {
-    public const int MAXITEMS = 3;
+    public const int MAXITEMS = 5;
     public Camera playerCamera;
 
-    public List<PItems> pItems = new List<PItems>(MAXITEMS); //List of PItems (the actual item objects in the scene)
+    public List<PItems> pItems = new List<PItems>(); //List of PItems (the actual item objects in the scene)
 
     [Header("Inventory UI")]
     public List<Slot> slots = new List<Slot>(MAXITEMS); //List of items(Scriptable Objects)
@@ -17,6 +17,7 @@ public class WPManager : MonoBehaviour
 
     [HideInInspector] public int selectedSlot = -1;
 
+
     public void ChangeSelectedSlot(int newIndex)
     {
         if (selectedSlot >= 0)
@@ -25,6 +26,7 @@ public class WPManager : MonoBehaviour
         }
         slots[newIndex].Select();
         selectedSlot = newIndex;
+        SelectItems(newIndex);
     }
 
     public void AddItem(Items newItem, PItems newItem3D)
@@ -58,20 +60,57 @@ public class WPManager : MonoBehaviour
                 // Add the 3D item to the list
                 if (newItem3D != null)
                 {
-                    pItems.Add(newItem3D);
-                    //UpdateUI();
+                    while (pItems.Count < slots.Count)
+                        pItems.Add(null);
+
+                    if (pItems[i] == null)
+                    {
+                        pItems[i] = newItem3D; 
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Overwriting existing item in pItems at index " + i); 
+                    }
                     newItem3D.manager = this;
-                    newItem3D.ActivateWeapon(false);
+                    bool isFirstWeapon = ( selectedItems == null);
+                    newItem3D.ActivateWeapon(isFirstWeapon);
+                    if (isFirstWeapon)
+                    {
+                        selectedItems = newItem3D;
+                        selectedItemIndex = i;
+                        selectedSlot = i;
+                        // éventuellement sélectionner le slot UI
+                        slots[i].Select();
+                    }
                     Debug.Log("Added item: " + newItem.name + " to slot " + i);
                 }
                 return;
             }
         }
-         Debug.LogWarning("No empty slots available for item: " + newItem.name);
+        Debug.LogWarning("No empty slots available for item: " + newItem.name);
+    }
+    
+    void Awake()
+    {
+   
+        int slotCount = (slots != null && slots.Count > 0) ? slots.Count : MAXITEMS;
+        pItems = new List<PItems>(slotCount);
+        for (int i = 0; i < slotCount; i++)
+            pItems.Add(null);
     }
 
     void Start()
     {
+        // Désactive les GameObjects des armes au démarrage
+        for (int i = 0; i < pItems.Count; i++)
+        {
+            if (pItems[i] != null)
+                pItems[i].gameObject.SetActive(false);
+        }
+            
+        selectedItems = null;
+        Debug.Log("Toutes les armes désactivées au démarrage.");
+    
         if (slots == null || slots.Count == 0)
         {
             Debug.LogError("Slots list is empty in WPManager!");
@@ -80,11 +119,11 @@ public class WPManager : MonoBehaviour
         {
             Debug.Log($"WPManager initialized with {slots.Count} slots");
         }
-        if (pItems.Count > 0 && pItems[0] != null)
+        /*if (pItems.Count > 0 && pItems[0] != null)
             SelectItems(0);
         else
             selectedItems = null;
-        ChangeSelectedSlot(0);
+        ChangeSelectedSlot(0);*/
         
     }
 
@@ -156,7 +195,6 @@ public class WPManager : MonoBehaviour
 
         Debug.Log($"Item {movedItem.name} déplacé de {oldIndex} vers {newIndex}");
 
-        UpdateUI();
         if (selectedSlot == oldIndex)
         {
             selectedItems = pItems[newIndex];
@@ -167,19 +205,25 @@ public class WPManager : MonoBehaviour
             selectedItems = pItems[newIndex];
         }
     }
-    public void UpdateUI()
+    public void EquipWeapon(int index)
     {
-        /*for (int i = 0; i < slots.Count; i++)
+        if (index < 0 || index >= pItems.Count)
         {
-            if (i < pItems.Count && pItems[i] != null)
-            {
-                slots[i].SetItem(pItems[i].item);
-            }
-            else
-            {
-                slots[i].ClearSlot();
-            }
+            Debug.LogWarning("Index d'arme invalide : " + index);
+            return;
         }
-    }*/
+
+        // Désactive toutes les armes avant d’activer la nouvelle
+        foreach (var item in pItems)
+        {
+            if (item != null)
+                item.gameObject.SetActive(false);
+        }
+
+        // Active l’arme choisie
+        selectedItems = pItems[index];
+        selectedItems.gameObject.SetActive(true);
+
+        Debug.Log(" Arme équipée : " + selectedItems.name);
     }
 }

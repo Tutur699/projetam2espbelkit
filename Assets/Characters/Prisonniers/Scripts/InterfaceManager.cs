@@ -9,5 +9,5 @@ public interface IEntity
 //Pickable item interface
 public interface IPickable
 {
-    void PickItem();
+    void PickItem(GameObject pickedObject);
 }

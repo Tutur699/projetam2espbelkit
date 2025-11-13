@@ -31,13 +31,13 @@ public class ItemPickable : MonoBehaviour, IPickable
     {
         outline.enabled = true;
     }
-    public void PickItem()
+    public void PickItem(GameObject pickedObject)
     {
         Debug.Log("Picking item: " + gameObject.name);
         if (outline != null)
         {
             outline.enabled = false;
         }
-        Destroy(this.gameObject);
+        Destroy(pickedObject);
     }
 }
