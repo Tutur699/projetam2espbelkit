@@ -105,12 +105,17 @@ public class WPManager : MonoBehaviour
         for (int i = 0; i < pItems.Count; i++)
         {
             if (pItems[i] != null)
+            {
                 pItems[i].gameObject.SetActive(false);
+                pItems[i].ActivateWeapon(false);
+                pItems[i].isEquipped = false;
+            }
+                
         }
             
         selectedItems = null;
         Debug.Log("Toutes les armes désactivées au démarrage.");
-    
+
         if (slots == null || slots.Count == 0)
         {
             Debug.LogError("Slots list is empty in WPManager!");
@@ -118,15 +123,9 @@ public class WPManager : MonoBehaviour
         else
         {
             Debug.Log($"WPManager initialized with {slots.Count} slots");
-        }
-        /*if (pItems.Count > 0 && pItems[0] != null)
-            SelectItems(0);
-        else
-            selectedItems = null;
-        ChangeSelectedSlot(0);*/
+        } 
         
     }
-
     public void SelectItems(int index) //Méthode pour sélectionner une arme dans l'inventaire
     {
         if (index < 0 || index >= pItems.Count) //Si l'index n'est pas valide
