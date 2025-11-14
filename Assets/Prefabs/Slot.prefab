@@ -116,5 +116,4 @@ MonoBehaviour:
   slotImage: {fileID: 3845518928000477145}
   normalColor: {r: 0.9528302, g: 0.4498155, b: 0.19326274, a: 1}
   selectedColor: {r: 1, g: 0.9575472, b: 0.9575472, a: 1}
-  slotID: 0
   manager: {fileID: 0}

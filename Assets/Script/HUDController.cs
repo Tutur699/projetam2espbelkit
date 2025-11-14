@@ -7,16 +7,16 @@ public class HUDController : MonoBehaviour
 {
     public static HUDController instance;
 
-    [SerializeField] TMP_Text interactionText;
+    
 
     private void Awake()
     {
         instance = this;
     }
-
-    public void EnableInteractionText(string message)
+    [SerializeField] TMP_Text interactionText;
+    public void EnableInteractionText(string text)
     {
-        interactionText.text = message + " (F) ";
+        interactionText.text = text + " (P) ";
         interactionText.gameObject.SetActive(true);
     }
     public void DisableInteractionText()

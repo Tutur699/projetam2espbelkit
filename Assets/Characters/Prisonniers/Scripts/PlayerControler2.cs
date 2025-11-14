@@ -1,9 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Unity.Netcode;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerControler : NetworkBehaviour
+public class PlayerControler2 : MonoBehaviour
 {
     [Header("Camera & Audio")]
     [SerializeField] Camera playerCamera;          // désactivée dans le prefab
@@ -51,31 +50,6 @@ public class PlayerControler : NetworkBehaviour
         if (audioListener)  audioListener.enabled = false;
     }
 
-    public override void OnNetworkSpawn()
-    {
-        // Coloration locale (ok)
-        if (IsOwner)
-        {
-            EnableLocal(true);
-
-            var bodyR = FindChildRenderer("body");
-            var gunR  = FindChildRenderer("Cube");
-            Tint(bodyR, Color.red);
-            Tint(gunR,  Color.red);
-
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible   = false;
-        }
-        else
-        {
-            EnableLocal(false);
-        }
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        EnableLocal(false);
-    }
 
     void Start()
     {
@@ -86,7 +60,6 @@ public class PlayerControler : NetworkBehaviour
 
     void Update()
     {
-        if (!IsOwner) return; // << ESSENTIEL
         if (!inputsEnabled) return;
 
         // Souris (garde Input.GetAxis si tu n'as pas d'action Look)
@@ -123,7 +96,6 @@ public class PlayerControler : NetworkBehaviour
 
     void FixedUpdate()
     {
-        if (!IsOwner) return; // << ESSENTIEL
         if (!inputsEnabled) return;
 
         Vector3 planarInput = new Vector3(direction.x, 0f, direction.z);
@@ -134,30 +106,6 @@ public class PlayerControler : NetworkBehaviour
     }
 
     // ---------- Enable/disable “local only” ----------
-    void EnableLocal(bool enable)
-    {
-        if (playerCamera)
-        {
-            playerCamera.enabled = enable;
-            playerCamera.tag = enable ? "MainCamera" : "Untagged";
-        }
-    if (audioListener) audioListener.enabled = enable;
-        Bind(MoveAction, enable, OnMoveActionPerformed, OnMoveActionCanceled);
-        Bind(ShootAction, enable, OnShootStarted);
-        Bind(SelectAction, enable, OnSelectStarted);
-        Bind(CrouchAction, enable, OnCrouchStarted, OnCrouchCanceled);
-
-        if (LookAction?.action != null)
-        {
-            if (enable) LookAction.action.Enable();
-            else LookAction.action.Disable();
-        }
-
-        Cursor.lockState = enable ? CursorLockMode.Locked : CursorLockMode.None;
-        Cursor.visible = !enable;
-
-        inputsEnabled = enable;
-    }
     void Bind(InputActionReference aref, bool enable,
           System.Action<InputAction.CallbackContext> onPerformed,
           System.Action<InputAction.CallbackContext> onCanceled = null)
@@ -166,48 +114,6 @@ public class PlayerControler : NetworkBehaviour
         var a = aref.action;
         if (enable)
         {
-            MoveAction.action.performed -= OnMoveActionPerformed;
-            MoveAction.action.canceled  -= OnMoveActionCanceled;
-            MoveAction.action.Disable();
-        }
-
-        if (ShootAction?.action != null)
-        {
-            ShootAction.action.started -= OnShootStarted;
-            ShootAction.action.Disable();
-        }
-
-        if (SelectAction?.action != null)
-        {
-            SelectAction.action.started -= OnSelectStarted;
-            SelectAction.action.Disable();
-        }
-
-        if (CrouchAction?.action != null)
-        {
-            CrouchAction.action.started -= OnCrouchStarted;
-            CrouchAction.action.canceled -= OnCrouchCanceled;
-            CrouchAction.action.Disable();
-        }
-    }
-
-    // --- Input handlers ---
-    private void OnMoveActionPerformed(InputAction.CallbackContext context)
-    {
-        direction = canMove ? context.ReadValue<Vector3>() : Vector3.zero;
-    }
-
-    private void OnMoveActionCanceled(InputAction.CallbackContext context)
-    {
-        direction = Vector3.zero;
-    }
-
-    private void OnShootStarted(InputAction.CallbackContext context)
-    {
-        if (wpManager.selectedItems != null && wpManager.selectedItems.isEquipped)
-        {
-            Debug.Log("Using item: " + wpManager.selectedItems.item);
-            wpManager.selectedItems.Use();
             if (onPerformed != null) a.performed += onPerformed;
             if (onCanceled  != null) a.canceled  += onCanceled;
             a.Enable();
@@ -225,26 +131,26 @@ public class PlayerControler : NetworkBehaviour
     // ---------- Input handlers ----------
     void OnMoveActionPerformed(InputAction.CallbackContext ctx)
     {
-        if (!IsOwner) return;
+        if (!canMove) return;
         Vector2 v = ctx.ReadValue<Vector2>();      // WASD / stick
         direction = new Vector3(v.x, direction.y, v.y); // XZ
     }
     void OnMoveActionCanceled(InputAction.CallbackContext ctx)
     {
-        if (!IsOwner) return;
+        if (!canMove) return;
         direction = Vector3.zero;
     }
 
     void OnShootStarted(InputAction.CallbackContext ctx)
     {
-        if (!IsOwner) return;
+        if (!wpManager) return;
         if (wpManager && wpManager.selectedItems && wpManager.selectedItems.isEquipped)
             wpManager.selectedItems.Use();
     }
 
     void OnSelectStarted(InputAction.CallbackContext ctx)
     {
-        if (!IsOwner || wpManager == null) return;
+        if (!wpManager) return;
         var name = ctx.control.name;
         int idx = name switch { "1" => 0, "2" => 1, "3" => 2, "4" => 3, "5" => 4, _ => -1 };
         if (idx >= 0)
@@ -257,7 +163,7 @@ public class PlayerControler : NetworkBehaviour
     // ---------- Crouch ----------
     void OnCrouchStarted(InputAction.CallbackContext ctx)
     {
-        if (!IsOwner || isCrouching) return;
+        if (!isCrouching) return;
         transform.localScale = new Vector3(originalScale.x, originalScale.y * Mathf.Clamp01(crouchHeight), originalScale.z);
         if (playerCamera) playerCamera.transform.localPosition = originalCameraLocalPos - new Vector3(0f, crouchCameraOffset, 0f);
         moveSpeed = originalSpeed * crouchSpeedMultiplier;
@@ -266,7 +172,7 @@ public class PlayerControler : NetworkBehaviour
 
     void OnCrouchCanceled(InputAction.CallbackContext ctx)
     {
-        if (!IsOwner || !isCrouching) return;
+        if (!isCrouching) return;
         transform.localScale = originalScale;
         if (playerCamera) playerCamera.transform.localPosition = originalCameraLocalPos;
         moveSpeed = originalSpeed;
@@ -308,3 +214,4 @@ public class PlayerControler : NetworkBehaviour
         r.SetPropertyBlock(mpb);
     }
 }
+

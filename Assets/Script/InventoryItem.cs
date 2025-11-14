@@ -11,15 +11,33 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     [HideInInspector] public Transform parentAfterDrag;
     // Start is called before the first frame update
     
-    private void Start()
+    /*private void Start()
     {
-      InitializeItem(item);   
-    }
+        if (item != null)
+        {
+            InitializeItem(item);
+        }
+    }*/
     public void InitializeItem(Items newItem)
     {
+        if (newItem == null)
+        {
+            Debug.LogWarning("InitializeItem() received a null item.");
+            return;
+        }
         item = newItem;
-        itemImage.sprite = newItem.image;   
+        if (newItem.image != null)
+        {
+            itemImage.sprite = newItem.image;
+            itemImage.enabled = true;
+        }
+        else
+        {
+            Debug.LogWarning("Item image is null for item: " + newItem.name);
+            itemImage.enabled = false;
+        }
     }
+        
 
     public void OnBeginDrag(PointerEventData eventData)
     {

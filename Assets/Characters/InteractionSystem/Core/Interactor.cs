@@ -3,36 +3,30 @@ using UnityEngine;
 public class Interactor : MonoBehaviour
 {
     public WPManager wpManager;
-    //private float interactionRange = 3f;
+    public Raycast_player raycastPlayer;
     Interactable currentInteractable;
-    private Vector3 _raycastOffset = new Vector3(0, 1f, 0);
+    ItemPickable currentPickable;
 
-    /*private void Update()
+    private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F))
+        checkInteraction();
+        if (Input.GetKeyDown(raycastPlayer.key) && currentPickable != null)
         {
-            if (DoInteractionTest(out IInteractable interactable))
-            {
-                if (interactable.CanInteract())
-                {
-                    interactable.Interact(this);
-                }
-            }
+            currentPickable.Interact();
         }
-    }*/
-
-    /*void checkInteraction()
+    }
+    void checkInteraction()
     {
         RaycastHit hitInfo;
-        Ray ray = new Ray(transform.position + _raycastOffset, transform.forward);
-        if (Physics.Raycast(ray, out hitInfo, interactionRange))
+        Ray ray = new Ray(wpManager.playerCamera.transform.position, wpManager.playerCamera.transform.forward);
+        if (Physics.Raycast(ray, out hitInfo, raycastPlayer.distmax))
         {
-            if (hitInfo.collider.CompareTag("Interactable")) //if the object hit by the ray is an interactable object
+            if (hitInfo.collider.tag == "Interactable") //if the object hit by the ray is an interactable object
             {
                 Interactable newInteractable = hitInfo.collider.GetComponent<Interactable>();
                 if (currentInteractable && newInteractable != currentInteractable) //if we are already looking at an interactable object but it's not the same as the new one
                 {
-                    DisableCurrentInteractable();
+                    currentInteractable.DisableOutline();
                 }
                 if (newInteractable.enabled)
                 {
@@ -43,25 +37,35 @@ public class Interactor : MonoBehaviour
                     DisableCurrentInteractable();
                 }
             }
-            else if (hitInfo.collider.CompareTag("Items") && wpManager != null) //if the object hit by the ray is an item
+            if (hitInfo.collider.tag == "Pickable")
             {
-                PItems item = hitInfo.collider.GetComponent<PItems>();
-                if (item != null)
+                ItemPickable itemPick = hitInfo.collider.GetComponent<ItemPickable>();
+                if (itemPick == null)
                 {
-                    wpManager.addItem(item);
-                    hitInfo.collider.gameObject.SetActive(false); //disable the item in the scene after picking it up
+                    DisableCurrentInteractable();
+                    return;
                 }
-                DisableCurrentInteractable(); //disable any interactable outline if we were looking at one before picking up the item
+                if (currentPickable && itemPick != currentPickable)
+                {
+                    currentPickable.DisableOutline();
+                }
+                if (itemPick.enabled)
+                {
+                    SetNewCurrentInteractable(itemPick);
+                }
+                if (itemPick.itemScriptable != null && itemPick.itemP != null)
+                {
+                    if (Input.GetKeyDown(raycastPlayer.key))
+                    {
+                        wpManager.AddItem(itemPick.itemScriptable, itemPick.itemP);
+                        itemPick.PickItem(hitInfo.collider.gameObject);
+                    }
+                }
             }
-            else
-            { //if the object hit by the ray is not an interactable object
-                DisableCurrentInteractable();
-            }
-        }
-
         else
-        { //if nothing is hit by the ray
+        {
             DisableCurrentInteractable();
+        }
         }
     }
 
@@ -71,6 +75,14 @@ public class Interactor : MonoBehaviour
         currentInteractable.EnableOutline();
         HUDController.instance.EnableInteractionText(currentInteractable.message);
     }
+
+    void SetNewCurrentInteractable(ItemPickable item)
+    {
+        currentPickable = item;
+        currentPickable.EnableOutline();
+        HUDController.instance.EnableInteractionText(currentPickable.message);
+    }
+
     void DisableCurrentInteractable()
     {
         HUDController.instance.DisableInteractionText();
@@ -79,5 +91,11 @@ public class Interactor : MonoBehaviour
             currentInteractable.DisableOutline();
             currentInteractable = null;
         }
-    }*/
+        if (currentPickable)
+        {
+            currentPickable.DisableOutline();
+            currentPickable = null;
+        }
+    }
 }
+
