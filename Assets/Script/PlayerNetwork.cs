@@ -2,7 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 public class PlayerNetwork : NetworkBehaviour
-{
+{/*
     [SerializeField] private Camera playerCamera;
 
     void OnEnable()
@@ -17,6 +17,6 @@ public class PlayerNetwork : NetworkBehaviour
         if (IsOwner && playerCamera != null)
             playerCamera.gameObject.SetActive(true);
 
-    }
+    }*/
 }
 

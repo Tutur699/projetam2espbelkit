@@ -5,7 +5,7 @@ using System.Linq;
 
 public class NetworkStartUI : MonoBehaviour
 {
-    [SerializeField] NetworkManager nm;         // <- glisse ton NetworkManager ici
+    /*[SerializeField] NetworkManager nm;         // <- glisse ton NetworkManager ici
     [SerializeField] UnityTransport utp;        // <- et le transport
     [SerializeField] string defaultIp = "127.0.0.1";
     [SerializeField] ushort port = 7777;
@@ -64,5 +64,5 @@ public class NetworkStartUI : MonoBehaviour
         {
             if (GUI.Button(new Rect(x, y, w, h), "Shutdown")) nm.Shutdown();
         }
-    }
+    }*/
 }

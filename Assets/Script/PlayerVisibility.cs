@@ -2,7 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 public class PlayerVisibility : NetworkBehaviour
-{
+{/*
     public Camera PlayerCamera;
     public GameObject WorldModel;
     public GameObject LocalOnly;
@@ -24,5 +24,5 @@ public class PlayerVisibility : NetworkBehaviour
         }
 
         if (WorldModel) WorldModel.SetActive(true); // visible pour tous
-    }
+    }*/
 }

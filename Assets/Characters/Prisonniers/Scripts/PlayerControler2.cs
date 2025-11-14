@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerControler : MonoBehaviour
+public class PlayerControler2 : MonoBehaviour
 {
     [Header("Camera & Audio")]
     [SerializeField] Camera playerCamera;          // désactivée dans le prefab
@@ -33,60 +33,31 @@ public class PlayerControler : MonoBehaviour
     Rigidbody rb;
     Vector3 direction = Vector3.zero;  // x/z = déplacement, y = saut (flag)
     bool isGrounded = true;
-    bool inputsEnabled = false;
+    bool inputsEnabled = true;
     public bool canMove = true;
 
 
     Vector3 originalScale;
     Vector3 originalCameraLocalPos;
-    float   originalSpeed;
+    float originalSpeed;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
 
-        // Sécurise : tout “local-only” OFF par défaut dans le prefab
-        //if (playerCamera)   playerCamera.enabled = false;
         if (audioListener)  audioListener.enabled = false;
     }
 
-    /*public override void OnNetworkSpawn()
-    {
-        // Coloration locale (ok)
-        if (IsOwner)
-        {
-            EnableLocal(true);
-
-            var bodyR = FindChildRenderer("body");
-            var gunR  = FindChildRenderer("Cube");
-            Tint(bodyR, Color.red);
-            Tint(gunR,  Color.red);
-
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible   = false;
-        }
-        else
-        {
-            EnableLocal(false);
-        }
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        EnableLocal(false);
-    }*/
 
     void Start()
     {
         originalScale = transform.localScale;
         originalSpeed = moveSpeed;
         originalCameraLocalPos = playerCamera ? playerCamera.transform.localPosition : Vector3.zero;
-        EnableLocal(true);
     }
 
     void Update()
     {
-        //if (!IsOwner) return; // << ESSENTIEL
         if (!inputsEnabled) return;
 
         // Souris (garde Input.GetAxis si tu n'as pas d'action Look)
@@ -123,7 +94,6 @@ public class PlayerControler : MonoBehaviour
 
     void FixedUpdate()
     {
-        //if (!IsOwner) return; // << ESSENTIEL
         if (!inputsEnabled) return;
 
         Vector3 planarInput = new Vector3(direction.x, 0f, direction.z);
@@ -134,30 +104,6 @@ public class PlayerControler : MonoBehaviour
     }
 
     // ---------- Enable/disable “local only” ----------
-    void EnableLocal(bool enable)
-    {
-        if (playerCamera)
-        {
-            playerCamera.enabled = enable;
-            playerCamera.tag = enable ? "MainCamera" : "Untagged";
-        }
-    if (audioListener) audioListener.enabled = enable;
-        Bind(MoveAction, enable, OnMoveActionPerformed, OnMoveActionCanceled);
-        Bind(ShootAction, enable, OnShootStarted);
-        Bind(SelectAction, enable, OnSelectStarted);
-        Bind(CrouchAction, enable, OnCrouchStarted, OnCrouchCanceled);
-
-        if (LookAction?.action != null)
-        {
-            if (enable) LookAction.action.Enable();
-            else LookAction.action.Disable();
-        }
-
-        Cursor.lockState = enable ? CursorLockMode.Locked : CursorLockMode.None;
-        Cursor.visible = !enable;
-
-        inputsEnabled = enable;
-    }
     void Bind(InputActionReference aref, bool enable,
           System.Action<InputAction.CallbackContext> onPerformed,
           System.Action<InputAction.CallbackContext> onCanceled = null)
@@ -177,32 +123,31 @@ public class PlayerControler : MonoBehaviour
             a.Disable();
         }
     }
-
     
 
     // ---------- Input handlers ----------
     void OnMoveActionPerformed(InputAction.CallbackContext ctx)
     {
-        //if (!IsOwner) return;
-        Vector2 v = ctx.ReadValue<Vector3>();      // WASD / stick
+        if (!canMove) return;
+        Vector2 v = ctx.ReadValue<Vector2>();      // WASD / stick
         direction = new Vector3(v.x, direction.y, v.y); // XZ
     }
     void OnMoveActionCanceled(InputAction.CallbackContext ctx)
     {
-        //if (!IsOwner) return;
+        if (!canMove) return;
         direction = Vector3.zero;
     }
 
     void OnShootStarted(InputAction.CallbackContext ctx)
     {
-        //if (!IsOwner) return;
+        if (!wpManager) return;
         if (wpManager && wpManager.selectedItems && wpManager.selectedItems.isEquipped)
             wpManager.selectedItems.Use();
     }
 
     void OnSelectStarted(InputAction.CallbackContext ctx)
     {
-        if (wpManager == null) return;
+        if (!wpManager) return;
         var name = ctx.control.name;
         int idx = name switch { "1" => 0, "2" => 1, "3" => 2, "4" => 3, "5" => 4, _ => -1 };
         if (idx >= 0)

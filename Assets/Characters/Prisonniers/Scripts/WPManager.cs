@@ -90,19 +90,19 @@ public class WPManager : MonoBehaviour
         Debug.LogWarning("No empty slots available for item: " + newItem.name);
     }
     
-    void Awake()
+   /* void Awake()
     {
    
         int slotCount = (slots != null && slots.Count > 0) ? slots.Count : MAXITEMS;
         pItems = new List<PItems>(slotCount);
         for (int i = 0; i < slotCount; i++)
             pItems.Add(null);
-    }
+    }*/
 
     void Start()
     {
         // Désactive les GameObjects des armes au démarrage
-        for (int i = 0; i < pItems.Count; i++)
+        /*for (int i = 0; i < pItems.Count; i++)
         {
             if (pItems[i] != null)
             {
@@ -111,7 +111,7 @@ public class WPManager : MonoBehaviour
                 pItems[i].isEquipped = false;
             }
                 
-        }
+        }*/
             
         selectedItems = null;
         Debug.Log("Toutes les armes désactivées au démarrage.");

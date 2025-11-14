@@ -7,7 +7,7 @@ public class PlayerManager : MonoBehaviour, IEntity
 {
     //This script will keep track of player HP
     public float playerHP = 100;
-    public PlayerControler playerControler;
+    public PlayerControler2 playerControler;
     public WPManager weaponManager;
 
     //public Texture crosshairTexture;

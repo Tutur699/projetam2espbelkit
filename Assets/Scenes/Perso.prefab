@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &992618931752184442
+--- !u!1 &1736252949125168742
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,75 +8,44 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1292765873271092594}
-  - component: {fileID: 6955572290975397685}
-  - component: {fileID: 7663286278148810712}
+  - component: {fileID: 7898968746628197414}
+  - component: {fileID: 2425836115616210949}
   m_Layer: 0
-  m_Name: PrisonController
+  m_Name: Raycast
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1292765873271092594
+--- !u!4 &7898968746628197414
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 992618931752184442}
+  m_GameObject: {fileID: 1736252949125168742}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 1281.8231, y: 703.9, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5434371060346260043}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!143 &6955572290975397685
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 992618931752184442}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7663286278148810712
+--- !u!114 &2425836115616210949
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 992618931752184442}
+  m_GameObject: {fileID: 1736252949125168742}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 289282d81c17f454cac41a9d66692cb2, type: 3}
+  m_Script: {fileID: 11500000, guid: 93006d906c0d14e4c9bed7ae6ed830e3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PrisonController
-  speed: 7.5
-  jumpSpeed: 8
-  gravity: 20
-  playerCamera: {fileID: 8871858195290635164}
-  lookSpeed: 2
-  lookXLimit: 45
-  canMove: 1
+  m_EditorClassIdentifier: Assembly-CSharp::Raycast_player
+  key: 112
+  distmax: 5
 --- !u!1 &4081112284436322537
 GameObject:
   m_ObjectHideFlags: 0
@@ -224,9 +193,9 @@ GameObject:
   m_Component:
   - component: {fileID: 5434371060346260043}
   - component: {fileID: 4649579179492759028}
-  - component: {fileID: 710754510016905300}
   - component: {fileID: 8691786616067137394}
   - component: {fileID: 3731998557386874087}
+  - component: {fileID: 5035144169147100702}
   m_Layer: 0
   m_Name: Perso
   m_TagString: Player
@@ -247,9 +216,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 7898968746628197414}
   - {fileID: 7252129804993737333}
   - {fileID: 1280713588447186255}
-  - {fileID: 1292765873271092594}
   - {fileID: 4289187710532968560}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -266,34 +235,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Interactor
   wpManager: {fileID: 2029438932372060698}
-  raycastPlayer: {fileID: 0}
---- !u!114 &710754510016905300
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7998250959574280178}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0fd95afc99211bc448636b30b7034c9a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerControler
-  playerCamera: {fileID: 8871858195290635164}
-  MoveAction: {fileID: 3510894254208987783, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
-  ShootAction: {fileID: -3149254764556580390, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
-  SelectAction: {fileID: -1195065267834298981, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
-  CrouchAction: {fileID: -7588760859488165850, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
-  moveSpeed: 10
-  mouseSensitivity: 4
-  desiredJumpHeight: 2.5
-  isCrouching: 0
-  crouchHeight: 0.5
-  crouchCameraOffset: 0.5
-  crouchSpeedMultiplier: 0.5
-  wpManager: {fileID: 2029438932372060698}
-  rb: {fileID: 3731998557386874087}
-  canMove: 1
+  raycastPlayer: {fileID: 2425836115616210949}
 --- !u!114 &8691786616067137394
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -351,6 +293,34 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!114 &5035144169147100702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7998250959574280178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fd95afc99211bc448636b30b7034c9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerControler
+  playerCamera: {fileID: 8871858195290635164}
+  audioListener: {fileID: 0}
+  MoveAction: {fileID: 3510894254208987783, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
+  ShootAction: {fileID: -3149254764556580390, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
+  SelectAction: {fileID: -1195065267834298981, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
+  CrouchAction: {fileID: -7588760859488165850, guid: 51b9e0c7b25b64c4cb129599c2972a3d, type: 3}
+  LookAction: {fileID: 0}
+  moveSpeed: 10
+  mouseSensitivity: 4
+  desiredJumpHeight: 2.5
+  isCrouching: 0
+  crouchHeight: 0.5
+  crouchCameraOffset: 0.5
+  crouchSpeedMultiplier: 0.5
+  wpManager: {fileID: 2029438932372060698}
+  canMove: 1
 --- !u!1 &8698366866286553925
 GameObject:
   m_ObjectHideFlags: 0
@@ -512,8 +482,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WPManager
   playerCamera: {fileID: 8871858195290635164}
   pItems:
-  - {fileID: 4857677436303118527}
-  - {fileID: 1157704912707234839}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -593,17 +563,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1220024618498199781, guid: 3a777384125bfe1418349d82b8e1cb51, type: 3}
   m_PrefabInstance: {fileID: 2180316088961916195}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &4857677436303118527 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6713712602111004060, guid: 3a777384125bfe1418349d82b8e1cb51, type: 3}
-  m_PrefabInstance: {fileID: 2180316088961916195}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8e011000087cef4c86d6799312bd717, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PItems
 --- !u!1001 &4069367064978627702
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -660,22 +619,15 @@ PrefabInstance:
       propertyPath: m_Name
       value: Knife
       objectReference: {fileID: 0}
+    - target: {fileID: 8780878461579384799, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
---- !u!114 &1157704912707234839 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2912058414410117217, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
-  m_PrefabInstance: {fileID: 4069367064978627702}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8e011000087cef4c86d6799312bd717, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PItems
 --- !u!4 &8069042152538158888 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6306082773304683358, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
