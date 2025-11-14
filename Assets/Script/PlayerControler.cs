@@ -37,7 +37,6 @@ public class PlayerControler : NetworkBehaviour
     bool inputsEnabled = false;
     public bool canMove = true;
 
-
     Vector3 originalScale;
     Vector3 originalCameraLocalPos;
     float   originalSpeed;
@@ -46,14 +45,13 @@ public class PlayerControler : NetworkBehaviour
     {
         rb = GetComponent<Rigidbody>();
 
-        // Sécurise : tout “local-only” OFF par défaut dans le prefab
+        // tout “local-only” OFF par défaut dans le prefab
         if (playerCamera)   playerCamera.enabled = false;
         if (audioListener)  audioListener.enabled = false;
     }
 
     public override void OnNetworkSpawn()
     {
-        // Coloration locale (ok)
         if (IsOwner)
         {
             EnableLocal(true);
@@ -79,17 +77,17 @@ public class PlayerControler : NetworkBehaviour
 
     void Start()
     {
-        originalScale = transform.localScale;
-        originalSpeed = moveSpeed;
+        originalScale          = transform.localScale;
+        originalSpeed          = moveSpeed;
         originalCameraLocalPos = playerCamera ? playerCamera.transform.localPosition : Vector3.zero;
     }
 
     void Update()
     {
-        if (!IsOwner) return; // << ESSENTIEL
-        if (!inputsEnabled) return;
+        if (!IsOwner)        return;
+        if (!inputsEnabled)  return;
 
-        // Souris (garde Input.GetAxis si tu n'as pas d'action Look)
+        // ----- Look souris -----
         float mouseX, mouseY;
         if (LookAction && LookAction.action != null)
         {
@@ -117,13 +115,14 @@ public class PlayerControler : NetworkBehaviour
             playerCamera.transform.localEulerAngles = r;
         }
 
-        // Saut (flag posé par OnMove/Jump via direction.y)
-        if (direction.y > 0f && isGrounded) Jump();
+        // Saut si on a mis un flag direction.y ailleurs
+        if (direction.y > 0f && isGrounded)
+            Jump();
     }
 
     void FixedUpdate()
     {
-        if (!IsOwner) return; // << ESSENTIEL
+        if (!IsOwner)       return;
         if (!inputsEnabled) return;
 
         Vector3 planarInput = new Vector3(direction.x, 0f, direction.z);
@@ -139,114 +138,107 @@ public class PlayerControler : NetworkBehaviour
         if (playerCamera)
         {
             playerCamera.enabled = enable;
-            playerCamera.tag = enable ? "MainCamera" : "Untagged";
+            playerCamera.tag     = enable ? "MainCamera" : "Untagged";
         }
-    if (audioListener) audioListener.enabled = enable;
-        Bind(MoveAction, enable, OnMoveActionPerformed, OnMoveActionCanceled);
-        Bind(ShootAction, enable, OnShootStarted);
-        Bind(SelectAction, enable, OnSelectStarted);
-        Bind(CrouchAction, enable, OnCrouchStarted, OnCrouchCanceled);
 
+        if (audioListener)
+            audioListener.enabled = enable;
+
+        // liaisons d’inputs
+        Bind(MoveAction,   enable, null,                 OnMoveActionPerformed, OnMoveActionCanceled);
+        Bind(ShootAction,  enable, OnShootStarted);
+        Bind(SelectAction, enable, OnSelectStarted);
+        Bind(CrouchAction, enable, OnCrouchStarted,      null,                  OnCrouchCanceled);
+
+        // LookAction séparée
         if (LookAction?.action != null)
         {
             if (enable) LookAction.action.Enable();
-            else LookAction.action.Disable();
+            else        LookAction.action.Disable();
         }
 
         Cursor.lockState = enable ? CursorLockMode.Locked : CursorLockMode.None;
-        Cursor.visible = !enable;
+        Cursor.visible   = !enable;
 
         inputsEnabled = enable;
     }
-    void Bind(InputActionReference aref, bool enable,
-          System.Action<InputAction.CallbackContext> onPerformed,
-          System.Action<InputAction.CallbackContext> onCanceled = null)
+
+    /// <summary>
+    /// Helper générique pour brancher/débrancher les callbacks du New Input System.
+    /// </summary>
+    void Bind(InputActionReference aref,
+              bool enable,
+              System.Action<InputAction.CallbackContext> onStarted  = null,
+              System.Action<InputAction.CallbackContext> onPerformed = null,
+              System.Action<InputAction.CallbackContext> onCanceled  = null)
     {
-        if (aref == null || aref.action == null) return;
+        if (aref == null || aref.action == null)
+            return;
+
         var a = aref.action;
+
         if (enable)
         {
-            MoveAction.action.performed -= OnMoveActionPerformed;
-            MoveAction.action.canceled  -= OnMoveActionCanceled;
-            MoveAction.action.Disable();
-        }
-
-        if (ShootAction?.action != null)
-        {
-            ShootAction.action.started -= OnShootStarted;
-            ShootAction.action.Disable();
-        }
-
-        if (SelectAction?.action != null)
-        {
-            SelectAction.action.started -= OnSelectStarted;
-            SelectAction.action.Disable();
-        }
-
-        if (CrouchAction?.action != null)
-        {
-            CrouchAction.action.started -= OnCrouchStarted;
-            CrouchAction.action.canceled -= OnCrouchCanceled;
-            CrouchAction.action.Disable();
-        }
-    }
-
-    // --- Input handlers ---
-    private void OnMoveActionPerformed(InputAction.CallbackContext context)
-    {
-        direction = canMove ? context.ReadValue<Vector3>() : Vector3.zero;
-    }
-
-    private void OnMoveActionCanceled(InputAction.CallbackContext context)
-    {
-        direction = Vector3.zero;
-    }
-
-    private void OnShootStarted(InputAction.CallbackContext context)
-    {
-        if (wpManager.selectedItems != null && wpManager.selectedItems.isEquipped)
-        {
-            Debug.Log("Using item: " + wpManager.selectedItems.item);
-            wpManager.selectedItems.Use();
-            if (onPerformed != null) a.performed += onPerformed;
-            if (onCanceled  != null) a.canceled  += onCanceled;
+            if (onStarted  != null) a.started   += onStarted;
+            if (onPerformed!= null) a.performed += onPerformed;
+            if (onCanceled != null) a.canceled  += onCanceled;
             a.Enable();
         }
         else
         {
-            if (onPerformed != null) a.performed -= onPerformed;
-            if (onCanceled  != null) a.canceled  -= onCanceled;
+            if (onStarted  != null) a.started   -= onStarted;
+            if (onPerformed!= null) a.performed -= onPerformed;
+            if (onCanceled != null) a.canceled  -= onCanceled;
             a.Disable();
         }
     }
 
-    
-
     // ---------- Input handlers ----------
+
+    // Déplacement : lit un Vector2 (x = horizontal, y = vertical) et le stocke dans direction.x/z
     void OnMoveActionPerformed(InputAction.CallbackContext ctx)
     {
         if (!IsOwner) return;
-        Vector2 v = ctx.ReadValue<Vector2>();      // WASD / stick
-        direction = new Vector3(v.x, direction.y, v.y); // XZ
+
+        Vector2 v = ctx.ReadValue<Vector2>();  // WASD / stick
+        if (canMove)
+            direction = new Vector3(v.x, direction.y, v.y);
+        else
+            direction = new Vector3(0f, direction.y, 0f);
     }
+
     void OnMoveActionCanceled(InputAction.CallbackContext ctx)
     {
         if (!IsOwner) return;
-        direction = Vector3.zero;
+        direction = new Vector3(0f, direction.y, 0f);
     }
 
     void OnShootStarted(InputAction.CallbackContext ctx)
     {
         if (!IsOwner) return;
+
         if (wpManager && wpManager.selectedItems && wpManager.selectedItems.isEquipped)
+        {
+            Debug.Log("Using item: " + wpManager.selectedItems.item);
             wpManager.selectedItems.Use();
+        }
     }
 
     void OnSelectStarted(InputAction.CallbackContext ctx)
     {
         if (!IsOwner || wpManager == null) return;
+
         var name = ctx.control.name;
-        int idx = name switch { "1" => 0, "2" => 1, "3" => 2, "4" => 3, "5" => 4, _ => -1 };
+        int idx = name switch
+        {
+            "1" => 0,
+            "2" => 1,
+            "3" => 2,
+            "4" => 3,
+            "5" => 4,
+            _   => -1
+        };
+
         if (idx >= 0)
         {
             wpManager.ChangeSelectedSlot(idx);
@@ -258,53 +250,77 @@ public class PlayerControler : NetworkBehaviour
     void OnCrouchStarted(InputAction.CallbackContext ctx)
     {
         if (!IsOwner || isCrouching) return;
-        transform.localScale = new Vector3(originalScale.x, originalScale.y * Mathf.Clamp01(crouchHeight), originalScale.z);
-        if (playerCamera) playerCamera.transform.localPosition = originalCameraLocalPos - new Vector3(0f, crouchCameraOffset, 0f);
-        moveSpeed = originalSpeed * crouchSpeedMultiplier;
+
+        transform.localScale = new Vector3(
+            originalScale.x,
+            originalScale.y * Mathf.Clamp01(crouchHeight),
+            originalScale.z
+        );
+
+        if (playerCamera)
+            playerCamera.transform.localPosition = originalCameraLocalPos - new Vector3(0f, crouchCameraOffset, 0f);
+
+        moveSpeed   = originalSpeed * crouchSpeedMultiplier;
         isCrouching = true;
     }
 
     void OnCrouchCanceled(InputAction.CallbackContext ctx)
     {
         if (!IsOwner || !isCrouching) return;
+
         transform.localScale = originalScale;
-        if (playerCamera) playerCamera.transform.localPosition = originalCameraLocalPos;
-        moveSpeed = originalSpeed;
+
+        if (playerCamera)
+            playerCamera.transform.localPosition = originalCameraLocalPos;
+
+        moveSpeed   = originalSpeed;
         isCrouching = false;
     }
 
     // ---------- Physique ----------
     void Jump()
     {
-        float g = -Physics.gravity.y;
+        float g  = -Physics.gravity.y;
         float v0 = Mathf.Sqrt(2f * g * desiredJumpHeight);
 
         var v = rb.linearVelocity;
-        v.y = v0;
+        v.y   = v0;
         rb.linearVelocity = v;
 
-        isGrounded = false;
+        isGrounded  = false;
         direction.y = 0f;
     }
 
+    void OnCollisionEnter(Collision c)
+    {
+        if (c.gameObject.CompareTag("Ground"))
+            isGrounded = true;
+    }
 
-    void OnCollisionEnter(Collision c) { if (c.gameObject.CompareTag("Ground")) isGrounded = true; }
-    void OnCollisionExit (Collision c) { if (c.gameObject.CompareTag("Ground")) isGrounded = false; }
+    void OnCollisionExit(Collision c)
+    {
+        if (c.gameObject.CompareTag("Ground"))
+            isGrounded = false;
+    }
 
     // ---------- Utils ----------
     Renderer FindChildRenderer(string childName)
     {
         foreach (var t in GetComponentsInChildren<Transform>(true))
-            if (t.name == childName) return t.GetComponent<Renderer>();
+            if (t.name == childName)
+                return t.GetComponent<Renderer>();
+
         return null;
     }
+
     void Tint(Renderer r, Color c)
     {
         if (!r) return;
+
         var mpb = new MaterialPropertyBlock();
         r.GetPropertyBlock(mpb);
         mpb.SetColor("_BaseColor", c);
-        mpb.SetColor("_Color", c);
+        mpb.SetColor("_Color",      c);
         r.SetPropertyBlock(mpb);
     }
 }
