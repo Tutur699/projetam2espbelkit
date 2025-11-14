@@ -166,6 +166,48 @@ public class PlayerControler : NetworkBehaviour
         var a = aref.action;
         if (enable)
         {
+            MoveAction.action.performed -= OnMoveActionPerformed;
+            MoveAction.action.canceled  -= OnMoveActionCanceled;
+            MoveAction.action.Disable();
+        }
+
+        if (ShootAction?.action != null)
+        {
+            ShootAction.action.started -= OnShootStarted;
+            ShootAction.action.Disable();
+        }
+
+        if (SelectAction?.action != null)
+        {
+            SelectAction.action.started -= OnSelectStarted;
+            SelectAction.action.Disable();
+        }
+
+        if (CrouchAction?.action != null)
+        {
+            CrouchAction.action.started -= OnCrouchStarted;
+            CrouchAction.action.canceled -= OnCrouchCanceled;
+            CrouchAction.action.Disable();
+        }
+    }
+
+    // --- Input handlers ---
+    private void OnMoveActionPerformed(InputAction.CallbackContext context)
+    {
+        direction = canMove ? context.ReadValue<Vector3>() : Vector3.zero;
+    }
+
+    private void OnMoveActionCanceled(InputAction.CallbackContext context)
+    {
+        direction = Vector3.zero;
+    }
+
+    private void OnShootStarted(InputAction.CallbackContext context)
+    {
+        if (wpManager.selectedItems != null && wpManager.selectedItems.isEquipped)
+        {
+            Debug.Log("Using item: " + wpManager.selectedItems.item);
+            wpManager.selectedItems.Use();
             if (onPerformed != null) a.performed += onPerformed;
             if (onCanceled  != null) a.canceled  += onCanceled;
             a.Enable();
