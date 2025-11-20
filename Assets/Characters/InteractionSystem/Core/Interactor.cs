@@ -21,7 +21,7 @@ public class Interactor : MonoBehaviour
         Ray ray = new Ray(wpManager.playerCamera.transform.position, wpManager.playerCamera.transform.forward);
         if (Physics.Raycast(ray, out hitInfo, raycastPlayer.distmax))
         {
-            if (hitInfo.collider.tag == "Interactable") //if the object hit by the ray is an interactable object
+            /*if (hitInfo.collider.tag == "Interactable") //if the object hit by the ray is an interactable object
             {
                 Interactable newInteractable = hitInfo.collider.GetComponent<Interactable>();
                 if (currentInteractable && newInteractable != currentInteractable) //if we are already looking at an interactable object but it's not the same as the new one
@@ -36,7 +36,7 @@ public class Interactor : MonoBehaviour
                 {
                     DisableCurrentInteractable();
                 }
-            }
+            }*/
             if (hitInfo.collider.tag == "Pickable")
             {
                 ItemPickable itemPick = hitInfo.collider.GetComponent<ItemPickable>();

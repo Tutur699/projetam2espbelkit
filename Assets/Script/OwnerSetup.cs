@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class OwnerSetup : NetworkBehaviour
-{
+{/*
     [Header("Local-only")]
     public Camera playerCamera;             // => PlayerCam (Camera)
     public AudioListener audioListener;     // sur la PlayerCam
@@ -36,5 +36,5 @@ public class OwnerSetup : NetworkBehaviour
             if (localControllers != null) foreach (var c in localControllers) if (c) c.enabled = true;
             if (localOnlyObjects != null) foreach (var go in localOnlyObjects) if (go) go.SetActive(true);
         }
-    }
+    }*/
 }
