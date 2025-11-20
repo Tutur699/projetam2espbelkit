@@ -10,7 +10,7 @@ namespace StarterAssets
 #if ENABLE_INPUT_SYSTEM
     [RequireComponent(typeof(PlayerInput))]
 #endif
-    public class ThirdPersonController : NetworkBehaviour
+    public class FPC_PLAYER : NetworkBehaviour
     {
         [Header("Player")]
         public float MoveSpeed = 2.0f;

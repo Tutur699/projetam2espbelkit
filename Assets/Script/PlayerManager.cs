@@ -3,11 +3,12 @@ using StarterAssets;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class PlayerManager : MonoBehaviour, IEntity
 {
     //This script will keep track of player HP
     public float playerHP = 100;
-    public  ThirdPersonController playerControler;
+    public  FPC_PLAYER playerControler;
     public WPManager weaponManager;
 
     public Texture crosshairTexture;
