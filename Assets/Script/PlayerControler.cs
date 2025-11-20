@@ -11,6 +11,7 @@ public class PlayerControler : MonoBehaviour
     public InputActionReference ShootAction;
     public InputActionReference SelectAction;
     public InputActionReference CrouchAction;
+    public InputActionReference JumpAction;
 
 
     [Header("Move")]
@@ -107,8 +108,6 @@ public class PlayerControler : MonoBehaviour
         }
 
         // Saut (flag posé par OnMove/Jump via direction.y)
-        if (direction.y > 0f && isGrounded) 
-            Jump();
     }
 
     void FixedUpdate()
@@ -124,7 +123,7 @@ public class PlayerControler : MonoBehaviour
     }
 
     // ---------- Enable/disable “local only” ----------
-    void onEnable()
+    void OnEnable()
     {
         if (MoveAction?.action != null)
         {
@@ -153,8 +152,14 @@ public class PlayerControler : MonoBehaviour
             CrouchAction.action.Enable();
         }
 
+        if (JumpAction?.action != null)
+        {
+            JumpAction.action.started += OnJumpStarted;
+            JumpAction.action.Enable();
+        }
+
     }
-    void onDisable()
+    void OnDisable()
     {
         if (MoveAction?.action != null)
         {
@@ -180,6 +185,11 @@ public class PlayerControler : MonoBehaviour
             CrouchAction.action.canceled -= OnCrouchCanceled;
             CrouchAction.action.Disable();
         }
+        if (JumpAction?.action != null)
+        {
+            JumpAction.action.started -= OnJumpStarted;
+            JumpAction.action.Disable();
+        }
     }
 
     
@@ -188,7 +198,9 @@ public class PlayerControler : MonoBehaviour
     void OnMoveActionPerformed(InputAction.CallbackContext ctx)
     {
         //if (!IsOwner) return;
-       direction = canMove ? ctx.ReadValue<Vector3>() : Vector3.zero;
+       Vector2 v = ctx.ReadValue<Vector2>();      // WASD / stick
+       direction = new Vector3(v.x, direction.y, v.y); // XZ
+
     }
     void OnMoveActionCanceled(InputAction.CallbackContext ctx)
     {
@@ -256,6 +268,12 @@ public class PlayerControler : MonoBehaviour
             playerCamera.transform.localPosition = originalCameraLocalPos;
         moveSpeed = originalSpeed;
         isCrouching = false;
+    }
+
+    void OnJumpStarted(InputAction.CallbackContext ctx)
+    {
+        if (isGrounded)
+            Jump();
     }
 
     // ---------- Physique ----------
