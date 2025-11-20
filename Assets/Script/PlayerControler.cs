@@ -203,12 +203,20 @@ public class PlayerControler : MonoBehaviour
     void OnSelectStarted(InputAction.CallbackContext ctx)
     {
         if (wpManager == null) return;
-        var name = ctx.control.name;
-        int idx = name switch { "1" => 0, "2" => 1, "3" => 2, "4" => 3, "5" => 4, _ => -1 };
+        string name = ctx.control.displayName;
+        int idx = -1; 
+        switch (name)
+        {
+            case "1": idx = 0; break;
+            case "2": idx = 1; break;
+            case "3": idx = 2; break;
+            case "4": idx = 3; break;
+            case "5": idx = 4; break;
+            default: break;
+        }
         if (idx >= 0)
         {
             wpManager.ChangeSelectedSlot(idx);
-            if (wpManager.selectedItems) wpManager.SelectItems(idx);
         }
     }
 
