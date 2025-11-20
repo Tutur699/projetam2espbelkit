@@ -1,19 +1,17 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(Rigidbody))]
 public class PlayerControler : MonoBehaviour
 {
     [Header("Camera & Audio")]
     [SerializeField] Camera playerCamera;          // désactivée dans le prefab
-    [SerializeField] AudioListener audioListener;  // sur la caméra
 
     [Header("Input (New Input System)")]
     public InputActionReference MoveAction;
     public InputActionReference ShootAction;
     public InputActionReference SelectAction;
     public InputActionReference CrouchAction;
-    public InputActionReference LookAction;        // optionnel si tu veux éviter Input.GetAxis
+
 
     [Header("Move")]
     public float moveSpeed = 2f;
@@ -30,11 +28,10 @@ public class PlayerControler : MonoBehaviour
     public WPManager wpManager;
 
     // runtime
-    Rigidbody rb;
+    public Rigidbody rb;
     Vector3 direction = Vector3.zero;  // x/z = déplacement, y = saut (flag)
     bool isGrounded = true;
-    bool inputsEnabled = false;
-    public bool canMove = true;
+    public bool canMove = false;
 
 
     Vector3 originalScale;
@@ -47,7 +44,7 @@ public class PlayerControler : MonoBehaviour
 
         // Sécurise : tout “local-only” OFF par défaut dans le prefab
         //if (playerCamera)   playerCamera.enabled = false;
-        if (audioListener)  audioListener.enabled = false;
+        //if (audioListener)  audioListener.enabled = false;
     }
 
     /*public override void OnNetworkSpawn()
@@ -80,37 +77,29 @@ public class PlayerControler : MonoBehaviour
     {
         originalScale = transform.localScale;
         originalSpeed = moveSpeed;
-        originalCameraLocalPos = playerCamera ? playerCamera.transform.localPosition : Vector3.zero;
-        EnableLocal(true);
+        if (playerCamera != null)
+            originalCameraLocalPos = playerCamera.transform.localPosition;
+        else
+            originalCameraLocalPos = Vector3.zero;
     }
 
     void Update()
     {
         //if (!IsOwner) return; // << ESSENTIEL
-        if (!inputsEnabled) return;
+        if (!canMove) return;
 
         // Souris (garde Input.GetAxis si tu n'as pas d'action Look)
-        float mouseX, mouseY;
-        if (LookAction && LookAction.action != null)
-        {
-            Vector2 look = LookAction.action.ReadValue<Vector2>();
-            mouseX = look.x * mouseSensitivity * Time.deltaTime * 10f;
-            mouseY = look.y * mouseSensitivity * Time.deltaTime * 10f;
-        }
-        else
-        {
-            mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-            mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
-        }
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
         // yaw sur le corps
         transform.Rotate(0f, mouseX, 0f);
 
         // pitch sur la caméra
-        if (playerCamera)
+        if (playerCamera != null)
         {
             playerCamera.transform.Rotate(-mouseY, 0f, 0f);
-            var r = playerCamera.transform.localEulerAngles;
+            Vector3 r = playerCamera.transform.localEulerAngles;
             if (r.x > 180f) r.x -= 360f;
             r.x = Mathf.Clamp(r.x, -45f, 45f);
             r.y = 0f; r.z = 0f;
@@ -118,63 +107,78 @@ public class PlayerControler : MonoBehaviour
         }
 
         // Saut (flag posé par OnMove/Jump via direction.y)
-        if (direction.y > 0f && isGrounded) Jump();
+        if (direction.y > 0f && isGrounded) 
+            Jump();
     }
 
     void FixedUpdate()
     {
         //if (!IsOwner) return; // << ESSENTIEL
-        if (!inputsEnabled) return;
+        if(!canMove) return;
 
         Vector3 planarInput = new Vector3(direction.x, 0f, direction.z);
-        Vector3 moveWorld   = transform.TransformDirection(planarInput);
-        Vector3 moveStep    = moveWorld * moveSpeed * Time.fixedDeltaTime;
+        Vector3 moveWorld = transform.TransformDirection(planarInput);
+        Vector3 moveStep = moveWorld * moveSpeed * Time.fixedDeltaTime;
 
         rb.MovePosition(rb.position + moveStep);
     }
 
     // ---------- Enable/disable “local only” ----------
-    void EnableLocal(bool enable)
+    void onEnable()
     {
-        if (playerCamera)
+        if (MoveAction?.action != null)
         {
-            playerCamera.enabled = enable;
-            playerCamera.tag = enable ? "MainCamera" : "Untagged";
-        }
-    if (audioListener) audioListener.enabled = enable;
-        Bind(MoveAction, enable, OnMoveActionPerformed, OnMoveActionCanceled);
-        Bind(ShootAction, enable, OnShootStarted);
-        Bind(SelectAction, enable, OnSelectStarted);
-        Bind(CrouchAction, enable, OnCrouchStarted, OnCrouchCanceled);
-
-        if (LookAction?.action != null)
-        {
-            if (enable) LookAction.action.Enable();
-            else LookAction.action.Disable();
+            MoveAction.action.performed += OnMoveActionPerformed;
+            MoveAction.action.canceled  += OnMoveActionCanceled;
+            MoveAction.action.Enable();
         }
 
-        Cursor.lockState = enable ? CursorLockMode.Locked : CursorLockMode.None;
-        Cursor.visible = !enable;
 
-        inputsEnabled = enable;
+        if (ShootAction?.action != null)
+        {
+            ShootAction.action.started += OnShootStarted;
+            ShootAction.action.Enable();
+        }
+
+        if (SelectAction?.action != null)
+        {
+            SelectAction.action.started += OnSelectStarted;
+            SelectAction.action.Enable();
+        }
+
+        if (CrouchAction?.action != null)
+        {
+            CrouchAction.action.started += OnCrouchStarted;
+            CrouchAction.action.canceled += OnCrouchCanceled;
+            CrouchAction.action.Enable();
+        }
+
     }
-    void Bind(InputActionReference aref, bool enable,
-          System.Action<InputAction.CallbackContext> onPerformed,
-          System.Action<InputAction.CallbackContext> onCanceled = null)
+    void onDisable()
     {
-        if (aref == null || aref.action == null) return;
-        var a = aref.action;
-        if (enable)
+        if (MoveAction?.action != null)
         {
-            if (onPerformed != null) a.performed += onPerformed;
-            if (onCanceled  != null) a.canceled  += onCanceled;
-            a.Enable();
+            MoveAction.action.performed -= OnMoveActionPerformed;
+            MoveAction.action.canceled  -= OnMoveActionCanceled;
+            MoveAction.action.Disable();
         }
-        else
+        if (ShootAction?.action != null)
         {
-            if (onPerformed != null) a.performed -= onPerformed;
-            if (onCanceled  != null) a.canceled  -= onCanceled;
-            a.Disable();
+            ShootAction.action.started -= OnShootStarted;
+            ShootAction.action.Disable();
+        }
+
+        if (SelectAction?.action != null)
+        {
+            SelectAction.action.started -= OnSelectStarted;
+            SelectAction.action.Disable();
+        }
+
+        if (CrouchAction?.action != null)
+        {
+            CrouchAction.action.started -= OnCrouchStarted;
+            CrouchAction.action.canceled -= OnCrouchCanceled;
+            CrouchAction.action.Disable();
         }
     }
 
@@ -184,8 +188,7 @@ public class PlayerControler : MonoBehaviour
     void OnMoveActionPerformed(InputAction.CallbackContext ctx)
     {
         //if (!IsOwner) return;
-        Vector2 v = ctx.ReadValue<Vector3>();      // WASD / stick
-        direction = new Vector3(v.x, direction.y, v.y); // XZ
+       direction = canMove ? ctx.ReadValue<Vector3>() : Vector3.zero;
     }
     void OnMoveActionCanceled(InputAction.CallbackContext ctx)
     {
@@ -196,50 +199,51 @@ public class PlayerControler : MonoBehaviour
     void OnShootStarted(InputAction.CallbackContext ctx)
     {
         //if (!IsOwner) return;
-        if (wpManager && wpManager.selectedItems && wpManager.selectedItems.isEquipped)
+        if (wpManager.selectedItems != null && wpManager.selectedItems.isEquipped)
+        {
+            Debug.Log("Using item: " + wpManager.selectedItems.item);
             wpManager.selectedItems.Use();
+        }
+         else
+        {
+            Debug.Log("No item selected to use.");
+        }
     }
 
     void OnSelectStarted(InputAction.CallbackContext ctx)
     {
-        if (ctx.started){
-            if (wpManager == null) return;
-            var touche = ctx.control.name;
-            int select = wpManager.selectedSlot;
-            switch (touche)
-            {
-                case "1":
-                    select = 0;
-                    break;
-                case "2":
-                    select = 1;
-                    break;
-                case "3":
-                    select = 2;
-                    break;
-                case "4":
-                    select = 3;
-                    break;
-                case "5":
-                    select = 4;
-                    break;
-                default:
-                    select = -1;
-                    break;
-            }
-            wpManager.ChangeSelectedSlot(select);
-            if (wpManager != null && wpManager.selectedItems != null)
-            {
-                wpManager.SelectItems(select); // Select item based on input value
-            }
+        if (!ctx.started) return;
+
+        int select = -1;
+        switch (ctx.control.name)
+        {
+            case "1": select = 0; break;
+            case "2": select = 1; break;
+            case "3": select = 2; break;
+            case "4": select = 3; break;
+            case "5": select = 4; break;
+            default: return;
         }
+        if (select >= 0 && wpManager != null)
+            wpManager.SelectItems(select);
     }
+
     // ---------- Crouch ----------
     void OnCrouchStarted(InputAction.CallbackContext ctx)
     {
-        if (isCrouching) return;
-        transform.localScale = new Vector3(originalScale.x, originalScale.y * Mathf.Clamp01(crouchHeight), originalScale.z);
-        if (playerCamera) playerCamera.transform.localPosition = originalCameraLocalPos - new Vector3(0f, crouchCameraOffset, 0f);
+         if (isCrouching) return;
+
+        // réduire la taille (uniquement Y)
+        transform.localScale = new Vector3(
+            originalScale.x,
+            originalScale.y * Mathf.Clamp01(crouchHeight),
+            originalScale.z
+        );
+
+        // descendre la caméra
+        if (playerCamera != null)
+            playerCamera.transform.localPosition = originalCameraLocalPos - new Vector3(0f, crouchCameraOffset, 0f);
+        // réduire la vitesse
         moveSpeed = originalSpeed * crouchSpeedMultiplier;
         isCrouching = true;
     }
@@ -248,7 +252,8 @@ public class PlayerControler : MonoBehaviour
     {
         if (!isCrouching) return;
         transform.localScale = originalScale;
-        if (playerCamera) playerCamera.transform.localPosition = originalCameraLocalPos;
+         if (playerCamera != null)
+            playerCamera.transform.localPosition = originalCameraLocalPos;
         moveSpeed = originalSpeed;
         isCrouching = false;
     }
@@ -259,7 +264,7 @@ public class PlayerControler : MonoBehaviour
         float g = -Physics.gravity.y;
         float v0 = Mathf.Sqrt(2f * g * desiredJumpHeight);
 
-        var v = rb.linearVelocity;
+        Vector3 v = rb.linearVelocity; // <- au lieu de linearVelocity
         v.y = v0;
         rb.linearVelocity = v;
 
@@ -268,11 +273,19 @@ public class PlayerControler : MonoBehaviour
     }
 
 
-    void OnCollisionEnter(Collision c) { if (c.gameObject.CompareTag("Ground")) isGrounded = true; }
-    void OnCollisionExit (Collision c) { if (c.gameObject.CompareTag("Ground")) isGrounded = false; }
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+            isGrounded = true;
+    }
+    void OnCollisionExit (Collision collision)
+    {
+         if (collision.gameObject.CompareTag("Ground"))
+            isGrounded = false;
+    }
 
     // ---------- Utils ----------
-    /*Renderer FindChildRenderer(string childName)
+    Renderer FindChildRenderer(string childName)
     {
         foreach (var t in GetComponentsInChildren<Transform>(true))
             if (t.name == childName) return t.GetComponent<Renderer>();
@@ -286,5 +299,5 @@ public class PlayerControler : MonoBehaviour
         mpb.SetColor("_BaseColor", c);
         mpb.SetColor("_Color", c);
         r.SetPropertyBlock(mpb);
-    }*/
+    }
 }
