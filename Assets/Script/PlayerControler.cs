@@ -47,7 +47,7 @@ public class PlayerControler : MonoBehaviour
         if (audioListener)  audioListener.enabled = false;
     }
 
-    /*public override void OnNetworkSpawn()
+    public override void OnNetworkSpawn()
     {
         if (IsOwner)
         {
@@ -70,7 +70,7 @@ public class PlayerControler : MonoBehaviour
     public override void OnNetworkDespawn()
     {
         EnableLocal(false);
-    }*/
+    }
 
     void Start()
     {
