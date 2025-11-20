@@ -6,11 +6,11 @@ using StarterAssets;
 
 public class PlayerNetwork : NetworkBehaviour
 {
-    private ThirdPersonController _controller;
+    private FPC_PLAYER _controller;
 
     private void Awake()
     {
-        _controller = GetComponent<ThirdPersonController>();
+        _controller = GetComponent<FPC_PLAYER>();
     }
 
     public override void OnNetworkSpawn()
