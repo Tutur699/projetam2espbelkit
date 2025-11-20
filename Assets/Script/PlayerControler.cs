@@ -1,20 +1,18 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Unity.Netcode;
 
-[RequireComponent(typeof(Rigidbody))]
-public class PlayerControler : NetworkBehaviour
+public class PlayerControler : MonoBehaviour
 {
     [Header("Camera & Audio")]
     [SerializeField] Camera playerCamera;          // désactivée dans le prefab
-    [SerializeField] AudioListener audioListener;  // sur la caméra
 
     [Header("Input (New Input System)")]
     public InputActionReference MoveAction;
     public InputActionReference ShootAction;
     public InputActionReference SelectAction;
     public InputActionReference CrouchAction;
-    public InputActionReference LookAction;        // optionnel si tu veux éviter Input.GetAxis
+    public InputActionReference JumpAction;
+
 
     [Header("Move")]
     public float moveSpeed = 2f;
@@ -31,11 +29,10 @@ public class PlayerControler : NetworkBehaviour
     public WPManager wpManager;
 
     // runtime
-    Rigidbody rb;
+    public Rigidbody rb;
     Vector3 direction = Vector3.zero;  // x/z = déplacement, y = saut (flag)
     bool isGrounded = true;
-    bool inputsEnabled = false;
-    public bool canMove = true;
+    public bool canMove = false;
 
     Vector3 originalScale;
     Vector3 originalCameraLocalPos;
@@ -50,7 +47,7 @@ public class PlayerControler : NetworkBehaviour
         if (audioListener)  audioListener.enabled = false;
     }
 
-    public override void OnNetworkSpawn()
+    /*public override void OnNetworkSpawn()
     {
         if (IsOwner)
         {
@@ -73,7 +70,7 @@ public class PlayerControler : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         EnableLocal(false);
-    }
+    }*/
 
     void Start()
     {
@@ -105,10 +102,10 @@ public class PlayerControler : NetworkBehaviour
         transform.Rotate(0f, mouseX, 0f);
 
         // pitch sur la caméra
-        if (playerCamera)
+        if (playerCamera != null)
         {
             playerCamera.transform.Rotate(-mouseY, 0f, 0f);
-            var r = playerCamera.transform.localEulerAngles;
+            Vector3 r = playerCamera.transform.localEulerAngles;
             if (r.x > 180f) r.x -= 360f;
             r.x = Mathf.Clamp(r.x, -45f, 45f);
             r.y = 0f; r.z = 0f;
@@ -126,16 +123,30 @@ public class PlayerControler : NetworkBehaviour
         if (!inputsEnabled) return;
 
         Vector3 planarInput = new Vector3(direction.x, 0f, direction.z);
-        Vector3 moveWorld   = transform.TransformDirection(planarInput);
-        Vector3 moveStep    = moveWorld * moveSpeed * Time.fixedDeltaTime;
+        Vector3 moveWorld = transform.TransformDirection(planarInput);
+        Vector3 moveStep = moveWorld * moveSpeed * Time.fixedDeltaTime;
 
         rb.MovePosition(rb.position + moveStep);
     }
 
     // ---------- Enable/disable “local only” ----------
-    void EnableLocal(bool enable)
+    void OnEnable()
     {
-        if (playerCamera)
+        if (MoveAction?.action != null)
+        {
+            MoveAction.action.performed += OnMoveActionPerformed;
+            MoveAction.action.canceled  += OnMoveActionCanceled;
+            MoveAction.action.Enable();
+        }
+
+
+        if (ShootAction?.action != null)
+        {
+            ShootAction.action.started += OnShootStarted;
+            ShootAction.action.Enable();
+        }
+
+        if (SelectAction?.action != null)
         {
             playerCamera.enabled = enable;
             playerCamera.tag     = enable ? "MainCamera" : "Untagged";
@@ -160,7 +171,6 @@ public class PlayerControler : NetworkBehaviour
         Cursor.lockState = enable ? CursorLockMode.Locked : CursorLockMode.None;
         Cursor.visible   = !enable;
 
-        inputsEnabled = enable;
     }
 
     /// <summary>
@@ -184,7 +194,7 @@ public class PlayerControler : NetworkBehaviour
             if (onCanceled != null) a.canceled  += onCanceled;
             a.Enable();
         }
-        else
+        if (ShootAction?.action != null)
         {
             if (onStarted  != null) a.started   -= onStarted;
             if (onPerformed!= null) a.performed -= onPerformed;
@@ -215,35 +225,34 @@ public class PlayerControler : NetworkBehaviour
 
     void OnShootStarted(InputAction.CallbackContext ctx)
     {
-        if (!IsOwner) return;
-
-        if (wpManager && wpManager.selectedItems && wpManager.selectedItems.isEquipped)
+        //if (!IsOwner) return;
+        if (wpManager.selectedItems != null && wpManager.selectedItems.isEquipped)
         {
             Debug.Log("Using item: " + wpManager.selectedItems.item);
             wpManager.selectedItems.Use();
+        }
+         else
+        {
+            Debug.Log("No item selected to use.");
         }
     }
 
     void OnSelectStarted(InputAction.CallbackContext ctx)
     {
-        if (!IsOwner || wpManager == null) return;
+        if (!ctx.started) return;
 
-        var name = ctx.control.name;
-        int idx = name switch
+        int select = -1;
+        switch (ctx.control.name)
         {
-            "1" => 0,
-            "2" => 1,
-            "3" => 2,
-            "4" => 3,
-            "5" => 4,
-            _   => -1
-        };
-
-        if (idx >= 0)
-        {
-            wpManager.ChangeSelectedSlot(idx);
-            if (wpManager.selectedItems) wpManager.SelectItems(idx);
+            case "1": select = 0; break;
+            case "2": select = 1; break;
+            case "3": select = 2; break;
+            case "4": select = 3; break;
+            case "5": select = 4; break;
+            default: return;
         }
+        if (select >= 0 && wpManager != null)
+            wpManager.SelectItems(select);
     }
 
     // ---------- Crouch ----------
@@ -275,6 +284,12 @@ public class PlayerControler : NetworkBehaviour
 
         moveSpeed   = originalSpeed;
         isCrouching = false;
+    }
+
+    void OnJumpStarted(InputAction.CallbackContext ctx)
+    {
+        if (isGrounded)
+            Jump();
     }
 
     // ---------- Physique ----------

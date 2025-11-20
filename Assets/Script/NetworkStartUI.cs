@@ -98,5 +98,5 @@ public class NetworkStartUI : MonoBehaviour
                 Debug.Log("[NET] Réseau arrêté.");
             }
         }
-    }
+    }*/
 }
