@@ -1,16 +1,17 @@
 
-
+using StarterAssets;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 public class PlayerManager : MonoBehaviour, IEntity
 {
     //This script will keep track of player HP
     public float playerHP = 100;
-    public PlayerControler2 playerControler;
+    public  FPC_PLAYER playerControler;
     public WPManager weaponManager;
 
-    //public Texture crosshairTexture;
+    public Texture crosshairTexture;
 
 
     public void ApplyDamage(float points)
@@ -20,7 +21,7 @@ public class PlayerManager : MonoBehaviour, IEntity
         if (playerHP <= 0)
         {
             //Player is dead
-            playerControler.canMove = false;
+            playerControler.LockCameraPosition = true;
             playerHP = 0;
         }
     }
@@ -33,7 +34,7 @@ public class PlayerManager : MonoBehaviour, IEntity
         }
         else
         {
-            //GUI.DrawTexture(new Rect(Screen.width / 2 - 3, Screen.height / 2 - 3, 6, 6), crosshairTexture);
+            GUI.DrawTexture(new Rect(Screen.width / 2 - 3, Screen.height / 2 - 3, 6, 6), crosshairTexture);
         }
 
     }

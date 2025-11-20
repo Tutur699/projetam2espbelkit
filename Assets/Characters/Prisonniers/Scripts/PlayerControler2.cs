@@ -33,18 +33,20 @@ public class PlayerControler2 : MonoBehaviour
     Rigidbody rb;
     Vector3 direction = Vector3.zero;  // x/z = déplacement, y = saut (flag)
     bool isGrounded = true;
-    bool inputsEnabled = true;
+    bool inputsEnabled = false;
     public bool canMove = true;
 
 
     Vector3 originalScale;
     Vector3 originalCameraLocalPos;
-    float originalSpeed;
+    float   originalSpeed;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
 
+        // Sécurise : tout “local-only” OFF par défaut dans le prefab
+        if (playerCamera)   playerCamera.enabled = false;
         if (audioListener)  audioListener.enabled = false;
     }
 
@@ -123,6 +125,7 @@ public class PlayerControler2 : MonoBehaviour
             a.Disable();
         }
     }
+
     
 
     // ---------- Input handlers ----------
@@ -160,7 +163,7 @@ public class PlayerControler2 : MonoBehaviour
     // ---------- Crouch ----------
     void OnCrouchStarted(InputAction.CallbackContext ctx)
     {
-        if (isCrouching) return;
+        if (!isCrouching) return;
         transform.localScale = new Vector3(originalScale.x, originalScale.y * Mathf.Clamp01(crouchHeight), originalScale.z);
         if (playerCamera) playerCamera.transform.localPosition = originalCameraLocalPos - new Vector3(0f, crouchCameraOffset, 0f);
         moveSpeed = originalSpeed * crouchSpeedMultiplier;
@@ -195,7 +198,7 @@ public class PlayerControler2 : MonoBehaviour
     void OnCollisionExit (Collision c) { if (c.gameObject.CompareTag("Ground")) isGrounded = false; }
 
     // ---------- Utils ----------
-    /*Renderer FindChildRenderer(string childName)
+    Renderer FindChildRenderer(string childName)
     {
         foreach (var t in GetComponentsInChildren<Transform>(true))
             if (t.name == childName) return t.GetComponent<Renderer>();
@@ -209,5 +212,6 @@ public class PlayerControler2 : MonoBehaviour
         mpb.SetColor("_BaseColor", c);
         mpb.SetColor("_Color", c);
         r.SetPropertyBlock(mpb);
-    }*/
+    }
 }
+

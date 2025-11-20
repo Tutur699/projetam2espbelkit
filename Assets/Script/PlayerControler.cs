@@ -34,7 +34,6 @@ public class PlayerControler : MonoBehaviour
     bool isGrounded = true;
     public bool canMove = false;
 
-
     Vector3 originalScale;
     Vector3 originalCameraLocalPos;
     float   originalSpeed;
@@ -43,14 +42,13 @@ public class PlayerControler : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
 
-        // Sécurise : tout “local-only” OFF par défaut dans le prefab
-        //if (playerCamera)   playerCamera.enabled = false;
-        //if (audioListener)  audioListener.enabled = false;
+        // tout “local-only” OFF par défaut dans le prefab
+        if (playerCamera)   playerCamera.enabled = false;
+        if (audioListener)  audioListener.enabled = false;
     }
 
     /*public override void OnNetworkSpawn()
     {
-        // Coloration locale (ok)
         if (IsOwner)
         {
             EnableLocal(true);
@@ -76,22 +74,29 @@ public class PlayerControler : MonoBehaviour
 
     void Start()
     {
-        originalScale = transform.localScale;
-        originalSpeed = moveSpeed;
-        if (playerCamera != null)
-            originalCameraLocalPos = playerCamera.transform.localPosition;
-        else
-            originalCameraLocalPos = Vector3.zero;
+        originalScale          = transform.localScale;
+        originalSpeed          = moveSpeed;
+        originalCameraLocalPos = playerCamera ? playerCamera.transform.localPosition : Vector3.zero;
     }
 
     void Update()
     {
-        //if (!IsOwner) return; // << ESSENTIEL
-        if (!canMove) return;
+        if (!IsOwner)        return;
+        if (!inputsEnabled)  return;
 
-        // Souris (garde Input.GetAxis si tu n'as pas d'action Look)
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+        // ----- Look souris -----
+        float mouseX, mouseY;
+        if (LookAction && LookAction.action != null)
+        {
+            Vector2 look = LookAction.action.ReadValue<Vector2>();
+            mouseX = look.x * mouseSensitivity * Time.deltaTime * 10f;
+            mouseY = look.y * mouseSensitivity * Time.deltaTime * 10f;
+        }
+        else
+        {
+            mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+            mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+        }
 
         // yaw sur le corps
         transform.Rotate(0f, mouseX, 0f);
@@ -107,13 +112,15 @@ public class PlayerControler : MonoBehaviour
             playerCamera.transform.localEulerAngles = r;
         }
 
-        // Saut (flag posé par OnMove/Jump via direction.y)
+        // Saut si on a mis un flag direction.y ailleurs
+        if (direction.y > 0f && isGrounded)
+            Jump();
     }
 
     void FixedUpdate()
     {
-        //if (!IsOwner) return; // << ESSENTIEL
-        if(!canMove) return;
+        if (!IsOwner)       return;
+        if (!inputsEnabled) return;
 
         Vector3 planarInput = new Vector3(direction.x, 0f, direction.z);
         Vector3 moveWorld = transform.TransformDirection(planarInput);
@@ -141,71 +148,79 @@ public class PlayerControler : MonoBehaviour
 
         if (SelectAction?.action != null)
         {
-            SelectAction.action.started += OnSelectStarted;
-            SelectAction.action.Enable();
+            playerCamera.enabled = enable;
+            playerCamera.tag     = enable ? "MainCamera" : "Untagged";
         }
 
-        if (CrouchAction?.action != null)
+        if (audioListener)
+            audioListener.enabled = enable;
+
+        // liaisons d’inputs
+        Bind(MoveAction,   enable, null,                 OnMoveActionPerformed, OnMoveActionCanceled);
+        Bind(ShootAction,  enable, OnShootStarted);
+        Bind(SelectAction, enable, OnSelectStarted);
+        Bind(CrouchAction, enable, OnCrouchStarted,      null,                  OnCrouchCanceled);
+
+        // LookAction séparée
+        if (LookAction?.action != null)
         {
-            CrouchAction.action.started += OnCrouchStarted;
-            CrouchAction.action.canceled += OnCrouchCanceled;
-            CrouchAction.action.Enable();
+            if (enable) LookAction.action.Enable();
+            else        LookAction.action.Disable();
         }
 
-        if (JumpAction?.action != null)
-        {
-            JumpAction.action.started += OnJumpStarted;
-            JumpAction.action.Enable();
-        }
+        Cursor.lockState = enable ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.visible   = !enable;
 
     }
-    void OnDisable()
+
+    /// <summary>
+    /// Helper générique pour brancher/débrancher les callbacks du New Input System.
+    /// </summary>
+    void Bind(InputActionReference aref,
+              bool enable,
+              System.Action<InputAction.CallbackContext> onStarted  = null,
+              System.Action<InputAction.CallbackContext> onPerformed = null,
+              System.Action<InputAction.CallbackContext> onCanceled  = null)
     {
-        if (MoveAction?.action != null)
+        if (aref == null || aref.action == null)
+            return;
+
+        var a = aref.action;
+
+        if (enable)
         {
-            MoveAction.action.performed -= OnMoveActionPerformed;
-            MoveAction.action.canceled  -= OnMoveActionCanceled;
-            MoveAction.action.Disable();
+            if (onStarted  != null) a.started   += onStarted;
+            if (onPerformed!= null) a.performed += onPerformed;
+            if (onCanceled != null) a.canceled  += onCanceled;
+            a.Enable();
         }
         if (ShootAction?.action != null)
         {
-            ShootAction.action.started -= OnShootStarted;
-            ShootAction.action.Disable();
-        }
-
-        if (SelectAction?.action != null)
-        {
-            SelectAction.action.started -= OnSelectStarted;
-            SelectAction.action.Disable();
-        }
-
-        if (CrouchAction?.action != null)
-        {
-            CrouchAction.action.started -= OnCrouchStarted;
-            CrouchAction.action.canceled -= OnCrouchCanceled;
-            CrouchAction.action.Disable();
-        }
-        if (JumpAction?.action != null)
-        {
-            JumpAction.action.started -= OnJumpStarted;
-            JumpAction.action.Disable();
+            if (onStarted  != null) a.started   -= onStarted;
+            if (onPerformed!= null) a.performed -= onPerformed;
+            if (onCanceled != null) a.canceled  -= onCanceled;
+            a.Disable();
         }
     }
-
-    
 
     // ---------- Input handlers ----------
+
+    // Déplacement : lit un Vector2 (x = horizontal, y = vertical) et le stocke dans direction.x/z
     void OnMoveActionPerformed(InputAction.CallbackContext ctx)
     {
-        //if (!IsOwner) return;
-       Vector2 v = ctx.ReadValue<Vector2>();      // WASD / stick
-       direction = new Vector3(v.x, direction.y, v.y); // XZ
+        if (!IsOwner) return;
 
+        Vector2 v = ctx.ReadValue<Vector2>();  // WASD / stick
+        if (canMove)
+            direction = new Vector3(v.x, direction.y, v.y);
+        else
+            direction = new Vector3(0f, direction.y, 0f);
     }
+
     void OnMoveActionCanceled(InputAction.CallbackContext ctx)
     {
-        //if (!IsOwner) return;
-        direction = Vector3.zero;
+        if (!IsOwner) return;
+        direction = new Vector3(0f, direction.y, 0f);
     }
 
     void OnShootStarted(InputAction.CallbackContext ctx)
@@ -243,30 +258,31 @@ public class PlayerControler : MonoBehaviour
     // ---------- Crouch ----------
     void OnCrouchStarted(InputAction.CallbackContext ctx)
     {
-         if (isCrouching) return;
+        if (!IsOwner || isCrouching) return;
 
-        // réduire la taille (uniquement Y)
         transform.localScale = new Vector3(
             originalScale.x,
             originalScale.y * Mathf.Clamp01(crouchHeight),
             originalScale.z
         );
 
-        // descendre la caméra
-        if (playerCamera != null)
+        if (playerCamera)
             playerCamera.transform.localPosition = originalCameraLocalPos - new Vector3(0f, crouchCameraOffset, 0f);
-        // réduire la vitesse
-        moveSpeed = originalSpeed * crouchSpeedMultiplier;
+
+        moveSpeed   = originalSpeed * crouchSpeedMultiplier;
         isCrouching = true;
     }
 
     void OnCrouchCanceled(InputAction.CallbackContext ctx)
     {
-        if (!isCrouching) return;
+        if (!IsOwner || !isCrouching) return;
+
         transform.localScale = originalScale;
-         if (playerCamera != null)
+
+        if (playerCamera)
             playerCamera.transform.localPosition = originalCameraLocalPos;
-        moveSpeed = originalSpeed;
+
+        moveSpeed   = originalSpeed;
         isCrouching = false;
     }
 
@@ -279,26 +295,26 @@ public class PlayerControler : MonoBehaviour
     // ---------- Physique ----------
     void Jump()
     {
-        float g = -Physics.gravity.y;
+        float g  = -Physics.gravity.y;
         float v0 = Mathf.Sqrt(2f * g * desiredJumpHeight);
 
-        Vector3 v = rb.linearVelocity; // <- au lieu de linearVelocity
-        v.y = v0;
+        var v = rb.linearVelocity;
+        v.y   = v0;
         rb.linearVelocity = v;
 
-        isGrounded = false;
+        isGrounded  = false;
         direction.y = 0f;
     }
 
-
-    void OnCollisionEnter(Collision collision)
+    void OnCollisionEnter(Collision c)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (c.gameObject.CompareTag("Ground"))
             isGrounded = true;
     }
-    void OnCollisionExit (Collision collision)
+
+    void OnCollisionExit(Collision c)
     {
-         if (collision.gameObject.CompareTag("Ground"))
+        if (c.gameObject.CompareTag("Ground"))
             isGrounded = false;
     }
 
@@ -306,16 +322,20 @@ public class PlayerControler : MonoBehaviour
     Renderer FindChildRenderer(string childName)
     {
         foreach (var t in GetComponentsInChildren<Transform>(true))
-            if (t.name == childName) return t.GetComponent<Renderer>();
+            if (t.name == childName)
+                return t.GetComponent<Renderer>();
+
         return null;
     }
+
     void Tint(Renderer r, Color c)
     {
         if (!r) return;
+
         var mpb = new MaterialPropertyBlock();
         r.GetPropertyBlock(mpb);
         mpb.SetColor("_BaseColor", c);
-        mpb.SetColor("_Color", c);
+        mpb.SetColor("_Color",      c);
         r.SetPropertyBlock(mpb);
     }
 }
