@@ -202,24 +202,38 @@ public class PlayerControler : MonoBehaviour
 
     void OnSelectStarted(InputAction.CallbackContext ctx)
     {
-        if (wpManager == null) return;
-        string name = ctx.control.displayName;
-        int idx = -1; 
-        switch (name)
-        {
-            case "1": idx = 0; break;
-            case "2": idx = 1; break;
-            case "3": idx = 2; break;
-            case "4": idx = 3; break;
-            case "5": idx = 4; break;
-            default: break;
-        }
-        if (idx >= 0)
-        {
-            wpManager.ChangeSelectedSlot(idx);
+        if (ctx.started){
+            if (wpManager == null) return;
+            var touche = ctx.control.name;
+            int select = wpManager.selectedSlot;
+            switch (touche)
+            {
+                case "1":
+                    select = 0;
+                    break;
+                case "2":
+                    select = 1;
+                    break;
+                case "3":
+                    select = 2;
+                    break;
+                case "4":
+                    select = 3;
+                    break;
+                case "5":
+                    select = 4;
+                    break;
+                default:
+                    select = -1;
+                    break;
+            }
+            wpManager.ChangeSelectedSlot(select);
+            if (wpManager != null && wpManager.selectedItems != null)
+            {
+                wpManager.SelectItems(select); // Select item based on input value
+            }
         }
     }
-
     // ---------- Crouch ----------
     void OnCrouchStarted(InputAction.CallbackContext ctx)
     {
