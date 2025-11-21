@@ -126,10 +126,10 @@ namespace StarterAssets
 
         private void Update()
         {
-            if (!IsOwner) return;
+            //if (!IsOwner) return;
 
             _hasAnimator = TryGetComponent(out _animator);
-
+            Debug.Log($"[FPC_PLAYER] move={_input?.move}, look={_input?.look}");
             JumpAndGravity();
             GroundedCheck();
             Move();
@@ -137,7 +137,7 @@ namespace StarterAssets
 
         private void LateUpdate()
         {
-            if (!IsOwner) return;
+            //if (!IsOwner) return;
             CameraRotation();
         }
 

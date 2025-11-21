@@ -400,7 +400,7 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
---- !u!1001 &1541642673
+--- !u!1001 &1332483529
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -408,21 +408,37 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -4794957765817118122, guid: 8a8174ee2f97cc8408cbcf9ff72dcf84, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 4234937246
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802129949082815850, guid: 8a8174ee2f97cc8408cbcf9ff72dcf84, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.011993408
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802129949082815850, guid: 8a8174ee2f97cc8408cbcf9ff72dcf84, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.6790009
+      objectReference: {fileID: 0}
+    - target: {fileID: 2802129949082815850, guid: 8a8174ee2f97cc8408cbcf9ff72dcf84, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.014007568
+      objectReference: {fileID: 0}
     - target: {fileID: 6330072728151858827, guid: 8a8174ee2f97cc8408cbcf9ff72dcf84, type: 3}
       propertyPath: m_Name
       value: Peronnage articuler
       objectReference: {fileID: 0}
     - target: {fileID: 6670744979348997169, guid: 8a8174ee2f97cc8408cbcf9ff72dcf84, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 507.15
+      value: 494.94147
       objectReference: {fileID: 0}
     - target: {fileID: 6670744979348997169, guid: 8a8174ee2f97cc8408cbcf9ff72dcf84, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 24.64
+      value: 16.12197
       objectReference: {fileID: 0}
     - target: {fileID: 6670744979348997169, guid: 8a8174ee2f97cc8408cbcf9ff72dcf84, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 437.55
+      value: 425.36725
       objectReference: {fileID: 0}
     - target: {fileID: 6670744979348997169, guid: 8a8174ee2f97cc8408cbcf9ff72dcf84, type: 3}
       propertyPath: m_LocalRotation.w
@@ -514,4 +530,4 @@ SceneRoots:
   - {fileID: 95220203}
   - {fileID: 190095045}
   - {fileID: 1580957358}
-  - {fileID: 1541642673}
+  - {fileID: 1332483529}
