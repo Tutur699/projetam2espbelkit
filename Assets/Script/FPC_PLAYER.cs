@@ -172,23 +172,52 @@ namespace StarterAssets
         // === CAMÉRA CORRIGÉE ===
         private void CameraRotation()
         {
-            if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
+            if (LockCameraPosition) return;
+
+            Vector2 lookDelta = Vector2.zero;
+
+        #if ENABLE_INPUT_SYSTEM
+            // Si on est au clavier/souris → on lit directement le delta de la souris
+            if (IsCurrentDeviceMouse && Mouse.current != null)
             {
-                float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
-
-                _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier;
-                _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier;
-
-                _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
-                _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
-
-                CinemachineCameraTarget.transform.rotation = Quaternion.Euler(
-                    _cinemachineTargetPitch + CameraAngleOverride,
-                    _cinemachineTargetYaw,
-                    0.0f
-                );
+                lookDelta = Mouse.current.delta.ReadValue();
             }
+            else
+            {
+                // Sinon (manette, etc.) → on garde l'input venant de StarterAssetsInputs
+                lookDelta = _input.look;
+            }
+        #else
+            lookDelta = _input.look;
+        #endif
+
+            if (lookDelta.sqrMagnitude < _threshold)
+            {
+                return;
+            }
+
+            // Sensibilité : ajuste ce chiffre si ça va trop vite / pas assez
+            float mouseSensitivity = 0.1f;
+            float gamepadSensitivity = 1.0f;
+
+            float sens = IsCurrentDeviceMouse
+                ? mouseSensitivity
+                : gamepadSensitivity * Time.deltaTime;
+
+            _cinemachineTargetYaw   += lookDelta.x * sens;
+            _cinemachineTargetPitch += lookDelta.y * sens;
+
+            _cinemachineTargetYaw   = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
+            _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
+
+            CinemachineCameraTarget.transform.rotation = Quaternion.Euler(
+                _cinemachineTargetPitch + CameraAngleOverride,
+                _cinemachineTargetYaw,
+                0.0f
+            );
         }
+
+
 
         private void Move()
         {
