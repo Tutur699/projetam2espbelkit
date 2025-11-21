@@ -122,7 +122,27 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6324332533516885357, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6275072565093324816}
+    - targetCorrespondingSourceObject: {fileID: 6324332533516885357, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2455020695803743811}
+    - targetCorrespondingSourceObject: {fileID: 6324332533516885357, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 928253176872504290}
+    - targetCorrespondingSourceObject: {fileID: 6324332533516885357, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8305899570918284656}
   m_SourcePrefab: {fileID: 100100000, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+--- !u!114 &6330072728151858816 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6324332533516885350, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+  m_PrefabInstance: {fileID: 7992856263869414}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6330072728151858827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26e54e5a728a9234ab24fcf1460ed8a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6330072728151858827 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6324332533516885357, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
@@ -140,7 +160,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3746141130
+  GlobalObjectIdHash: 4184125098
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -212,6 +232,56 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &2455020695803743811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6330072728151858827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d60a7c70183db3e4d91f42501cfa977c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerManager
+  maxHP: 100
+  playerHP: 100
+  playerControler: {fileID: 6330072728151858816}
+  weaponManager: {fileID: 928253176872504290}
+  crosshairTexture: {fileID: 2800000, guid: b889ef0124f73fa4298de5e962dac98b, type: 3}
+--- !u!114 &928253176872504290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6330072728151858827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d308448992bde44482ef52b72fc50ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WPManager
+  playerCamera: {fileID: 2802129949082815853}
+  playerManager: {fileID: 2455020695803743811}
+  pItems: []
+  slots: []
+  slotPrefab: {fileID: 0}
+  selectedItemIndex: 0
+  selectedItems: {fileID: 0}
+  selectedSlot: -1
+--- !u!114 &8305899570918284656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6330072728151858827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43f050ea517690b46908325f56f3036b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSpawn
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!4 &6670744979348997169 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6669648816683616215, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}

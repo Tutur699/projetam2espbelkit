@@ -2,7 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 public class PlayerSpawn : NetworkBehaviour
-{/*
+{
     public override void OnNetworkSpawn()
     {
         if (!IsOwner) return;
@@ -27,5 +27,5 @@ public class PlayerSpawn : NetworkBehaviour
         // On place le joueur de façon à ce que les PIEDS soient sur le Spawn
         Vector3 targetPos = spawn.transform.position - new Vector3(0f, footOffset, 0f);
         transform.position = targetPos;
-    }*/
+    }
 }
