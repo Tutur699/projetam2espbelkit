@@ -45,18 +45,7 @@ public class Slot : MonoBehaviour, IDropHandler
         }
 
     }
-    public void SetItem(Items newItem)
-    {
-        currentItem = newItem;
-        slotImage.sprite = newItem.image;
-        slotImage.enabled = true;
-    }
-    public void ClearSlot()
-    {
-        currentItem = null;
-        slotImage.sprite = null;
-        slotImage.enabled = false;
-    }
+
 
      public bool IsEmpty()
     {

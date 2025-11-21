@@ -12,6 +12,8 @@ public class ItemPickable : MonoBehaviour, IPickable
     public Items itemScriptable;
     public PItems itemP;
 
+    public GItems itemG;
+
     void Start()
     {
         outline = GetComponent<Outline>();
