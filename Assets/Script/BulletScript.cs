@@ -34,11 +34,11 @@ public class BulletScript : MonoBehaviour
                 {
                     hit.rigidbody.AddForce(direction * hitForce);
 
-                    IEntity npc = hit.transform.GetComponent<IEntity>();
-                    if (npc != null)
+                    IEntity enemy = hit.transform.GetComponent<IEntity>();
+                    if (enemy != null)
                     {
                         //Apply damage to NPC
-                        npc.ApplyDamage(damagePoints);
+                        enemy.ApplyDamage(damagePoints);
                     }
                 }
 

@@ -74,7 +74,7 @@ public class GItems : MonoBehaviour
                     GameObject bulletObject = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
                     BulletScript bullet = bulletObject.GetComponent<BulletScript>();
                     //Set bullet damage according to weapon damage value
-                    bullet.SetDamage(Witem.weaponDamage); 
+                    bullet.SetDamage(Witem.weaponDamage);
                     bulletsPerMagazine--;
                     audioSource.clip = fireAudio;
                     audioSource.Play();

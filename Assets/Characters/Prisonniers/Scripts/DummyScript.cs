@@ -8,6 +8,7 @@ public class DummyScript : MonoBehaviour, IEntity
     //public Transform playerTransform;
     public void ApplyDamage(float points)
     {
+        Debug.Log("DummyScript ApplyDamage called with points: " + points);
         npcHP -= points;
         if (npcHP <= 0)
         {

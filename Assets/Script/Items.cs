@@ -9,7 +9,6 @@ public class Items : ScriptableObject
     public ActionType action;
     public Sprite image;
     public bool isDefaultItem = false;
-    public bool isStackable = true;
 
     [Header("Weapon Properties")]
     public GameObject prefab; //The actual item object in the scene
