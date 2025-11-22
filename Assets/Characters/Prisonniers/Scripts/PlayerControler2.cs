@@ -213,10 +213,6 @@ public class PlayerControler : MonoBehaviour
             Debug.Log("Using item: " + wpManager.selectedItems.item);
             wpManager.selectedItems.Use();
         }
-        if(wpManager.selectedWeapon != null && wpManager.selectedWeapon.isEquipped){
-            Debug.Log("Shooting weapon: " + wpManager.selectedWeapon.Witem);
-            wpManager.selectedWeapon.Fire();
-        }
          else
         {
             Debug.Log("No item selected to use.");

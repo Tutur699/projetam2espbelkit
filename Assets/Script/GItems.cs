@@ -3,7 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
 
-public class GItems : MonoBehaviour
+public class GItems : All_Items
 {
     public GameObject bulletPrefab;
     public Transform firePoint;
@@ -11,13 +11,10 @@ public class GItems : MonoBehaviour
     public float timeToReload = 1.5f;
     public AudioClip fireAudio;
     public AudioClip reloadAudio;
-    public Items Witem;
     bool canFire = true;
     float nextFireTime = 0;
     int bulletsPerMagazineDefault = 0;
     AudioSource audioSource;
-    [HideInInspector] public WPManager manager;
-    [HideInInspector] public bool isEquipped = false;
 
     void Start()
     {
@@ -31,11 +28,16 @@ public class GItems : MonoBehaviour
         audioSource.spatialBlend = 1f;
     }
 
-    public void ActivateWeapon(bool activate)
+    public override void ActivateWeapon(bool activate)
     {
         StopAllCoroutines();
         canFire = true;
         gameObject.SetActive(activate);
+    }
+
+    public override void Use()
+    {
+        Fire();
     }
 
     IEnumerator Reload()
@@ -54,11 +56,11 @@ public class GItems : MonoBehaviour
 
     public void Fire()
     {
-        if (canFire && Witem !=null)
+        if (canFire && item !=null)
         {
             if (Time.time > nextFireTime)
             {
-                nextFireTime = Time.time + Witem.useRate;
+                nextFireTime = Time.time + item.useRate;
 
                 if (bulletsPerMagazine > 0)
                 {
@@ -74,7 +76,7 @@ public class GItems : MonoBehaviour
                     GameObject bulletObject = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
                     BulletScript bullet = bulletObject.GetComponent<BulletScript>();
                     //Set bullet damage according to weapon damage value
-                    bullet.SetDamage(Witem.weaponDamage);
+                    bullet.SetDamage(item.weaponDamage);
                     bulletsPerMagazine--;
                     audioSource.clip = fireAudio;
                     audioSource.Play();

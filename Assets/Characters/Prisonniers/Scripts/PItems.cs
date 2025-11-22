@@ -1,16 +1,12 @@
 using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
-public class PItems : MonoBehaviour
+public class PItems : All_Items
 {
-    public Items item;
     public Transform HitPoint;
     
-    [HideInInspector]
-    public WPManager manager;
     private float nextUseTime = 0;
     private bool canUse = true;
-    [HideInInspector] public bool isEquipped = false;
 
     void Start()
     {
@@ -21,11 +17,11 @@ public class PItems : MonoBehaviour
 
     }
 
-    public void ActivateWeapon(bool activate) //Méthode pour récupérer l'item + faire en sorte que WPManager ne bloque pas
+    public override void ActivateWeapon(bool activate) //Méthode pour récupérer l'item + faire en sorte que WPManager ne bloque pas
     {
         gameObject.SetActive(activate);
     }
-    public void Use()
+    public override void Use()
     {
         if (canUse && item != null)
         {

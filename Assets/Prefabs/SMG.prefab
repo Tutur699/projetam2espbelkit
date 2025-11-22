@@ -175,15 +175,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 033401ff15d1b3248802745bb85bf986, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GItems
+  item: {fileID: 11400000, guid: fe7e5f866c10676468aff5287c04a882, type: 2}
+  manager: {fileID: 0}
+  isEquipped: 0
   bulletPrefab: {fileID: 1124179450906470559, guid: e605bbbc8b8697f4499cde817b9dde8f, type: 3}
   firePoint: {fileID: 5130703292101055278}
   bulletsPerMagazine: 40
   timeToReload: 1.5
   fireAudio: {fileID: 8300000, guid: 81ac649d26a9a96419b76c635591f6d8, type: 3}
   reloadAudio: {fileID: 8300000, guid: e5198250a6a57408bb36e14bc4a322c4, type: 3}
-  Witem: {fileID: 11400000, guid: fe7e5f866c10676468aff5287c04a882, type: 2}
-  manager: {fileID: 0}
-  isEquipped: 0
 --- !u!1001 &5093607548994998164
 PrefabInstance:
   m_ObjectHideFlags: 0
