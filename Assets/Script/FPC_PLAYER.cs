@@ -169,53 +169,33 @@ namespace StarterAssets
             }
         }
 
-        // === CAMÉRA CORRIGÉE ===
         private void CameraRotation()
         {
-            if (LockCameraPosition) return;
-
-            Vector2 lookDelta = Vector2.zero;
-
-        #if ENABLE_INPUT_SYSTEM
-            // Si on est au clavier/souris → on lit directement le delta de la souris
-            if (IsCurrentDeviceMouse && Mouse.current != null)
+            // si on a un input de caméra et que la caméra n’est pas lock
+            if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
             {
-                lookDelta = Mouse.current.delta.ReadValue();
-            }
-            else
-            {
-                // Sinon (manette, etc.) → on garde l'input venant de StarterAssetsInputs
-                lookDelta = _input.look;
-            }
-        #else
-            lookDelta = _input.look;
-        #endif
+                // souris : pas de Time.deltaTime, manette : avec Time.deltaTime
+                float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 
-            if (lookDelta.sqrMagnitude < _threshold)
-            {
-                return;
+                _cinemachineTargetYaw   += _input.look.x * deltaTimeMultiplier;
+                _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier;
             }
 
-            // Sensibilité : ajuste ce chiffre si ça va trop vite / pas assez
-            float mouseSensitivity = 0.1f;
-            float gamepadSensitivity = 1.0f;
-
-            float sens = IsCurrentDeviceMouse
-                ? mouseSensitivity
-                : gamepadSensitivity * Time.deltaTime;
-
-            _cinemachineTargetYaw   += lookDelta.x * sens;
-            _cinemachineTargetPitch += lookDelta.y * sens;
-
+            // on clamp les angles
             _cinemachineTargetYaw   = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
             _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
 
+            // Cinemachine suit ce target
             CinemachineCameraTarget.transform.rotation = Quaternion.Euler(
                 _cinemachineTargetPitch + CameraAngleOverride,
                 _cinemachineTargetYaw,
                 0.0f
             );
         }
+
+
+
+
 
 
 
