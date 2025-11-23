@@ -1,21 +1,36 @@
-using UnityEngine;
+using System.Linq;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
-using System.Linq;
-using UnityEngine.SceneManagement;
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class NetworkStartUI : MonoBehaviour
 {
-    [SerializeField] private NetworkManager nm;   // <- glisse ton NetworkManager ici
-    [SerializeField] private UnityTransport utp;  // <- et le transport
-    [SerializeField] private string defaultIp = "127.0.0.1";
-    [SerializeField] private ushort port = 7777;
+    [Header("Netcode")]
+    [SerializeField] private NetworkManager nm;
+    [SerializeField] private UnityTransport utp;
+    [SerializeField] private LanDiscovery lanDiscovery;
 
-    private string ipRuntime;
+    [Header("UI")]
+    [SerializeField] private Button hostButton;
+    [SerializeField] private Button refreshButton;
+    [SerializeField] private Button shutdownButton;
+    [SerializeField] private Transform serverListContainer;   // contenu du ScrollView
+    [SerializeField] private GameObject serverEntryPrefab;    // prefab avec un Button + TMP_Text
+    [SerializeField] private TMP_Text statusText;
 
-    void Start()
+    private void Awake()
     {
-        // Force un profil graphique spécifique (optionnel)
+        if (!nm) nm = NetworkManager.Singleton;
+        if (!nm || !utp || !lanDiscovery)
+        {
+            Debug.LogError("[NET] Références manquantes (NetworkManager / UnityTransport / LanDiscovery).");
+            enabled = false;
+            return;
+        }
+
+        // Qualité "PC" si elle existe
         int qualityIndex = QualitySettings.names.ToList().IndexOf("PC");
         if (qualityIndex >= 0)
         {
@@ -23,80 +38,127 @@ public class NetworkStartUI : MonoBehaviour
             Debug.Log("[INIT] Quality level forcé sur : " + QualitySettings.names[QualitySettings.GetQualityLevel()]);
         }
 
-        ipRuntime = defaultIp;
-
-        if (!nm) nm = NetworkManager.Singleton;
-        if (!nm || !utp)
-        {
-            Debug.LogError("Référence manquante (NetworkManager/UnityTransport).");
-            enabled = false;
-            return;
-        }
+        hostButton.onClick.AddListener(OnHostClicked);
+        refreshButton.onClick.AddListener(RefreshServerListUI);
+        shutdownButton.onClick.AddListener(OnShutdownClicked);
 
         nm.OnServerStarted += () => Debug.Log("[NET] Server/Host démarré");
         nm.OnClientConnectedCallback += id => Debug.Log($"[NET] Client connecté: {id}");
         nm.OnClientDisconnectCallback += id => Debug.Log($"[NET] Client déconnecté: {id}");
+
+        // côté client, on commence directement à écouter les serveurs LAN
+        lanDiscovery.StartListening();
     }
 
-    void ConfigureForServer() => utp.SetConnectionData("0.0.0.0", port);
-    void ConfigureForClient() => utp.SetConnectionData(ipRuntime, port);
-
-    void OnGUI()
+    private void Update()
     {
-        if (!nm) return;
+        UpdateStatusLabel();
+        // La découverte LAN tourne déjà; on peut rafraîchir la liste automatiquement si tu veux :
+        RefreshServerListUI();
+    }
 
-        float x = 10, y = 10, w = 220, h = 36, p = 8;
-        GUI.Label(new Rect(x, y, 400, h), $"Status: {(nm.IsServer ? "Server" : nm.IsClient ? "Client" : "Idle")}");
+    private void UpdateStatusLabel()
+    {
+        if (!statusText) return;
 
-        y += h + p;
-        GUI.Label(new Rect(x, y, 80, h), "Server IP:");
-        ipRuntime = GUI.TextField(new Rect(x + 80, y, w - 80, h), ipRuntime);
+        string mode = "Idle";
+        if (nm.IsHost) mode = "Host";
+        else if (nm.IsServer) mode = "Server";
+        else if (nm.IsClient) mode = "Client";
 
-        y += h + p;
+        statusText.text = $"Status : {mode}";
+    }
 
-        if (!nm.IsClient && !nm.IsServer)
+    // ---------- Host ----------
+    private void OnHostClicked()
+    {
+        if (nm.IsServer || nm.IsClient)
         {
-            if (GUI.Button(new Rect(x, y, w, h), "Host"))
+            Debug.LogWarning("[NET] Déjà connecté.");
+            return;
+        }
+
+        ushort gamePort = (ushort)lanDiscovery.GetGamePort();
+
+        // Le host écoute sur toutes les interfaces
+        utp.SetConnectionData("0.0.0.0", gamePort);
+        bool ok = nm.StartHost();
+
+        if (!ok)
+        {
+            Debug.LogError("[NET] Impossible de démarrer le Host.");
+            return;
+        }
+
+        // On broadcast le serveur sur le LAN
+        lanDiscovery.StartBroadcasting();
+        Debug.Log("[NET] Host démarré, découverte LAN active.");
+    }
+
+    // ---------- Shutdown ----------
+    private void OnShutdownClicked()
+    {
+        if (!nm.IsServer && !nm.IsClient) return;
+
+        nm.Shutdown();
+        lanDiscovery.StopBroadcasting();
+        Debug.Log("[NET] Réseau arrêté.");
+    }
+
+    // ---------- Liste de serveurs ----------
+    private void RefreshServerListUI()
+    {
+        if (!serverListContainer || !serverEntryPrefab) return;
+
+        // On vide d'abord la liste
+        foreach (Transform child in serverListContainer)
+        {
+            Destroy(child.gameObject);
+        }
+
+        var servers = lanDiscovery.Servers;
+        if (servers == null || servers.Count == 0) return;
+
+        foreach (var s in servers)
+        {
+            GameObject entryGO = Instantiate(serverEntryPrefab, serverListContainer);
+            var btn = entryGO.GetComponent<Button>();
+            var label = entryGO.GetComponentInChildren<TMP_Text>();
+
+            string ip = s.Address;
+            int port = s.Port;
+
+            if (label != null)
             {
-                ConfigureForServer();
-                nm.StartHost();
-
-                if (nm.IsServer)
-                {
-                    // On reste dans la scène actuelle (aucun chargement)
-                    var activeScene = SceneManager.GetActiveScene().name;
-                    var sm = nm.SceneManager;
-                   if (sm != null)
-                    {
-                        Debug.Log($"[NET] Host démarré dans la scène actuelle : {activeScene}");
-                        sm.SetClientSynchronizationMode(LoadSceneMode.Single);
-                        sm.LoadScene(activeScene, LoadSceneMode.Single);
-                    }
-
-                }
+                label.text = $"{ip}:{port}";
             }
 
-            y += h + p;
-            if (GUI.Button(new Rect(x, y, w, h), "Client"))
+            if (btn != null)
             {
-                ConfigureForClient();
-                nm.StartClient();
-            }
-
-            y += h + p;
-            if (GUI.Button(new Rect(x, y, w, h), "Server"))
-            {
-                ConfigureForServer();
-                nm.StartServer();
+                btn.onClick.AddListener(() => OnServerSelected(ip, (ushort)port));
             }
         }
-        else
+    }
+
+    private void OnServerSelected(string ip, ushort port)
+    {
+        if (nm.IsServer || nm.IsClient)
         {
-            if (GUI.Button(new Rect(x, y, w, h), "Shutdown"))
-            {
-                nm.Shutdown();
-                Debug.Log("[NET] Réseau arrêté.");
-            }
+            Debug.LogWarning("[NET] Déjà connecté, impossible de se connecter à un autre serveur.");
+            return;
         }
+
+        lanDiscovery.StartListening(); // au cas où
+
+        utp.SetConnectionData(ip, port);
+        bool ok = nm.StartClient();
+
+        if (!ok)
+        {
+            Debug.LogError("[NET] Échec StartClient vers " + ip + ":" + port);
+            return;
+        }
+
+        Debug.Log("[NET] Connexion au serveur " + ip + ":" + port);
     }
 }
