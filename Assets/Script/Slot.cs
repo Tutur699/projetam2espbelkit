@@ -19,10 +19,12 @@ public class Slot : MonoBehaviour, IDropHandler
 
      public void Select()
      {
+        Debug.Log("Slot selected");
         slotImage.color = selectedColor;
      }
      public void Deselect()
      {
+        Debug.Log("Slot deselected");
         slotImage.color = normalColor;
      }
     public void OnDrop(PointerEventData eventData)

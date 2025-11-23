@@ -20,11 +20,21 @@ public class WPManager : MonoBehaviour
 
     [HideInInspector] public int selectedSlot = -1;
 
-    // --- Fonction utilitaire : savoir si le joueur peut utiliser ses armes ---
-    private bool PlayerIsDead()
+
+    void Start()
     {
-        if (playerManager == null) return false;   // sécurité si non assigné
-        return !playerManager.IsAlive();
+        selectedItems = null;
+        Debug.Log("Toutes les armes désactivées au démarrage.");
+
+        if (slots == null || slots.Count == 0)
+        {
+            Debug.LogError("Slots list is empty in WPManager!");
+        }
+        else
+        {
+            Debug.Log($"WPManager initialized with {slots.Count} slots");
+        }
+        SelectItems(0);
     }
 
     private void Update()
@@ -41,6 +51,14 @@ public class WPManager : MonoBehaviour
             }
         }
     }
+
+    // --- Fonction utilitaire : savoir si le joueur peut utiliser ses armes ---
+    private bool PlayerIsDead()
+    {
+        if (playerManager == null) return false;   // sécurité si non assigné
+        return !playerManager.IsAlive();
+    }
+
 
     public void ChangeSelectedSlot(int newIndex)
     {
@@ -120,22 +138,6 @@ public class WPManager : MonoBehaviour
             }
         }
         Debug.LogWarning("No empty slots available for item: " + newItem.name);
-    }
-
-    void Start()
-    {
-        selectedItems = null;
-        Debug.Log("Toutes les armes désactivées au démarrage.");
-
-        if (slots == null || slots.Count == 0)
-        {
-            Debug.LogError("Slots list is empty in WPManager!");
-        }
-        else
-        {
-            Debug.Log($"WPManager initialized with {slots.Count} slots");
-        }
-        SelectItems(0);
     }
 
     public void SelectItems(int index) //Méthode pour sélectionner une arme dans l'inventaire version allItems

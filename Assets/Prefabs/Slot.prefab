@@ -32,7 +32,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 4770131330546107083}
+  - {fileID: 7434904904804069161}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -118,7 +118,7 @@ MonoBehaviour:
   normalColor: {r: 0.9528302, g: 0.4498155, b: 0.19326274, a: 1}
   selectedColor: {r: 1, g: 0.9575472, b: 0.9575472, a: 1}
   manager: {fileID: 0}
---- !u!1001 &1361727567149627934
+--- !u!1001 &4033302991439206396
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -172,7 +172,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5825191910568294613, guid: f57fea9bf02de104f8952db084d45b54, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 279.9903
+      value: 139.99515
       objectReference: {fileID: 0}
     - target: {fileID: 5825191910568294613, guid: f57fea9bf02de104f8952db084d45b54, type: 3}
       propertyPath: m_LocalRotation.w
@@ -215,8 +215,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f57fea9bf02de104f8952db084d45b54, type: 3}
---- !u!224 &4770131330546107083 stripped
+--- !u!224 &7434904904804069161 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5825191910568294613, guid: f57fea9bf02de104f8952db084d45b54, type: 3}
-  m_PrefabInstance: {fileID: 1361727567149627934}
+  m_PrefabInstance: {fileID: 4033302991439206396}
   m_PrefabAsset: {fileID: 0}
