@@ -38,6 +38,7 @@ public class NetworkStartUI : MonoBehaviour
             Debug.Log("[INIT] Quality level forcé sur : " + QualitySettings.names[QualitySettings.GetQualityLevel()]);
         }
 
+        // Boutons
         hostButton.onClick.AddListener(OnHostClicked);
         refreshButton.onClick.AddListener(RefreshServerListUI);
         shutdownButton.onClick.AddListener(OnShutdownClicked);
@@ -46,15 +47,17 @@ public class NetworkStartUI : MonoBehaviour
         nm.OnClientConnectedCallback += id => Debug.Log($"[NET] Client connecté: {id}");
         nm.OnClientDisconnectCallback += id => Debug.Log($"[NET] Client déconnecté: {id}");
 
-        // côté client, on commence directement à écouter les serveurs LAN
+        // côté client, on commence à écouter les serveurs LAN
         lanDiscovery.StartListening();
+
+        // on peut faire un premier refresh au démarrage
+        RefreshServerListUI();
     }
 
     private void Update()
     {
+        // ❌ NE PLUS rafraîchir la liste ici, sinon ça recrée les boutons en boucle
         UpdateStatusLabel();
-        // La découverte LAN tourne déjà; on peut rafraîchir la liste automatiquement si tu veux :
-        RefreshServerListUI();
     }
 
     private void UpdateStatusLabel()
@@ -135,7 +138,12 @@ public class NetworkStartUI : MonoBehaviour
 
             if (btn != null)
             {
+                btn.onClick.RemoveAllListeners();
                 btn.onClick.AddListener(() => OnServerSelected(ip, (ushort)port));
+            }
+            else
+            {
+                Debug.LogWarning("[NET] Pas de Button trouvé sur ServerEntry prefab.");
             }
         }
     }
@@ -148,7 +156,7 @@ public class NetworkStartUI : MonoBehaviour
             return;
         }
 
-        lanDiscovery.StartListening(); // au cas où
+        Debug.Log("[NET] Connexion au serveur " + ip + ":" + port);
 
         utp.SetConnectionData(ip, port);
         bool ok = nm.StartClient();
@@ -158,7 +166,5 @@ public class NetworkStartUI : MonoBehaviour
             Debug.LogError("[NET] Échec StartClient vers " + ip + ":" + port);
             return;
         }
-
-        Debug.Log("[NET] Connexion au serveur " + ip + ":" + port);
     }
 }
