@@ -235,6 +235,7 @@ public class PlayerControler : MonoBehaviour
         }
         if (select >= 0 && wpManager != null)
             wpManager.SelectItems(select);
+            wpManager.ChangeSelectedSlot(select);
     }
 
     // ---------- Crouch ----------

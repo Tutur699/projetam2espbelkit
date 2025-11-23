@@ -182,7 +182,7 @@ MonoBehaviour:
   firePoint: {fileID: 5130703292101055278}
   bulletsPerMagazine: 40
   timeToReload: 1.5
-  fireAudio: {fileID: 8300000, guid: 81ac649d26a9a96419b76c635591f6d8, type: 3}
+  fireAudio: {fileID: 8300000, guid: be64544bade297e4d872dd74c66256d2, type: 3}
   reloadAudio: {fileID: 8300000, guid: e5198250a6a57408bb36e14bc4a322c4, type: 3}
 --- !u!1001 &5093607548994998164
 PrefabInstance:
