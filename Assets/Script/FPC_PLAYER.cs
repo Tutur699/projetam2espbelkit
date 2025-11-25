@@ -114,53 +114,46 @@ namespace StarterAssets
 
             Debug.Log($"[FPC_PLAYER] Spawn {name} - IsOwner={IsOwner}, IsServer={IsServer}, OwnerClientId={OwnerClientId}, LocalClientId={NetworkManager.Singleton.LocalClientId}");
 
-            // --- INPUTS --
-            if (isLocal)
-            {
+            // --- INPUTS ---
         #if ENABLE_INPUT_SYSTEM
             if (_playerInput != null) _playerInput.enabled = isLocal;
         #endif
             if (_input      != null) _input.enabled      = isLocal;
 
-            // CharacterController peut rester actif pour tous, il applique juste le mouvement reçu
+            // Le CharacterController reste actif pour tout le monde
             if (_controller != null) _controller.enabled = true;
 
-            // --- CAMERA & SON ---
-            
-                // Caméra locale : on l’active et on la stocke dans _mainCamera
-                if (playerCamera != null)
+            // --- CAMÉRA & SON ---
+            if (playerCamera != null)
+            {
+                playerCamera.enabled = isLocal;
+
+                if (isLocal)
                 {
-                    playerCamera.enabled = true;
+                    // On s'assure que _mainCamera est bien la nôtre
                     _mainCamera = playerCamera.gameObject;
+
+                    // On désactive les autres caméras (uniquement côté local)
+                    var allCams = FindObjectsOfType<Camera>();
+                    foreach (var cam in allCams)
+                    {
+                        if (cam != playerCamera)
+                            cam.enabled = false;
+                    }
                 }
+            }
 
-                if (audioListener != null)
-                    audioListener.enabled = true;
+            if (audioListener != null)
+            {
+                audioListener.enabled = isLocal;
+            }
 
+            if (isLocal)
+            {
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible   = false;
             }
-            else
-            {
-                // Pour TOUS les joueurs distants sur CETTE machine :
-                // on supprime leur caméra et leur audio pour être sûr
-                if (playerCamera != null)
-                    Destroy(playerCamera.gameObject);
-                else
-                {
-                    var cam = GetComponentInChildren<Camera>();
-                    if (cam != null) Destroy(cam.gameObject);
-                }
-
-                if (audioListener != null)
-                    Destroy(audioListener);
-            }
         }
-
-
-
-
-
 
 
         private void Start()
