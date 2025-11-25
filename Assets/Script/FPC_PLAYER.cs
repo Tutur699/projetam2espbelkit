@@ -114,7 +114,9 @@ namespace StarterAssets
 
             Debug.Log($"[FPC_PLAYER] Spawn {name} - IsOwner={IsOwner}, IsServer={IsServer}, OwnerClientId={OwnerClientId}, LocalClientId={NetworkManager.Singleton.LocalClientId}");
 
-            // --- INPUTS ---
+            // --- INPUTS --
+            if (isLocal)
+            {
         #if ENABLE_INPUT_SYSTEM
             if (_playerInput != null) _playerInput.enabled = isLocal;
         #endif
@@ -124,8 +126,7 @@ namespace StarterAssets
             if (_controller != null) _controller.enabled = true;
 
             // --- CAMERA & SON ---
-            if (isLocal)
-            {
+            
                 // Caméra locale : on l’active et on la stocke dans _mainCamera
                 if (playerCamera != null)
                 {
