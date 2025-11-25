@@ -114,16 +114,19 @@ namespace StarterAssets
 
             Debug.Log($"[FPC_PLAYER] Spawn {name} - IsOwner={IsOwner}, IsServer={IsServer}, OwnerClientId={OwnerClientId}, LocalClientId={NetworkManager.Singleton.LocalClientId}");
 
-            // Inputs : uniquement pour le joueur local
+            // --- INPUTS ---
         #if ENABLE_INPUT_SYSTEM
             if (_playerInput != null) _playerInput.enabled = isLocal;
         #endif
             if (_input      != null) _input.enabled      = isLocal;
-            if (_controller != null) _controller.enabled = true;   // restant actif pour tout le monde
 
+            // CharacterController peut rester actif pour tous, il applique juste le mouvement reçu
+            if (_controller != null) _controller.enabled = true;
+
+            // --- CAMERA & SON ---
             if (isLocal)
             {
-                // Caméra locale
+                // Caméra locale : on l’active et on la stocke dans _mainCamera
                 if (playerCamera != null)
                 {
                     playerCamera.enabled = true;
@@ -131,20 +134,17 @@ namespace StarterAssets
                 }
 
                 if (audioListener != null)
-                {
                     audioListener.enabled = true;
-                }
 
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible   = false;
             }
             else
             {
-                // désactivation des composants locaux
+                // Pour TOUS les joueurs distants sur CETTE machine :
+                // on supprime leur caméra et leur audio pour être sûr
                 if (playerCamera != null)
-                {
                     Destroy(playerCamera.gameObject);
-                }
                 else
                 {
                     var cam = GetComponentInChildren<Camera>();
@@ -152,9 +152,7 @@ namespace StarterAssets
                 }
 
                 if (audioListener != null)
-                {
                     Destroy(audioListener);
-                }
             }
         }
 
