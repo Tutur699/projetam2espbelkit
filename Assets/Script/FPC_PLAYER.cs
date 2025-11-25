@@ -114,34 +114,50 @@ namespace StarterAssets
 
             Debug.Log($"[FPC_PLAYER] Spawn {name} - IsOwner={IsOwner}, IsServer={IsServer}, OwnerClientId={OwnerClientId}, LocalClientId={NetworkManager.Singleton.LocalClientId}");
 
-            // Activer uniquement pour le joueur local
+            // Inputs : uniquement pour le joueur local
         #if ENABLE_INPUT_SYSTEM
             if (_playerInput != null) _playerInput.enabled = isLocal;
         #endif
             if (_input      != null) _input.enabled      = isLocal;
-            if (_controller != null) _controller.enabled = true;   // controller actif pour tous
-
-            // Caméra & son
-            if (playerCamera != null)
-            {
-                playerCamera.enabled = isLocal;
-                if (isLocal)
-                {
-                    _mainCamera = playerCamera.gameObject;
-                }
-            }
-
-            if (audioListener != null)
-            {
-                audioListener.enabled = isLocal;
-            }
+            if (_controller != null) _controller.enabled = true;   // restant actif pour tout le monde
 
             if (isLocal)
             {
+                // Caméra locale
+                if (playerCamera != null)
+                {
+                    playerCamera.enabled = true;
+                    _mainCamera = playerCamera.gameObject;
+                }
+
+                if (audioListener != null)
+                {
+                    audioListener.enabled = true;
+                }
+
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible   = false;
             }
+            else
+            {
+                // désactivation des composants locaux
+                if (playerCamera != null)
+                {
+                    Destroy(playerCamera.gameObject);
+                }
+                else
+                {
+                    var cam = GetComponentInChildren<Camera>();
+                    if (cam != null) Destroy(cam.gameObject);
+                }
+
+                if (audioListener != null)
+                {
+                    Destroy(audioListener);
+                }
+            }
         }
+
 
 
 
