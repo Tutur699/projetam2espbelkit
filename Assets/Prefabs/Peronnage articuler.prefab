@@ -48,6 +48,14 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 6324332533516885350, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+      propertyPath: playerCamera
+      value: 
+      objectReference: {fileID: 2802129949082815853}
+    - target: {fileID: 6324332533516885350, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+      propertyPath: audioListener
+      value: 
+      objectReference: {fileID: 2802129949082815852}
+    - target: {fileID: 6324332533516885350, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
       propertyPath: LockCameraPosition
       value: 0
       objectReference: {fileID: 0}
@@ -465,6 +473,11 @@ PrefabInstance:
 --- !u!4 &2802129949082815850 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9005220659476430818, guid: 2d3a85ecde41a8246a79669975912b74, type: 3}
+  m_PrefabInstance: {fileID: 6493014381747073672}
+  m_PrefabAsset: {fileID: 0}
+--- !u!81 &2802129949082815852 stripped
+AudioListener:
+  m_CorrespondingSourceObject: {fileID: 9005220659476430820, guid: 2d3a85ecde41a8246a79669975912b74, type: 3}
   m_PrefabInstance: {fileID: 6493014381747073672}
   m_PrefabAsset: {fileID: 0}
 --- !u!20 &2802129949082815853 stripped

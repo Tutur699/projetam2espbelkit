@@ -12,6 +12,14 @@ namespace StarterAssets
 #endif
     public class FPC_PLAYER : NetworkBehaviour
     {
+        [Header("Local Only Components")]
+        [SerializeField] private Camera playerCamera;
+        [SerializeField] private AudioListener audioListener;
+        [SerializeField] private MonoBehaviour[] localControllers;
+        [SerializeField] private GameObject[] localOnlyObjects;
+        [SerializeField] private GameObject worldModel;
+
+
         [Header("Player")]
         public float MoveSpeed = 2.0f;
         public float SprintSpeed = 5.335f;
@@ -94,16 +102,51 @@ namespace StarterAssets
 
         public override void OnNetworkSpawn()
         {
-            Debug.Log($"[ThirdPersonController] Spawn {name} - IsOwner={IsOwner}, IsServer={IsServer}, OwnerClientId={OwnerClientId}");
-        }
+            base.OnNetworkSpawn();
 
-        private void Awake()
-        {
-            if (_mainCamera == null)
+            _controller   = GetComponent<CharacterController>();
+            _input        = GetComponent<StarterAssetsInputs>();
+        #if ENABLE_INPUT_SYSTEM
+            _playerInput  = GetComponent<PlayerInput>();
+        #endif
+
+            bool isLocal = IsOwner;
+
+            Debug.Log($"[FPC_PLAYER] Spawn {name} - IsOwner={IsOwner}, IsServer={IsServer}, OwnerClientId={OwnerClientId}, LocalClientId={NetworkManager.Singleton.LocalClientId}");
+
+            // Activer uniquement pour le joueur local
+        #if ENABLE_INPUT_SYSTEM
+            if (_playerInput != null) _playerInput.enabled = isLocal;
+        #endif
+            if (_input      != null) _input.enabled      = isLocal;
+            if (_controller != null) _controller.enabled = true;   // controller actif pour tous
+
+            // Caméra & son
+            if (playerCamera != null)
             {
-                _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+                playerCamera.enabled = isLocal;
+                if (isLocal)
+                {
+                    _mainCamera = playerCamera.gameObject;
+                }
+            }
+
+            if (audioListener != null)
+            {
+                audioListener.enabled = isLocal;
+            }
+
+            if (isLocal)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible   = false;
             }
         }
+
+
+
+
+
 
         private void Start()
         {
