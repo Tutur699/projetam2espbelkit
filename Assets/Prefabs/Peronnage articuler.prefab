@@ -45,7 +45,11 @@ PrefabInstance:
       objectReference: {fileID: 2802129949082815853}
     - target: {fileID: 6324332533516885350, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
       propertyPath: TopClamp
-      value: 20
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 6324332533516885350, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+      propertyPath: BottomClamp
+      value: -60
       objectReference: {fileID: 0}
     - target: {fileID: 6324332533516885350, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
       propertyPath: playerCamera
@@ -165,7 +169,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3746141130
+  GlobalObjectIdHash: 4184125098
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
