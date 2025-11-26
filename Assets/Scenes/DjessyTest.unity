@@ -2485,13 +2485,17 @@ PrefabInstance:
       propertyPath: damage
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1950539900295414154, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
+      propertyPath: isUnlocked
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: gItems.Array.size
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: allItems.Array.size
-      value: 7
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: 'slots.Array.data[0]'
@@ -2520,42 +2524,74 @@ PrefabInstance:
     - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: 'allItems.Array.data[0]'
       value: 
-      objectReference: {fileID: 623820351}
+      objectReference: {fileID: 0}
     - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: 'allItems.Array.data[1]'
       value: 
-      objectReference: {fileID: 725691467}
+      objectReference: {fileID: 0}
     - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: 'allItems.Array.data[2]'
       value: 
-      objectReference: {fileID: 598207344}
+      objectReference: {fileID: 0}
     - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: 'allItems.Array.data[3]'
       value: 
-      objectReference: {fileID: 1765209798}
+      objectReference: {fileID: 0}
     - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: 'allItems.Array.data[4]'
       value: 
-      objectReference: {fileID: 1059679495}
+      objectReference: {fileID: 0}
     - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: 'allItems.Array.data[5]'
       value: 
-      objectReference: {fileID: 957224896}
+      objectReference: {fileID: 0}
     - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: 'allItems.Array.data[6]'
       value: 
-      objectReference: {fileID: 1733046820}
+      objectReference: {fileID: 0}
     - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: startingItems.Array.size
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
+      propertyPath: weaponLibrary.Array.size
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
+      propertyPath: 'weaponLibrary.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1733046820}
+    - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
+      propertyPath: 'weaponLibrary.Array.data[1]'
+      value: 
+      objectReference: {fileID: 725691467}
+    - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
+      propertyPath: 'weaponLibrary.Array.data[2]'
+      value: 
+      objectReference: {fileID: 598207344}
+    - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
+      propertyPath: 'weaponLibrary.Array.data[3]'
+      value: 
+      objectReference: {fileID: 1765209798}
+    - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
+      propertyPath: 'weaponLibrary.Array.data[4]'
+      value: 
+      objectReference: {fileID: 1059679495}
+    - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
+      propertyPath: 'weaponLibrary.Array.data[5]'
+      value: 
+      objectReference: {fileID: 957224896}
+    - target: {fileID: 2029438932372060698, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
+      propertyPath: 'weaponLibrary.Array.data[6]'
+      value: 
+      objectReference: {fileID: 623820351}
     - target: {fileID: 2287031447469794948, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: item
       value: 
       objectReference: {fileID: 11400000, guid: 765c228f66c329a4cae773929b56b3b9, type: 2}
     - target: {fileID: 2287031447469794948, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: isUnlocked
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4026840086836513483, guid: 0fe20c07d071197499cf72c28fd94b62, type: 3}
       propertyPath: m_IsActive
