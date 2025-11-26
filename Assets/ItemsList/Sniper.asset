@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Items
   action: 0
   image: {fileID: 21300000, guid: c22b37f55b105994396c90d99ffe9a27, type: 3}
-  isDefaultItem: 0
-  isStackable: 0
+  isDefaultItem: 1
   prefab: {fileID: 6783455752831674310, guid: af0876abc839574428fd13b90619daa1, type: 3}
   useRate: 0.1
   singleUse: 0
