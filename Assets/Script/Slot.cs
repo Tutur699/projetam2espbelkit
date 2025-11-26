@@ -37,7 +37,6 @@ public class Slot : MonoBehaviour, IDropHandler
                 return;
             }
             Transform oldParent = itemUI.parentAfterDrag;
-            //SetItem(itemUI.item);
             itemUI.parentAfterDrag = transform;
 
             int oldIndex = oldParent.GetSiblingIndex();
@@ -48,7 +47,15 @@ public class Slot : MonoBehaviour, IDropHandler
 
     }
 
-
+    public void SetItem(Items newItem)
+    {
+        currentItem = newItem;
+        InventoryItem itemUI = GetComponentInChildren<InventoryItem>();
+        if (itemUI != null)
+        {
+            itemUI.InitializeItem(newItem);
+        }
+    }
      public bool IsEmpty()
     {
         return currentItem == null;

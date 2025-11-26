@@ -6,32 +6,32 @@ using UnityEngine.UI;
 
 public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public Items item;
-    public Image itemImage;
+    [SerializeField] public Items item;
+    [SerializeField] public Image itemImage;
     [HideInInspector] public Transform parentAfterDrag;
+
     // Start is called before the first frame update
     
     private void Start()
     {
-        if (item != null)
+        /*if (item != null && !isInitialized)
         {
-            Debug.Log("Initializing item: " + item.name);
             InitializeItem(item);
-        }
-        if (itemImage == null)
-        {
-            Debug.LogError("Item image is not assigned in InventoryItem.");
-        }
+        }*/
     }
     public void InitializeItem(Items newItem) 
     {
         if (newItem == null)
         {
             Debug.LogError("Trying to initialize with null item");
+            item = null;
+            itemImage.sprite = null;
+            itemImage.enabled = false;
             return;
         }
         
         item = newItem;
+        Debug.Log("Item initialized: " + newItem.name);
         
         if (newItem.image != null)
         {

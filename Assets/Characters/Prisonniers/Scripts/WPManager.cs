@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEngine.UI;
 
 public class WPManager : MonoBehaviour
 {
@@ -9,9 +10,9 @@ public class WPManager : MonoBehaviour
 
     [Header("Lien avec le joueur")]
     public PlayerManager playerManager;   // référence au joueur pour connaître ses PV
+    public List<All_Items> weaponLibrary;
 
     public List<All_Items> allItems = new List<All_Items>(MAXITEMS); //Liste de toutes les armes (allItems et GItems)
-
     [Header("Inventory UI")]
     public List<Slot> slots = new List<Slot>(MAXITEMS); //List of items(Scriptable Objects)
     public GameObject slotPrefab;
@@ -22,20 +23,62 @@ public class WPManager : MonoBehaviour
 
 
     void Start()
-    {
-        selectedItems = null;
-        Debug.Log("Toutes les armes désactivées au démarrage.");
+{
+    // Nettoyage des slots UI au démarrage
+    if (slots != null)
+        {
+            foreach (var slotScript in slots)
+            {
+                if (slotScript != null)
+                {
+                    // 1. Assigner le manager au slot pour les interactions futures
+                    slotScript.manager = this; 
+                    
+                    // 2. Le nettoyage visuel (comme vu précédemment)
+                    List<GameObject> childrenToKill = new List<GameObject>();
+                    foreach (Transform child in slotScript.transform)
+                    {
+                        childrenToKill.Add(child.gameObject);
+                    }
+                    foreach (GameObject child in childrenToKill)
+                    {
+                        Destroy(child);
+                    }
+                    slotScript.Deselect();
+                }
+            }
+        }
+ 
+    // 1. Initialisation des slots vides
+    while (allItems.Count < MAXITEMS) allItems.Add(null);
 
-        if (slots == null || slots.Count == 0)
+    // 2. Initialisation de la bibliothèque
+    for (int i = 0; i < weaponLibrary.Count; i++)
+    {
+        if (weaponLibrary[i] != null)
         {
-            Debug.LogError("Slots list is empty in WPManager!");
+            weaponLibrary[i].gameObject.SetActive(false);
+            weaponLibrary[i].ActivateWeapon(false);      
+            weaponLibrary[i].isEquipped = false;
+            
         }
-        else
-        {
-            Debug.Log($"WPManager initialized with {slots.Count} slots");
-        }
-        SelectItems(0);
     }
+
+    //Équiper automatiquement les armes par défaut
+    for (int i = 0; i < weaponLibrary.Count; i++)
+    {
+        if (weaponLibrary[i] != null && weaponLibrary[i].item.isDefaultItem)
+        {
+            EquipItemFromLibrary(i); 
+        }
+    }
+    
+    //Sélectionner le premier slot s'il y a quelque chose dedans
+    if (allItems[0] != null)
+    {
+        ChangeSelectedSlot(0);
+    }
+}
 
     private void Update()
     {
@@ -140,91 +183,97 @@ public class WPManager : MonoBehaviour
         Debug.LogWarning("No empty slots available for item: " + newItem.name);
     }
 
-    public void SelectItems(int index) //Méthode pour sélectionner une arme dans l'inventaire version allItems
+    public void SelectItems(int index)
     {
-        if (PlayerIsDead())
-        {
+        if (PlayerIsDead()){ 
             Debug.Log("Impossible de sélectionner une arme : le joueur est mort.");
             return;
         }
-        if (index < 0 || index >= allItems.Count)
+
+        // Sécurité index
+        if (index < 0 || index >= allItems.Count) return;
+
+        // --- ETAPE 1 : RESET COMPLET (On éteint tout le monde) ---
+        // On parcourt toute la bibliothèque (ou allItems) pour être sûr que RIEN ne traîne
+        foreach (var weapon in allItems)
         {
-            Debug.LogWarning($"Index {index} invalide pour la liste d'items !");
-            selectedItems = null;
-            return;
+            if (weapon != null)
+            {
+                weapon.ActivateWeapon(false);       // On coupe la logique
+                weapon.isEquipped = false;          // On note qu'elle n'est plus équipée
+                weapon.gameObject.SetActive(false); // On cache le visuel 3D
+            }
         }
+
+        // --- ETAPE 2 : GESTION DE LA CASE VIDE ---
         if (allItems[index] == null)
         {
-            Debug.LogWarning($"Aucun item trouvé à l'index {index} !");
-            if (selectedItems != null)
-            {
-                selectedItems.isEquipped = false;
-                selectedItems.ActivateWeapon(false);
-            }
-            //Désactivation des autres armes
-            for (int i = 0; i < allItems.Count; i++)
-            {
-                if (allItems[i] != null)
-                {
-                    allItems[i].ActivateWeapon(false);
-                    allItems[i].isEquipped = false;
-                }
-            }
+            // C'est une case vide : on a déjà tout éteint au-dessus, donc c'est fini.
+            selectedItems = null; // TRES IMPORTANT : On dit au code qu'on a rien en main
+            selectedItemIndex = -1; 
+            Debug.Log("Case vide sélectionnée : mains nues.");
             return;
         }
-        //Désactivation des autres armes
-        for (int i = 0; i < allItems.Count; i++)
+
+        // --- ETAPE 3 : VÉRIFICATION DE PROPRIÉTÉ ---
+        // (La logique qu'on a mise en place précédemment)
+        if (allItems[index].IsOwned == false)
         {
-            if (i != index && allItems[i] != null)
-            {
-                allItems[i].ActivateWeapon(false);
-            }
+            Debug.Log("Tu ne possèdes pas encore cette arme !");
+            selectedItems = null; // On s'assure de ne rien avoir en main
+            return;
         }
 
-        allItems[index].ActivateWeapon(true);
-        allItems[index].isEquipped = true;
-        selectedItems = allItems[index];
+        // --- ETAPE 4 : ACTIVATION DE LA NOUVELLE ARME ---
+        // On arrive ici seulement si l'arme existe ET qu'on la possède
+        All_Items newWeapon = allItems[index];
+        
+        newWeapon.gameObject.SetActive(true); // Visuel ON
+        newWeapon.ActivateWeapon(true);       // Logique ON
+        newWeapon.isEquipped = true;
+        
+        selectedItems = newWeapon;            // Mise à jour de la référence actuelle
         selectedItemIndex = index;
 
-        Debug.Log("Selected item: " + selectedItems.item.name + " at index " + index);
+        Debug.Log("Arme équipée : " + newWeapon.item.name);
     }
 
 
 
    
-    public void MoveItemSlot(int oldIndex, int newIndex) //Version pour allItems
+    public void MoveItemSlot(int oldIndex, int newIndex)
     {
-        if (PlayerIsDead())
-        {
-            Debug.Log("Impossible de déplacer une arme : le joueur est mort.");
-            return;
-        }
+        if (PlayerIsDead()) return;
 
+        // Vérifications de sécurité
         if (oldIndex < 0 || oldIndex >= allItems.Count || newIndex < 0 || newIndex >= allItems.Count)
             return;
 
-        if (allItems[oldIndex] == null)
-            return;
+        if (allItems[oldIndex] == null) return;
 
-        // On déplace la référence logique
+        // --- 1. LE DÉPLACEMENT DANS LA LISTE (BACKEND) ---
+        // On échange ou on déplace les références dans la liste
         All_Items movedItem = allItems[oldIndex];
-
-        while (allItems.Count <= newIndex)
-            allItems.Add(null);
+        
+        // Si la destination n'est pas vide (Swap), on gère l'échange
+        All_Items targetItem = allItems[newIndex];
 
         allItems[newIndex] = movedItem;
-        allItems[oldIndex] = null;
+        allItems[oldIndex] = targetItem; // Sera null si la case cible était vide, ou l'autre arme si échange
 
-        Debug.Log($"Item {movedItem.name} déplacé de {oldIndex} vers {newIndex}");
+        Debug.Log($"Item déplacé de {oldIndex} vers {newIndex}");
 
-        if (selectedSlot == oldIndex)
+
+        // --- 2. LE RAFRAÎCHISSEMENT IMMÉDIAT (LA SOLUTION) ---
+        
+        // On vérifie simplement : "Qu'est-ce qu'il y a DÉSORMAIS dans le slot que je regarde ?"
+        // Si selectedSlot vaut 0, et que j'ai bougé mon arme du slot 0 au 4 :
+        // Le code va relancer SelectItems(0).
+        // SelectItems(0) va voir que c'est vide -> Il va désactiver l'arme (mains vides).
+        
+        if (selectedSlot != -1)
         {
-            selectedItems = allItems[newIndex];
-            selectedItemIndex = newIndex;
-        }
-        else if (selectedSlot == newIndex)
-        {
-            selectedItems = allItems[newIndex];
+            SelectItems(selectedSlot);
         }
     }
 
@@ -259,6 +308,75 @@ public class WPManager : MonoBehaviour
             selectedItems.isEquipped = true;
             Debug.Log("Arme équipée : " + selectedItems.name);
         }
+    }
+
+    // libraryIndex : L'ID de l'arme dans ta liste globale (ex: 0=Pistolet, 1=AK47, 2=Sniper)
+    // slotIndex : L'emplacement de l'inventaire (0 à 4) où tu veux la mettre.
+    // Si slotIndex est -1, on cherche le premier trou vide.
+    // libraryIndex : Index dans weaponLibrary (la liste de toutes les armes possibles)
+    // slotIndex : Index dans l'inventaire (la barre du bas)
+    public bool EquipItemFromLibrary(int libraryIndex, int slotIndex = -1)
+    {
+        // 1. Sécurités de base
+        if (libraryIndex < 0 || libraryIndex >= weaponLibrary.Count) return false;
+        
+        All_Items weaponToEquip = weaponLibrary[libraryIndex];
+
+        // Vérifie si déjà possédé
+        if (allItems.Contains(weaponToEquip))
+        {
+            Debug.Log("Arme déjà dans l'inventaire !");
+            return false;
+        }
+
+        // Trouve un slot vide si nécessaire
+        if (slotIndex == -1)
+        {
+            for (int i = 0; i < allItems.Count; i++)
+            {
+                if (allItems[i] == null)
+                {
+                    slotIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if (slotIndex == -1 || slotIndex >= MAXITEMS) return false;
+
+        // --- 2. LOGIQUE (Backend) ---
+        allItems[slotIndex] = weaponToEquip;
+        weaponToEquip.UnlockDynamically();
+
+
+        // --- 3. VISUEL UI (Frontend) --- 
+        // C'est ici que la magie opère pour ton image !
+        
+        // A. On nettoie le slot au cas où il y aurait un vieux truc
+        Slot targetSlot = slots[slotIndex];
+        foreach(Transform child in targetSlot.transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // B. On instancie le Prefab "InventoryItem" (celui qui a l'image)
+        // Note: Assure-toi que "slotPrefab" dans WPManager contient bien ton prefab UI avec le script InventoryItem
+        GameObject newItemUIObj = Instantiate(slotPrefab, targetSlot.transform);
+        
+        // C. On configure l'image
+        InventoryItem newItemUI = newItemUIObj.GetComponent<InventoryItem>();
+        if (newItemUI != null)
+        {
+            // On envoie les données du ScriptableObject (Items) à l'UI
+            newItemUI.InitializeItem(weaponToEquip.item);
+        }
+        else
+        {
+            Debug.LogError("Le slotPrefab n'a pas de script InventoryItem !");
+        }
+
+        Debug.Log($"Arme {weaponToEquip.name} ajoutée (Logic + UI) au slot {slotIndex}");
+        return true;
     }
 }
     
