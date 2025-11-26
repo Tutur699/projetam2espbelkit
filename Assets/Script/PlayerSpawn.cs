@@ -2,30 +2,28 @@ using Unity.Netcode;
 using UnityEngine;
 
 public class PlayerSpawn : NetworkBehaviour
-{/*
+{
     public override void OnNetworkSpawn()
     {
-        if (!IsOwner) return;
+        if (!IsOwner)
+        {
+            Debug.Log("[PlayerSpawn] Pas le owner, je ne bouge pas ce joueur.");
+            return;
+        }
 
         GameObject spawn = GameObject.FindWithTag("Spawn");
         if (spawn == null)
         {
-            Debug.LogWarning("Aucun objet avec le tag 'Spawn' trouvé dans la scène.");
+            Debug.LogWarning("[PlayerSpawn] Aucun objet avec le tag 'Spawn' trouvé dans la scène.");
             return;
         }
 
-        // On récupère le CharacterController pour connaître l’offset des pieds
-        var cc = GetComponentInChildren<CharacterController>();
-        float footOffset = 0f;
+        Debug.Log("[PlayerSpawn] Spawn trouvé à " + spawn.transform.position);
 
-        if (cc != null)
-        {
-            // centre de la capsule - moitié de la hauteur = position des pieds
-            footOffset = cc.center.y - cc.height * 0.5f;
-        }
-
-        // On place le joueur de façon à ce que les PIEDS soient sur le Spawn
-        Vector3 targetPos = spawn.transform.position - new Vector3(0f, footOffset, 0f);
+        // VERSION SIMPLE : on met le joueur légèrement au-dessus du spawn
+        Vector3 targetPos = spawn.transform.position + Vector3.up * 1.5f;
         transform.position = targetPos;
-    }*/
+
+        Debug.Log("[PlayerSpawn] Joueur déplacé à " + transform.position);
+    }
 }

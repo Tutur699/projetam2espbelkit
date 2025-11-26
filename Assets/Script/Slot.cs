@@ -19,10 +19,12 @@ public class Slot : MonoBehaviour, IDropHandler
 
      public void Select()
      {
+        Debug.Log("Slot selected");
         slotImage.color = selectedColor;
      }
      public void Deselect()
      {
+        Debug.Log("Slot deselected");
         slotImage.color = normalColor;
      }
     public void OnDrop(PointerEventData eventData)
@@ -35,7 +37,6 @@ public class Slot : MonoBehaviour, IDropHandler
                 return;
             }
             Transform oldParent = itemUI.parentAfterDrag;
-            //SetItem(itemUI.item);
             itemUI.parentAfterDrag = transform;
 
             int oldIndex = oldParent.GetSiblingIndex();
@@ -45,19 +46,16 @@ public class Slot : MonoBehaviour, IDropHandler
         }
 
     }
+
     public void SetItem(Items newItem)
     {
         currentItem = newItem;
-        slotImage.sprite = newItem.image;
-        slotImage.enabled = true;
+        InventoryItem itemUI = GetComponentInChildren<InventoryItem>();
+        if (itemUI != null)
+        {
+            itemUI.InitializeItem(newItem);
+        }
     }
-    public void ClearSlot()
-    {
-        currentItem = null;
-        slotImage.sprite = null;
-        slotImage.enabled = false;
-    }
-
      public bool IsEmpty()
     {
         return currentItem == null;

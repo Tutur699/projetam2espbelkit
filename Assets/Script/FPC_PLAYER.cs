@@ -12,6 +12,14 @@ namespace StarterAssets
 #endif
     public class FPC_PLAYER : NetworkBehaviour
     {
+        [Header("Local Only Components")]
+        [SerializeField] private Camera playerCamera;
+        [SerializeField] private AudioListener audioListener;
+        [SerializeField] private MonoBehaviour[] localControllers;
+        [SerializeField] private GameObject[] localOnlyObjects;
+        [SerializeField] private GameObject worldModel;
+
+
         [Header("Player")]
         public float MoveSpeed = 2.0f;
         public float SprintSpeed = 5.335f;
@@ -94,16 +102,59 @@ namespace StarterAssets
 
         public override void OnNetworkSpawn()
         {
-            Debug.Log($"[ThirdPersonController] Spawn {name} - IsOwner={IsOwner}, IsServer={IsServer}, OwnerClientId={OwnerClientId}");
-        }
+            base.OnNetworkSpawn();
 
-        private void Awake()
-        {
-            if (_mainCamera == null)
+            _controller   = GetComponent<CharacterController>();
+            _input        = GetComponent<StarterAssetsInputs>();
+        #if ENABLE_INPUT_SYSTEM
+            _playerInput  = GetComponent<PlayerInput>();
+        #endif
+
+            bool isLocal = IsOwner;
+
+            Debug.Log($"[FPC_PLAYER] Spawn {name} - IsOwner={IsOwner}, IsServer={IsServer}, OwnerClientId={OwnerClientId}, LocalClientId={NetworkManager.Singleton.LocalClientId}");
+
+            // --- INPUTS ---
+        #if ENABLE_INPUT_SYSTEM
+            if (_playerInput != null) _playerInput.enabled = isLocal;
+        #endif
+            if (_input      != null) _input.enabled      = isLocal;
+
+            // Le CharacterController reste actif pour tout le monde
+            if (_controller != null) _controller.enabled = true;
+
+            // --- CAMÉRA & SON ---
+            if (playerCamera != null)
             {
-                _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+                playerCamera.enabled = isLocal;
+
+                if (isLocal)
+                {
+                    // On s'assure que _mainCamera est bien la nôtre
+                    _mainCamera = playerCamera.gameObject;
+
+                    // On désactive les autres caméras (uniquement côté local)
+                    var allCams = FindObjectsOfType<Camera>();
+                    foreach (var cam in allCams)
+                    {
+                        if (cam != playerCamera)
+                            cam.enabled = false;
+                    }
+                }
+            }
+
+            if (audioListener != null)
+            {
+                audioListener.enabled = isLocal;
+            }
+
+            if (isLocal)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible   = false;
             }
         }
+
 
         private void Start()
         {
@@ -169,26 +220,35 @@ namespace StarterAssets
             }
         }
 
-        // === CAMÉRA CORRIGÉE ===
         private void CameraRotation()
         {
+            // si on a un input de caméra et que la caméra n’est pas lock
             if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
             {
+                // souris : pas de Time.deltaTime, manette : avec Time.deltaTime
                 float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 
-                _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier;
+                _cinemachineTargetYaw   += _input.look.x * deltaTimeMultiplier;
                 _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier;
-
-                _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
-                _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
-
-                CinemachineCameraTarget.transform.rotation = Quaternion.Euler(
-                    _cinemachineTargetPitch + CameraAngleOverride,
-                    _cinemachineTargetYaw,
-                    0.0f
-                );
             }
+
+            // on clamp les angles
+            _cinemachineTargetYaw   = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
+            _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
+
+            // Cinemachine suit ce target
+            CinemachineCameraTarget.transform.rotation = Quaternion.Euler(
+                _cinemachineTargetPitch + CameraAngleOverride,
+                _cinemachineTargetYaw,
+                0.0f
+            );
         }
+
+
+
+
+
+
 
         private void Move()
         {

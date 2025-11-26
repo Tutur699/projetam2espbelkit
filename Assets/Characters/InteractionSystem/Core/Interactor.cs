@@ -53,12 +53,42 @@ public class Interactor : MonoBehaviour
                 {
                     SetNewCurrentInteractable(itemPick);
                 }
-                if (itemPick.itemScriptable != null && itemPick.itemP != null)
+                if (itemPick.itemScriptable != null && itemPick.itemG != null)
                 {
                     if (Input.GetKeyDown(raycastPlayer.key))
                     {
                         wpManager.AddItem(itemPick.itemScriptable, itemPick.itemP);
                         itemPick.PickItem(hitInfo.collider.gameObject);
+                    }
+                }
+            }
+        else
+        {
+            DisableCurrentInteractable();
+        }
+
+        if (hitInfo.collider.tag == "Gun")
+            {
+                ItemPickable itemPick2 = hitInfo.collider.GetComponent<ItemPickable>();
+                if (itemPick2 == null)
+                {
+                    DisableCurrentInteractable();
+                    return;
+                }
+                if (currentPickable && itemPick2 != currentPickable)
+                {
+                    currentPickable.DisableOutline();
+                }
+                if (itemPick2.enabled)
+                {
+                    SetNewCurrentInteractable(itemPick2);
+                }
+                if (itemPick2.itemScriptable != null && itemPick2.itemG != null)
+                {
+                    if (Input.GetKeyDown(raycastPlayer.key))
+                    {
+                        wpManager.AddItem(itemPick2.itemScriptable, itemPick2.itemG);
+                        itemPick2.PickItem(hitInfo.collider.gameObject);
                     }
                 }
             }

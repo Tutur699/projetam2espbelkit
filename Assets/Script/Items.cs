@@ -9,7 +9,6 @@ public class Items : ScriptableObject
     public ActionType action;
     public Sprite image;
     public bool isDefaultItem = false;
-    public bool isStackable = true;
 
     [Header("Weapon Properties")]
     public GameObject prefab; //The actual item object in the scene
@@ -18,5 +17,5 @@ public class Items : ScriptableObject
     public float weaponDamage = 5; //How much damage should this weapon deal
 
 }
-public enum itemType {Fork, Knife, Gun};
+public enum itemType {Fork, Knife, Rifle, Pistol, Sniper, Shotgun, SMG};
 public enum ActionType {Attack, Utility};

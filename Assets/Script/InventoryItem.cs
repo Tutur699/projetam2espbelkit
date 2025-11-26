@@ -6,38 +6,45 @@ using UnityEngine.UI;
 
 public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public Items item;
-    public Image itemImage;
+    [SerializeField] public Items item;
+    [SerializeField] public Image itemImage;
     [HideInInspector] public Transform parentAfterDrag;
+
     // Start is called before the first frame update
     
-    /*private void Start()
+    private void Start()
     {
-        if (item != null)
+        /*if (item != null && !isInitialized)
         {
             InitializeItem(item);
-        }
-    }*/
-    public void InitializeItem(Items newItem)
+        }*/
+    }
+    public void InitializeItem(Items newItem) 
     {
         if (newItem == null)
         {
-            Debug.LogWarning("InitializeItem() received a null item.");
+            Debug.LogError("Trying to initialize with null item");
+            item = null;
+            itemImage.sprite = null;
+            itemImage.enabled = false;
             return;
         }
+        
         item = newItem;
+        Debug.Log("Item initialized: " + newItem.name);
+        
         if (newItem.image != null)
         {
             itemImage.sprite = newItem.image;
             itemImage.enabled = true;
+            Debug.Log("Image set to: " + newItem.image.name);
         }
         else
         {
-            Debug.LogWarning("Item image is null for item: " + newItem.name);
+            Debug.LogError("Item image is null for: " + newItem.name);
             itemImage.enabled = false;
         }
     }
-        
 
     public void OnBeginDrag(PointerEventData eventData)
     {
