@@ -10,9 +10,9 @@ public class WPManager : MonoBehaviour
 
     [Header("Lien avec le joueur")]
     public PlayerManager playerManager;   // référence au joueur pour connaître ses PV
-    public List<All_Items> weaponLibrary;
+    public List<All_Items> weaponLibrary; //Liste de TOUS les items du jeu
 
-    public List<All_Items> allItems = new List<All_Items>(MAXITEMS); //Liste de toutes les armes (allItems et GItems)
+    public List<All_Items> allItems = new List<All_Items>(MAXITEMS); //Liste des items dans l'inventaire
     [Header("Inventory UI")]
     public List<Slot> slots = new List<Slot>(MAXITEMS); //List of items(Scriptable Objects)
     public GameObject slotPrefab;
@@ -31,10 +31,10 @@ public class WPManager : MonoBehaviour
             {
                 if (slotScript != null)
                 {
-                    // 1. Assigner le manager au slot pour les interactions futures
+                    // IMPORTANT : Assigner le manager au slot pour les interactions futures
                     slotScript.manager = this; 
                     
-                    // 2. Le nettoyage visuel (comme vu précédemment)
+                    // Nettoyage des enfants (anciens items)
                     List<GameObject> childrenToKill = new List<GameObject>();
                     foreach (Transform child in slotScript.transform)
                     {
@@ -49,10 +49,10 @@ public class WPManager : MonoBehaviour
             }
         }
  
-    // 1. Initialisation des slots vides
+    //Initialisation des slots vides
     while (allItems.Count < MAXITEMS) allItems.Add(null);
 
-    // 2. Initialisation de la bibliothèque
+    // Initialisation de la bibliothèque
     for (int i = 0; i < weaponLibrary.Count; i++)
     {
         if (weaponLibrary[i] != null)
@@ -63,8 +63,7 @@ public class WPManager : MonoBehaviour
             
         }
     }
-
-    //Équiper automatiquement les armes par défaut
+    // Équiper les armes par défaut
     for (int i = 0; i < weaponLibrary.Count; i++)
     {
         if (weaponLibrary[i] != null && weaponLibrary[i].item.isDefaultItem)
@@ -73,7 +72,6 @@ public class WPManager : MonoBehaviour
         }
     }
     
-    //Sélectionner le premier slot s'il y a quelque chose dedans
     if (allItems[0] != null)
     {
         ChangeSelectedSlot(0);
@@ -190,7 +188,6 @@ public class WPManager : MonoBehaviour
             return;
         }
 
-        // Sécurité index
         if (index < 0 || index >= allItems.Count) return;
 
         // --- ETAPE 1 : RESET COMPLET (On éteint tout le monde) ---
@@ -199,16 +196,16 @@ public class WPManager : MonoBehaviour
         {
             if (weapon != null)
             {
-                weapon.ActivateWeapon(false);       // On coupe la logique
-                weapon.isEquipped = false;          // On note qu'elle n'est plus équipée
-                weapon.gameObject.SetActive(false); // On cache le visuel 3D
+                weapon.ActivateWeapon(false);      
+                weapon.isEquipped = false;          
+                weapon.gameObject.SetActive(false);
             }
         }
 
         // --- ETAPE 2 : GESTION DE LA CASE VIDE ---
         if (allItems[index] == null)
         {
-            // C'est une case vide : on a déjà tout éteint au-dessus, donc c'est fini.
+            // Si la case est vide, on ne fait rien de plus
             selectedItems = null; // TRES IMPORTANT : On dit au code qu'on a rien en main
             selectedItemIndex = -1; 
             Debug.Log("Case vide sélectionnée : mains nues.");
@@ -216,7 +213,6 @@ public class WPManager : MonoBehaviour
         }
 
         // --- ETAPE 3 : VÉRIFICATION DE PROPRIÉTÉ ---
-        // (La logique qu'on a mise en place précédemment)
         if (allItems[index].IsOwned == false)
         {
             Debug.Log("Tu ne possèdes pas encore cette arme !");
@@ -225,11 +221,10 @@ public class WPManager : MonoBehaviour
         }
 
         // --- ETAPE 4 : ACTIVATION DE LA NOUVELLE ARME ---
-        // On arrive ici seulement si l'arme existe ET qu'on la possède
         All_Items newWeapon = allItems[index];
         
-        newWeapon.gameObject.SetActive(true); // Visuel ON
-        newWeapon.ActivateWeapon(true);       // Logique ON
+        newWeapon.gameObject.SetActive(true);
+        newWeapon.ActivateWeapon(true);
         newWeapon.isEquipped = true;
         
         selectedItems = newWeapon;            // Mise à jour de la référence actuelle
@@ -278,7 +273,7 @@ public class WPManager : MonoBehaviour
     }
 
 
-    public void EquipWeapon(int index) //Version pour allItems
+    public void EquipWeapon(int index)
     {
         if (PlayerIsDead())
         {
@@ -309,12 +304,6 @@ public class WPManager : MonoBehaviour
             Debug.Log("Arme équipée : " + selectedItems.name);
         }
     }
-
-    // libraryIndex : L'ID de l'arme dans ta liste globale (ex: 0=Pistolet, 1=AK47, 2=Sniper)
-    // slotIndex : L'emplacement de l'inventaire (0 à 4) où tu veux la mettre.
-    // Si slotIndex est -1, on cherche le premier trou vide.
-    // libraryIndex : Index dans weaponLibrary (la liste de toutes les armes possibles)
-    // slotIndex : Index dans l'inventaire (la barre du bas)
     public bool EquipItemFromLibrary(int libraryIndex, int slotIndex = -1)
     {
         // 1. Sécurités de base
@@ -350,20 +339,18 @@ public class WPManager : MonoBehaviour
 
 
         // --- 3. VISUEL UI (Frontend) --- 
-        // C'est ici que la magie opère pour ton image !
         
-        // A. On nettoie le slot au cas où il y aurait un vieux truc
+        // On nettoie le slot au cas où il y aurait un vieux truc
         Slot targetSlot = slots[slotIndex];
         foreach(Transform child in targetSlot.transform)
         {
             Destroy(child.gameObject);
         }
 
-        // B. On instancie le Prefab "InventoryItem" (celui qui a l'image)
-        // Note: Assure-toi que "slotPrefab" dans WPManager contient bien ton prefab UI avec le script InventoryItem
+        // On instancie le Prefab "InventoryItem" (celui qui a l'image)
         GameObject newItemUIObj = Instantiate(slotPrefab, targetSlot.transform);
         
-        // C. On configure l'image
+        // On configure l'image
         InventoryItem newItemUI = newItemUIObj.GetComponent<InventoryItem>();
         if (newItemUI != null)
         {
@@ -379,4 +366,3 @@ public class WPManager : MonoBehaviour
         return true;
     }
 }
-    
