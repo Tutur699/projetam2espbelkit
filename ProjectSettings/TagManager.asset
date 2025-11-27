@@ -9,6 +9,8 @@ TagManager:
   - Enemy
   - Ground
   - Gun
+  - Spawn
+  - InventorySlot
   layers:
   - Default
   - TransparentFX
