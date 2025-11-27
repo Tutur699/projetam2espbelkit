@@ -199,13 +199,9 @@ namespace StarterAssets
 
         private void Update()
         {
-<<<<<<< Updated upstream
-            if (!IsOwner) return;
 
-=======
-            //if (!IsOwner) return;
+            if (!IsOwner) return;
             if (_input == null) return;
->>>>>>> Stashed changes
             _hasAnimator = TryGetComponent(out _animator);
             Debug.Log($"[FPC_PLAYER] move={_input?.move}, look={_input?.look}");
             JumpAndGravity();
