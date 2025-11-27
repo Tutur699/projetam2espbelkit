@@ -16,6 +16,6 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: d79e828a4ba55284a95ab91a1d280f2d, type: 3}
   isDefaultItem: 0
   prefab: {fileID: 4563693681723630504, guid: 429e555ea8cedae48bf87b71ae062608, type: 3}
-  useRate: 0.1
+  useRate: 0.75
   singleUse: 0
   weaponDamage: 5

@@ -20,7 +20,9 @@ namespace StarterAssets
         [Header("Weapon System")]
         [SerializeField] public WPManager manager;
         public InputActionReference SelectAction;
-
+        private float _fireTimeoutDelta; // Le compte à rebours
+        private bool _wasShootingLastFrame;
+        private bool _triggerReleased = true; 
 
         [Header("Player")]
         public float MoveSpeed = 2.0f;
@@ -197,8 +199,9 @@ namespace StarterAssets
 
         private void Update()
         {
-            if (!IsOwner) return;
 
+            if (!IsOwner) return;
+            if (_input == null) return;
             _hasAnimator = TryGetComponent(out _animator);
             Debug.Log($"[FPC_PLAYER] move={_input?.move}, look={_input?.look}");
             JumpAndGravity();
@@ -214,15 +217,73 @@ namespace StarterAssets
         }
 
         private void HandleShooting()
+{
+    // 1. Gestion du Cooldown
+    if (_fireTimeoutDelta > 0.0f)
+    {
+        _fireTimeoutDelta -= Time.deltaTime;
+    }
+
+    // 2. Vérification si on a une arme équipée
+    if (manager.selectedItems != null && manager.selectedItems.isEquipped)
+    {
+        // On récupère les infos depuis le ScriptableObject
+        Items currentItemData = manager.selectedItems.item;
+        
+        bool isAuto = currentItemData.isAutomatic; // Nouveau booléen
+        float fireRate = currentItemData.useRate;
+        bool isConsumable = currentItemData.singleUse; // Ton booléen "Usage unique"
+
+        // 3. LOGIQUE D'INPUT
+        if (_input.shoot) // Le joueur appuie
         {
-            if (_input.shoot)
+            // On détermine si on a le droit de tirer
+            bool canShoot = false;
+
+            if (isAuto)
             {
-                if(manager.selectedItems != null && manager.selectedItems.isEquipped)
+                // AUTOMATIQUE : On tire tant que le cooldown est fini
+                if (_fireTimeoutDelta <= 0.0f) canShoot = true;
+            }
+            else
+            {
+                // SEMI-AUTO (Coup par coup) : On tire seulement si cooldown fini ET gâchette relâchée avant
+                if (_fireTimeoutDelta <= 0.0f && _triggerReleased) canShoot = true;
+            }
+
+            // 4. ACTION DE TIR
+            if (canShoot)
+            {
+                manager.selectedItems.Use(); // Pan !
+                
+                _fireTimeoutDelta = fireRate; // On lance le timer
+                _triggerReleased = false;     // On verrouille la gâchette
+
+                // GESTION DU "SINGLE USE" (Usage unique)
+                if (isConsumable)
                 {
-                    manager.selectedItems.Use();
+                    // L'item est consommé, on le retire de l'inventaire
+                    // Tu devras peut-être adapter cette ligne selon ta méthode pour "jeter/supprimer"
+                    Debug.Log("Item à usage unique consommé !");
+                    // manager.RemoveItem(manager.selectedSlot); // Exemple imaginaire
+                    
+                    // Pour l'instant, on déséquipe juste pour éviter le crash
+                    manager.selectedItems.gameObject.SetActive(false);
+                    manager.selectedItems = null;
                 }
             }
+            else if (!isAuto)
+            {
+                // Si on est en semi-auto et qu'on maintient le clic, on s'assure que le flag reste false
+                _triggerReleased = false;
+            }
         }
+        else // Le joueur RELÂCHE le bouton
+        {
+            _triggerReleased = true; // On réarme le mécanisme pour le prochain coup
+        }
+    }
+}
 
          void OnEnable()
         {
