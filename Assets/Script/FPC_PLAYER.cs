@@ -18,6 +18,9 @@ namespace StarterAssets
         [SerializeField] private MonoBehaviour[] localControllers;
         [SerializeField] private GameObject[] localOnlyObjects;
         [SerializeField] private GameObject worldModel;
+        [Header("Weapon System")]
+        [SerializeField] public WPManager manager;
+        public InputActionReference SelectAction;
 
 
         [Header("Player")]
@@ -184,6 +187,7 @@ namespace StarterAssets
             JumpAndGravity();
             GroundedCheck();
             Move();
+            HandleShooting();
         }
 
         private void LateUpdate()
@@ -191,6 +195,53 @@ namespace StarterAssets
             //if (!IsOwner) return;
             CameraRotation();
         }
+
+        private void HandleShooting()
+        {
+            if (_input.shoot)
+            {
+                if(manager.selectedItems != null && manager.selectedItems.isEquipped)
+                {
+                    manager.selectedItems.Use();
+                }
+            }
+        }
+
+         void OnEnable()
+        {
+            if (SelectAction?.action != null)
+        {
+            SelectAction.action.started += OnSelectStarted;
+            SelectAction.action.Enable();
+        }
+        }
+        void OnDisable()
+        {
+            if (SelectAction?.action != null)
+        {
+            SelectAction.action.started -= OnSelectStarted;
+            SelectAction.action.Disable();
+        }
+    }
+    private void OnSelectStarted(InputAction.CallbackContext ctx)
+    {
+        if (!IsOwner) return;
+        if (!ctx.started) return;
+
+        int select = -1;
+        switch (ctx.control.name)
+        {
+            case "1": select = 0; break;
+            case "2": select = 1; break;
+            case "3": select = 2; break;
+            case "4": select = 3; break;
+            case "5": select = 4; break;
+            default: return;
+        }
+        if (select >= 0 && manager != null)
+            manager.ChangeSelectedSlot(select);   
+        }
+
 
         private void AssignAnimationIDs()
         {
@@ -403,3 +454,4 @@ namespace StarterAssets
         }
     }
 }
+
