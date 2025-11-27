@@ -13,11 +13,10 @@ namespace StarterAssets
     public class FPC_PLAYER : NetworkBehaviour
     {
         [Header("Local Only Components")]
-        [SerializeField] private Camera playerCamera;
-        [SerializeField] private AudioListener audioListener;
         [SerializeField] private MonoBehaviour[] localControllers;
         [SerializeField] private GameObject[] localOnlyObjects;
         [SerializeField] private GameObject worldModel;
+        [SerializeField] private Cinemachine.CinemachineVirtualCamera cinemachineVirtualCamera;
 
 
         [Header("Player")]
@@ -102,6 +101,45 @@ namespace StarterAssets
 
         public override void OnNetworkSpawn()
         {
+            bool isLocal = IsOwner;
+            if(IsOwner)
+            {
+                // Ceci est le joueur local
+                cinemachineVirtualCamera.Priority = 1;
+                // Activer les composants locaux
+                foreach (var comp in localControllers)
+                {
+                    comp.enabled = true;
+                }
+
+                // Activer les objets locaux
+                foreach (var obj in localOnlyObjects)
+                {
+                    obj.SetActive(true);
+                }
+
+                // Désactiver le modèle 3D dans le monde pour le joueur local
+                if (worldModel != null)
+                {
+                    worldModel.SetActive(false);
+                }
+            }
+            else
+            {
+                cinemachineVirtualCamera.Priority = 0;
+                // Ceci est un autre joueur
+                // Désactiver les composants locaux pour les autres joueurs
+                foreach (var comp in localControllers)
+                {
+                    comp.enabled = false;
+                }
+
+                // Désactiver les objets locaux pour les autres joueurs
+                foreach (var obj in localOnlyObjects)
+                {
+                    obj.SetActive(false);
+                }
+            }
             base.OnNetworkSpawn();
 
             _controller   = GetComponent<CharacterController>();
@@ -110,7 +148,16 @@ namespace StarterAssets
             _playerInput  = GetComponent<PlayerInput>();
         #endif
 
-            bool isLocal = IsOwner;
+            if (_controller != null) _controller.enabled = true;
+
+            if (isLocal)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible   = false;
+
+                if (Camera.main != null)
+                    _mainCamera = Camera.main.gameObject;
+            }
 
             Debug.Log($"[FPC_PLAYER] Spawn {name} - IsOwner={IsOwner}, IsServer={IsServer}, OwnerClientId={OwnerClientId}, LocalClientId={NetworkManager.Singleton.LocalClientId}");
 
@@ -123,36 +170,6 @@ namespace StarterAssets
             // Le CharacterController reste actif pour tout le monde
             if (_controller != null) _controller.enabled = true;
 
-            // --- CAMÉRA & SON ---
-            if (playerCamera != null)
-            {
-                playerCamera.enabled = isLocal;
-
-                if (isLocal)
-                {
-                    // On s'assure que _mainCamera est bien la nôtre
-                    _mainCamera = playerCamera.gameObject;
-
-                    // On désactive les autres caméras (uniquement côté local)
-                    var allCams = FindObjectsOfType<Camera>();
-                    foreach (var cam in allCams)
-                    {
-                        if (cam != playerCamera)
-                            cam.enabled = false;
-                    }
-                }
-            }
-
-            if (audioListener != null)
-            {
-                audioListener.enabled = isLocal;
-            }
-
-            if (isLocal)
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible   = false;
-            }
         }
 
 
@@ -177,7 +194,7 @@ namespace StarterAssets
 
         private void Update()
         {
-            //if (!IsOwner) return;
+            if (!IsOwner) return;
 
             _hasAnimator = TryGetComponent(out _animator);
             Debug.Log($"[FPC_PLAYER] move={_input?.move}, look={_input?.look}");
@@ -188,7 +205,7 @@ namespace StarterAssets
 
         private void LateUpdate()
         {
-            //if (!IsOwner) return;
+            if (!IsOwner) return;
             CameraRotation();
         }
 
@@ -252,6 +269,8 @@ namespace StarterAssets
 
         private void Move()
         {
+            if (_mainCamera == null && Camera.main != null)
+                _mainCamera = Camera.main.gameObject;
             float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
 
             if (_input.move == Vector2.zero)
