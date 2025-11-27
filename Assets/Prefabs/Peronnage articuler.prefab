@@ -75,10 +75,18 @@ PrefabInstance:
       propertyPath: 'weaponLibrary.Array.data[6]'
       value: 
       objectReference: {fileID: 4189587986496201931}
+    - target: {fileID: 1757043530678958446, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6324332533516885345, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 2802129949082815853}
+    - target: {fileID: 6324332533516885350, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+      propertyPath: manager
+      value: 
+      objectReference: {fileID: 928253176872504290}
     - target: {fileID: 6324332533516885350, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
       propertyPath: TopClamp
       value: 60
@@ -87,6 +95,10 @@ PrefabInstance:
       propertyPath: BottomClamp
       value: -60
       objectReference: {fileID: 0}
+    - target: {fileID: 6324332533516885350, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+      propertyPath: SelectAction
+      value: 
+      objectReference: {fileID: 8442482467394042456, guid: 4419d82f33d36e848b3ed5af4c8da37e, type: 3}
     - target: {fileID: 6324332533516885350, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
       propertyPath: playerCamera
       value: 
@@ -145,6 +157,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6669648816683616215, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6894335959046592813, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8275243371364681157, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8298515346881367555, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -268,7 +292,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4184125098
+  GlobalObjectIdHash: 2141642037
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
