@@ -15,6 +15,7 @@ public class Items : ScriptableObject
     public float useRate = 0.1f;
     public bool singleUse = false;
     public float weaponDamage = 5; //How much damage should this weapon deal
+    public bool isAutomatic = false;
 
 }
 public enum itemType {Fork, Knife, Rifle, Pistol, Sniper, Shotgun, SMG};

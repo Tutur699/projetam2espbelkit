@@ -15,7 +15,6 @@ MonoBehaviour:
   action: 0
   image: {fileID: 21300000, guid: f1c8680df19159e4ab902ee910691f58, type: 3}
   isDefaultItem: 0
-  isStackable: 0
   prefab: {fileID: 7024356929894291791, guid: 0319359055e4f2d4aaaac104e6b900d5, type: 3}
   useRate: 0.1
   singleUse: 0
