@@ -202,7 +202,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3679382331169314825, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 3937202592
+      value: 2605424710
       objectReference: {fileID: 0}
     - target: {fileID: 4170201629209290872, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
       propertyPath: maxclipSize
@@ -459,6 +459,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 1815673972361897014, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+    - {fileID: 2271323927524784321, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 6669648816683616215, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
       insertIndex: -1
