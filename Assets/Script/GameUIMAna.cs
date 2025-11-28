@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using StarterAssets;
+using StarterAssets; 
+using Unity.Netcode;
 
 public class GameUIMAna : MonoBehaviour
 {
@@ -9,118 +10,125 @@ public class GameUIMAna : MonoBehaviour
     [SerializeField] private GameObject Pannel_InGame;
     [SerializeField] private GameObject Pannel_GameOver;
     [SerializeField] private GameObject Pannel_Pause;
-    [Header("Player Components")]
-    public FPC_PLAYER playerCamera;
-    public PlayerMovement movementScript;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [Header("Player Components")]
+    public FPC_PLAYER playerController;
+
     private bool isGameOver = false;
     private bool lanStarted = false;
     private bool isPaused = false;
+
     void Start()
     {
         lanStarted = false;
         isGameOver = false;
         isPaused = false;
 
-        if (Pannel_Lobby != null)
-            Pannel_Lobby.SetActive(true);
-        if (Pannel_InGame != null)
-            Pannel_InGame.SetActive(false);
-        if (Pannel_GameOver != null)
-            Pannel_GameOver.SetActive(false);
-        if (Pannel_Pause != null)
-            Pannel_Pause.SetActive(false);
+        if (Pannel_Lobby != null)      Pannel_Lobby.SetActive(true);
+        if (Pannel_InGame != null)     Pannel_InGame.SetActive(false);
+        if (Pannel_GameOver != null)   Pannel_GameOver.SetActive(false);
+        if (Pannel_Pause != null)      Pannel_Pause.SetActive(false);
 
-        // On bloque le contrôle du joueur tant que la partie n’est pas lancée
-        if (playerCamera != null)
-            playerCamera.enabled = false;
-        if (movementScript != null)
-            movementScript.enabled = false;
+        if (playerController != null)
+            playerController.isPaused = false;
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible   = true;
     }
-    // Update is called once per frame
+    private void TryFindLocalPlayer()
+    {
+        FPC_PLAYER[] allPlayers = FindObjectsOfType<FPC_PLAYER>();
+
+        foreach (var p in allPlayers)
+        {
+            if (p.IsOwner) //joueur local
+            {
+                Debug.Log("[UI] Local player found: " + p.name);
+                playerController = p;
+                break;
+            }
+        }
+    }
+
     void Update()
     {
-        // Gestion de l’affichage des panneaux UI selon l’état du jeu
-        // Lobby visible tant que la LAN n’est pas démarrée
+        if (playerController == null)
+            TryFindLocalPlayer();
+        if (playerController == null || !playerController.IsOwner) return;
         if (Pannel_Lobby != null)
             Pannel_Lobby.SetActive(!lanStarted);
 
-        // GameOver visible seulement si game over
         if (Pannel_GameOver != null)
             Pannel_GameOver.SetActive(isGameOver);
 
-        // HUD visible si en jeu ET pas en pause ET pas game over
         if (Pannel_InGame != null)
             Pannel_InGame.SetActive(lanStarted && !isPaused && !isGameOver);
 
-        // Menu pause visible si en pause (et pas game over)
         if (Pannel_Pause != null)
             Pannel_Pause.SetActive(isPaused && !isGameOver);
-        // Gestion de la mise en pause via la touche ESCAPE
+
         if (lanStarted && !isGameOver && Input.GetKeyDown(KeyCode.Escape))
         {
-            Debug.Log("ESC pressed, toggle pause");
             TogglePause();
         }
-        
     }
+
     public void OnStartLan()
     {
-        if (playerCamera != null)
-            playerCamera.enabled = true;
-        if (movementScript != null)
-            movementScript.enabled = true;
+        if (!playerController.IsOwner) return;
         lanStarted = true;
         isPaused = false;
+
+        if (playerController != null)
+            playerController.isPaused = false;
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
-    public void OnGameOver()
-    {
-        if (playerCamera != null)
-            playerCamera.enabled = false;
-        if (movementScript != null)
-            movementScript.enabled = false;
-        isGameOver = true;
-        isPaused = false;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-    }
+
     public void TogglePause()
     {
+        if (!playerController.IsOwner) return;
         isPaused = !isPaused;
 
         Cursor.lockState = isPaused ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible   = isPaused;
 
-        // Désactive / active la caméra
-        if (playerCamera != null)
-            playerCamera.enabled = !isPaused;
-        if (movementScript != null)
-            movementScript.enabled = !isPaused;
+        if (playerController != null)
+            playerController.isPaused = isPaused;
+    }
 
-    }
-    public void OnMainMenuButton()
-    {
-        SceneManager.LoadScene("Menu");
-    }
-    public void OnQuitGameButton()
-    {
-        Application.Quit();
-    }
     public void OnResumeButton()
     {
+        if (!playerController.IsOwner) return;
         isPaused = false;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        if (playerCamera != null)
-            playerCamera.enabled = true;
-        if (movementScript != null)
-            movementScript.enabled = true;
+        if (playerController != null)
+            playerController.isPaused = false;
+    }
+
+    public void OnGameOver()
+    {
+        if (!playerController.IsOwner) return;
+        isGameOver = true;
+        isPaused   = false;
+
+        if (playerController != null)
+            playerController.isPaused = true;
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible   = true;
+    }
+
+    public void OnMainMenuButton(){
+        if (!playerController.IsOwner) return;
+        SceneManager.LoadScene("Menu");
+    }
+
+    public void OnQuitGameButton(){
+        if (!playerController.IsOwner) return;
+        Application.Quit();
     }
 }

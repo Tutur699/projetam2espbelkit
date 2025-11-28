@@ -12,6 +12,7 @@ namespace StarterAssets
 #endif
     public class FPC_PLAYER : NetworkBehaviour
     {
+        public bool isPaused = false;
         [Header("Local Only Components")]
         [SerializeField] private MonoBehaviour[] localControllers;
         [SerializeField] private GameObject[] localOnlyObjects;
@@ -201,6 +202,7 @@ namespace StarterAssets
         {
 
             if (!IsOwner) return;
+            if (isPaused) return;
             if (_input == null) return;
             _hasAnimator = TryGetComponent(out _animator);
             Debug.Log($"[FPC_PLAYER] move={_input?.move}, look={_input?.look}");
@@ -214,6 +216,7 @@ namespace StarterAssets
         private void LateUpdate()
         {
             if (!IsOwner) return;
+            if (isPaused) return;
             CameraRotation();
         }
 
