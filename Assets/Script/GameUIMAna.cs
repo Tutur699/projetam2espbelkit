@@ -50,7 +50,11 @@ public class GameUIMAna : MonoBehaviour
         // Menu pause visible si en pause (et pas game over)
         if (Pannel_Pause != null)
             Pannel_Pause.SetActive(isPaused && !isGameOver);
-
+        if (lanStarted && !isGameOver && Input.GetKeyDown(KeyCode.Escape))
+        {
+            Debug.Log("ESC pressed, toggle pause");
+            TogglePause();
+        }
         
     }
     public void OnStartLan()
