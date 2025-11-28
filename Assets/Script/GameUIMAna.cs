@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using StarterAssets;
 
 public class GameUIMAna : MonoBehaviour
 {
@@ -8,6 +9,10 @@ public class GameUIMAna : MonoBehaviour
     [SerializeField] private GameObject Pannel_InGame;
     [SerializeField] private GameObject Pannel_GameOver;
     [SerializeField] private GameObject Pannel_Pause;
+    [Header("Player Components")]
+    public FPC_PLAYER playerCamera;
+    public PlayerMovement movementScript;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private bool isGameOver = false;
     private bool lanStarted = false;
@@ -26,15 +31,20 @@ public class GameUIMAna : MonoBehaviour
             Pannel_GameOver.SetActive(false);
         if (Pannel_Pause != null)
             Pannel_Pause.SetActive(false);
+
+        // On bloque le contrôle du joueur tant que la partie n’est pas lancée
+        if (playerCamera != null)
+            playerCamera.enabled = false;
+        if (movementScript != null)
+            movementScript.enabled = false;
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible   = true;
     }
     // Update is called once per frame
     void Update()
     {
-        //echappe pour pause
-        if (lanStarted && !isGameOver && Input.GetKeyDown(KeyCode.Escape))
-        {
-            TogglePause();
-        }
+        // Gestion de l’affichage des panneaux UI selon l’état du jeu
         // Lobby visible tant que la LAN n’est pas démarrée
         if (Pannel_Lobby != null)
             Pannel_Lobby.SetActive(!lanStarted);
@@ -50,6 +60,7 @@ public class GameUIMAna : MonoBehaviour
         // Menu pause visible si en pause (et pas game over)
         if (Pannel_Pause != null)
             Pannel_Pause.SetActive(isPaused && !isGameOver);
+        // Gestion de la mise en pause via la touche ESCAPE
         if (lanStarted && !isGameOver && Input.GetKeyDown(KeyCode.Escape))
         {
             Debug.Log("ESC pressed, toggle pause");
@@ -59,6 +70,10 @@ public class GameUIMAna : MonoBehaviour
     }
     public void OnStartLan()
     {
+        if (playerCamera != null)
+            playerCamera.enabled = true;
+        if (movementScript != null)
+            movementScript.enabled = true;
         lanStarted = true;
         isPaused = false;
         Cursor.lockState = CursorLockMode.Locked;
@@ -66,6 +81,10 @@ public class GameUIMAna : MonoBehaviour
     }
     public void OnGameOver()
     {
+        if (playerCamera != null)
+            playerCamera.enabled = false;
+        if (movementScript != null)
+            movementScript.enabled = false;
         isGameOver = true;
         isPaused = false;
         Cursor.lockState = CursorLockMode.Locked;
@@ -77,6 +96,13 @@ public class GameUIMAna : MonoBehaviour
 
         Cursor.lockState = isPaused ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible   = isPaused;
+
+        // Désactive / active la caméra
+        if (playerCamera != null)
+            playerCamera.enabled = !isPaused;
+        if (movementScript != null)
+            movementScript.enabled = !isPaused;
+
     }
     public void OnMainMenuButton()
     {
@@ -91,5 +117,10 @@ public class GameUIMAna : MonoBehaviour
         isPaused = false;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        if (playerCamera != null)
+            playerCamera.enabled = true;
+        if (movementScript != null)
+            movementScript.enabled = true;
     }
 }
