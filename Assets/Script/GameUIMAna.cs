@@ -34,6 +34,11 @@ public class GameUIMAna : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible   = true;
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+    }
+    private void OnClientConnected(ulong clientId)
+    {
+        TryFindLocalPlayer();
     }
     private void TryFindLocalPlayer()
     {
@@ -53,8 +58,12 @@ public class GameUIMAna : MonoBehaviour
     void Update()
     {
         if (playerController == null)
+        {
             TryFindLocalPlayer();
-        if (playerController == null || !playerController.IsOwner) return;
+            return;
+        }
+        if (!playerController.IsOwner)
+            return;
         if (Pannel_Lobby != null)
             Pannel_Lobby.SetActive(!lanStarted);
 
