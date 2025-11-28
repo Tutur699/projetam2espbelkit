@@ -2,8 +2,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.UI;
+using Unity.Netcode;
 
-public class WPManager : MonoBehaviour
+public class WPManager : NetworkBehaviour
 {
     public const int MAXITEMS = 5;
     public Camera playerCamera;
@@ -14,6 +15,8 @@ public class WPManager : MonoBehaviour
 
     public List<All_Items> allItems = new List<All_Items>(MAXITEMS); //Liste des items dans l'inventaire
     [Header("Inventory UI")]
+    public GameObject hudPrefab;
+    [HideInInspector] public GameObject myHUDInstance;
     public List<Slot> slots = new List<Slot>(MAXITEMS); //List of items(Scriptable Objects)
     public GameObject slotPrefab;
     [HideInInspector] public int selectedItemIndex;
@@ -21,20 +24,59 @@ public class WPManager : MonoBehaviour
 
     [HideInInspector] public int selectedSlot = -1;
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
 
-    void Start()
-{
-    // Nettoyage des slots UI au démarrage
-    if (slots != null)
+        // --- SÉCURITÉ MULTIJOUEUR ---
+        // Si je ne suis pas le propriétaire de ce perso, je ne crée pas d'interface
+        if (!IsOwner) return;
+
+
+        // --- ÉTAPE 1 : CRÉATION DE L'INTERFACE ---
+        if (hudPrefab != null)
         {
+            myHUDInstance = Instantiate(hudPrefab);
+            myHUDInstance.name = "HUD_LocalPlayer"; // Petit nom pour le retrouver
+        }
+        else
+        {
+            Debug.LogError("HUD Prefab manquant dans WPManager !");
+            return;
+        }
+
+
+        // --- ÉTAPE 2 : AUTO-RECHERCHE CIBLÉE ---
+        // On ne cherche pas dans toute la scène, mais JUSTE dans le HUD qu'on vient de créer
+        if (myHUDInstance != null)
+        {
+            // true = on inclut les enfants inactifs au cas où
+            Slot[] foundScripts = myHUDInstance.GetComponentsInChildren<Slot>(true); 
+            
+            slots = new List<Slot>(foundScripts);
+
+            // TRI CRUCIAL : On trie selon l'ordre dans la hiérarchie (Slot 1, Slot 2...)
+            slots.Sort((a, b) => a.transform.GetSiblingIndex().CompareTo(b.transform.GetSiblingIndex()));
+            
+            Debug.Log($"WPManager a configuré {slots.Count} slots depuis le HUD instancié.");
+        }
+
+
+        // --- ÉTAPE 3 : INITIALISATION & NETTOYAGE VISUEL ---
+        // (Le code qu'on avait fait pour nettoyer les carrés blancs du prefab)
+        if (slots != null)
+        {
+            // On initialise la liste logique interne
+             while (allItems.Count < MAXITEMS) allItems.Add(null);
+
             foreach (var slotScript in slots)
             {
                 if (slotScript != null)
                 {
-                    // IMPORTANT : Assigner le manager au slot pour les interactions futures
+                    // A. On se connecte
                     slotScript.manager = this; 
-                    
-                    // Nettoyage des enfants (anciens items)
+
+                    // B. On détruit les "carrés blancs" par défaut du prefab
                     List<GameObject> childrenToKill = new List<GameObject>();
                     foreach (Transform child in slotScript.transform)
                     {
@@ -44,39 +86,38 @@ public class WPManager : MonoBehaviour
                     {
                         Destroy(child);
                     }
+                    
+                    // C. On reset la couleur
                     slotScript.Deselect();
                 }
             }
         }
- 
-    //Initialisation des slots vides
-    while (allItems.Count < MAXITEMS) allItems.Add(null);
 
-    // Initialisation de la bibliothèque
-    for (int i = 0; i < weaponLibrary.Count; i++)
-    {
-        if (weaponLibrary[i] != null)
+        // --- ÉTAPE 4 : INITIALISATION DES ARMES ---
+        // Cache la bibliothèque 3D
+        foreach (var weapon in weaponLibrary)
         {
-            weaponLibrary[i].gameObject.SetActive(false);
-            weaponLibrary[i].ActivateWeapon(false);      
-            weaponLibrary[i].isEquipped = false;
-            
+            if (weapon != null)
+            {
+                weapon.gameObject.SetActive(false);
+                weapon.ActivateWeapon(false);
+                weapon.isEquipped = false;
+            }
         }
-    }
-    // Équiper les armes par défaut
-    for (int i = 0; i < weaponLibrary.Count; i++)
-    {
-        if (weaponLibrary[i] != null && weaponLibrary[i].item.isDefaultItem)
+
+        // Équipe les armes par défaut (IsDefaultItem)
+        for (int i = 0; i < weaponLibrary.Count; i++)
         {
-            EquipItemFromLibrary(i); 
+            if (weaponLibrary[i] != null && weaponLibrary[i].IsOwned) 
+            {
+                EquipItemFromLibrary(i); 
+            }
         }
+        
+        // Sélectionne le premier slot
+        if (allItems[0] != null) ChangeSelectedSlot(0);
     }
-    
-    if (allItems[0] != null)
-    {
-        ChangeSelectedSlot(0);
-    }
-}
+
 
     private void Update()
     {
@@ -304,65 +345,76 @@ public class WPManager : MonoBehaviour
             Debug.Log("Arme équipée : " + selectedItems.name);
         }
     }
-    public bool EquipItemFromLibrary(int libraryIndex, int slotIndex = -1)
+   public bool EquipItemFromLibrary(int libraryIndex, int slotIndex = -1)
     {
-        // 1. Sécurités de base
-        if (libraryIndex < 0 || libraryIndex >= weaponLibrary.Count) return false;
+        // Sécurité index
+        if (libraryIndex < 0 || libraryIndex >= weaponLibrary.Count) 
+        {
+            Debug.LogError($"[DEBUG] Index {libraryIndex} hors limite dans la Library !");
+            return false;
+        }
         
         All_Items weaponToEquip = weaponLibrary[libraryIndex];
 
-        // Vérifie si déjà possédé
-        if (allItems.Contains(weaponToEquip))
+        // --- TEST DU COUPABLE N°1 : L'ARME ---
+        if (weaponToEquip == null)
         {
-            Debug.Log("Arme déjà dans l'inventaire !");
+            Debug.LogError($"[DEBUG] L'objet arme à l'index {libraryIndex} est NULL dans la WeaponLibrary !");
             return false;
         }
 
-        // Trouve un slot vide si nécessaire
+        if (weaponToEquip.item == null)
+        {
+            // C'EST SOUVENT LUI LE COUPABLE !
+            Debug.LogError($"[DEBUG] ALERTE ROUGE : L'arme '{weaponToEquip.gameObject.name}' existe, MAIS son champ 'Item' (ScriptableObject) est VIDE ! Vérifie le préfab du Player !");
+            return false;
+        }
+        // -------------------------------------
+
+        if (allItems.Contains(weaponToEquip)) return false;
+
         if (slotIndex == -1)
         {
             for (int i = 0; i < allItems.Count; i++)
             {
-                if (allItems[i] == null)
-                {
-                    slotIndex = i;
-                    break;
-                }
+                if (allItems[i] == null) { slotIndex = i; break; }
             }
         }
 
         if (slotIndex == -1 || slotIndex >= MAXITEMS) return false;
 
-        // --- 2. LOGIQUE (Backend) ---
-        allItems[slotIndex] = weaponToEquip;
+        // Logique Backend
         weaponToEquip.UnlockDynamically();
+        allItems[slotIndex] = weaponToEquip;
 
-
-        // --- 3. VISUEL UI (Frontend) --- 
-        
-        // On nettoie le slot au cas où il y aurait un vieux truc
+        // --- TEST DU COUPABLE N°2 : L'UI ---
         Slot targetSlot = slots[slotIndex];
-        foreach(Transform child in targetSlot.transform)
+        
+        // Nettoyage UI
+        for (int i = targetSlot.transform.childCount - 1; i >= 0; i--)
         {
-            Destroy(child.gameObject);
+             DestroyImmediate(targetSlot.transform.GetChild(i).gameObject);
         }
 
-        // On instancie le Prefab "InventoryItem" (celui qui a l'image)
+        if (slotPrefab == null)
+        {
+            Debug.LogError("[DEBUG] SlotPrefab est manquant dans WPManager !");
+            return false;
+        }
+
         GameObject newItemUIObj = Instantiate(slotPrefab, targetSlot.transform);
-        
-        // On configure l'image
         InventoryItem newItemUI = newItemUIObj.GetComponent<InventoryItem>();
+
         if (newItemUI != null)
         {
-            // On envoie les données du ScriptableObject (Items) à l'UI
+            Debug.Log($"[DEBUG] Succès ! J'envoie l'image '{weaponToEquip.item.name}' vers le slot {slotIndex}");
             newItemUI.InitializeItem(weaponToEquip.item);
         }
         else
         {
-            Debug.LogError("Le slotPrefab n'a pas de script InventoryItem !");
+            Debug.LogError("[DEBUG] Le SlotPrefab n'a pas de script InventoryItem !");
         }
 
-        Debug.Log($"Arme {weaponToEquip.name} ajoutée (Logic + UI) au slot {slotIndex}");
         return true;
     }
 }
