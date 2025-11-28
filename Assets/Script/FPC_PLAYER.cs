@@ -208,6 +208,7 @@ namespace StarterAssets
             GroundedCheck();
             Move();
             HandleShooting();
+            HandleReloading();
         }
 
         private void LateUpdate()
@@ -217,7 +218,7 @@ namespace StarterAssets
         }
 
         private void HandleShooting()
-{
+    {
     // 1. Gestion du Cooldown
     if (_fireTimeoutDelta > 0.0f)
     {
@@ -284,6 +285,13 @@ namespace StarterAssets
         }
     }
 }
+        private void HandleReloading()
+        {
+            if(_input.reload && manager.selectedItems != null)
+            {
+                manager.selectedItems.ReloadWeapon();
+            }
+        }
 
          void OnEnable()
         {

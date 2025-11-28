@@ -7,6 +7,7 @@ public abstract class All_Items : MonoBehaviour
     [HideInInspector] public WPManager manager;
     [HideInInspector] public bool isEquipped;
     private bool _isDynamicallyUnlocked = false;
+    public bool isReloading = false;
 
     public bool IsOwned
     {
@@ -20,7 +21,17 @@ public abstract class All_Items : MonoBehaviour
         _isDynamicallyUnlocked = true;
     }
 
+
+    public virtual void ReloadWeapon()
+    {
+        // Méthode virtuelle à surcharger dans les armes qui se rechargent
+    }
+
+    public virtual int GetCurrentAmmo() { return 0; }
+    public virtual int GetReserveAmmo() { return 0; }
     public abstract void ActivateWeapon(bool activate);
     public abstract void Use();
+
+    
     
 }
