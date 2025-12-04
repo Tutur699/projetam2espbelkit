@@ -14,6 +14,7 @@ public class WPManager : NetworkBehaviour
     [Header("Lien avec le joueur")]
     public PlayerManager playerManager;   // référence au joueur pour connaître ses PV
     public List<All_Items> weaponLibrary; //Liste de TOUS les items du jeu
+    private bool _deathHandled = false;
 
     public List<All_Items> allItems = new List<All_Items>(MAXITEMS); //Liste des items dans l'inventaire
     [Header("Inventory UI")]
@@ -33,14 +34,31 @@ public class WPManager : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
+        WeaponSway swayScript = GetComponentInChildren<WeaponSway>();
+
+        if (swayScript != null)
+        {
+            // Si c'est MOI (IsOwner) -> True (Activé)
+            // Si c'est un AUTRE (pas moi) -> False (Désactivé)
+            swayScript.enabled = IsOwner;
+        }
+        else
+        {
+            // Petit warning au cas où tu aurais oublié de mettre le script
+            if (IsOwner) Debug.LogWarning("Attention : Pas de script WeaponSway trouvé sur le joueur !");
+        }
+
         // --- SÉCURITÉ MULTIJOUEUR ---
         // Si je ne suis pas le propriétaire de ce perso, je ne crée pas d'interface
         if (!IsOwner) return;
+
+        
 
         if (playerCamera == null)
         {
             playerCamera = FindFirstObjectByType<Camera>();
         }
+        
 
 
         // --- ÉTAPE 1 : CRÉATION DE L'INTERFACE ---
@@ -141,6 +159,41 @@ public class WPManager : NetworkBehaviour
         if (allItems[0] != null) ChangeSelectedSlot(0);
     }
 
+    public void HandleDeath()
+    {
+        if (_deathHandled) return; // On l'a déjà fait, on arrête
+        _deathHandled = true;
+
+        Debug.Log("Gestion de la mort du joueur dans WPManager...");
+
+        // 1. Désactiver l'arme en main
+        if (selectedItems != null)
+        {
+            selectedItems.ActivateWeapon(false);
+            selectedItems.isEquipped = false;
+            selectedItems.gameObject.SetActive(false); // On cache le modèle 3D
+            selectedItems = null; // On vide la référence
+            selectedItemIndex = -1;
+        }
+
+        // 2. Désactiver le HUD (Optionnel, si tu veux cacher l'inventaire quand on meurt)
+        if (myHUDInstance != null)
+        {
+            myHUDInstance.SetActive(false);
+        }
+
+        // 3. Désactiver le Weapon Sway (pour éviter que la caméra bouge bizarrement)
+        WeaponSway sway = GetComponentInChildren<WeaponSway>();
+        if (sway != null) sway.enabled = false;
+        
+        // 4. Désélectionner visuellement les slots
+        if (selectedSlot >= 0 && selectedSlot < slots.Count)
+        {
+            slots[selectedSlot].Deselect();
+            selectedSlot = -1;
+        }
+    }
+
 
     private void Update()
     {
@@ -148,12 +201,12 @@ public class WPManager : NetworkBehaviour
         // mais comme PlayerManager gère déjà la mort, on n'est pas obligé
         if (PlayerIsDead())
         {
-            // On peut s'assurer que l'arme équipée est désactivée
-            if (selectedItems != null)
-            {
-                selectedItems.ActivateWeapon(false);
-                selectedItems.isEquipped = false;
-            }
+            HandleDeath();
+            return;
+        }
+        else
+        {
+           if (_deathHandled) _deathHandled = false;
         }
 
         if (!IsOwner || ammoText == null) return;
@@ -212,6 +265,12 @@ public class WPManager : NetworkBehaviour
 
     public void AddItem(Items newItem, All_Items newItem3D) //Version pour allItems
     {
+        if(PlayerIsDead())
+        {
+            Debug.Log("Impossible d'ajouter un item : le joueur est mort.");
+            return;
+        }
+        
         if (newItem == null)
         {
             Debug.LogError("Trying to add null item to inventory");
@@ -369,7 +428,6 @@ public class WPManager : NetworkBehaviour
     {
         if (PlayerIsDead())
         {
-            Debug.Log("Impossible d'équiper une arme : le joueur est mort.");
             return;
         }
 

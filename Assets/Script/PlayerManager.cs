@@ -57,6 +57,18 @@ public class PlayerManager : MonoBehaviour, IEntity
         Cursor.visible = true;
     }
 
+    private void Update()
+    {
+        // Tuer le joueur avec la touche K pour les tests
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            if (!isDead){
+                Debug.Log("💀 SUICIDE COMMAND ADMIN !"); 
+                ApplyDamage(9999f);
+            }
+        }
+    }
+
     void OnGUI()
     {
         // Affichage des HP
