@@ -17,6 +17,10 @@ public class WPManager : NetworkBehaviour
     private bool _deathHandled = false;
 
     public List<All_Items> allItems = new List<All_Items>(MAXITEMS); //Liste des items dans l'inventaire
+
+    [Header("Sway & Camera")]
+    public GameObject weaponSwayHolder;
+
     [Header("Inventory UI")]
     public GameObject hudPrefab;
     [HideInInspector] public GameObject myHUDInstance;
@@ -34,19 +38,6 @@ public class WPManager : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        WeaponSway swayScript = GetComponentInChildren<WeaponSway>();
-
-        if (swayScript != null)
-        {
-            // Si c'est MOI (IsOwner) -> True (Activé)
-            // Si c'est un AUTRE (pas moi) -> False (Désactivé)
-            swayScript.enabled = IsOwner;
-        }
-        else
-        {
-            // Petit warning au cas où tu aurais oublié de mettre le script
-            if (IsOwner) Debug.LogWarning("Attention : Pas de script WeaponSway trouvé sur le joueur !");
-        }
 
         // --- SÉCURITÉ MULTIJOUEUR ---
         // Si je ne suis pas le propriétaire de ce perso, je ne crée pas d'interface
@@ -57,6 +48,26 @@ public class WPManager : NetworkBehaviour
         if (playerCamera == null)
         {
             playerCamera = FindFirstObjectByType<Camera>();
+        }
+
+        if (playerCamera != null && weaponSwayHolder != null)
+        {
+            // A. On active le script de Sway
+            WeaponSway swayScript = weaponSwayHolder.GetComponent<WeaponSway>();
+            if (swayScript != null) swayScript.enabled = true;
+
+            // B. On détache le Holder du Joueur et on le colle sous la Caméra
+            weaponSwayHolder.transform.SetParent(playerCamera.transform);
+
+            // C. On réinitialise sa position pour qu'il soit bien au centre de la vue
+            weaponSwayHolder.transform.localPosition = Vector3.zero;
+            weaponSwayHolder.transform.localRotation = Quaternion.identity;
+
+            Debug.Log("Armes attachées à la caméra avec succès !");
+        }
+        else
+        {
+            Debug.LogError("Impossible d'attacher les armes : Caméra ou SwayHolder manquant !");
         }
         
 
@@ -270,7 +281,7 @@ public class WPManager : NetworkBehaviour
             Debug.Log("Impossible d'ajouter un item : le joueur est mort.");
             return;
         }
-        
+
         if (newItem == null)
         {
             Debug.LogError("Trying to add null item to inventory");

@@ -63,7 +63,7 @@ public class PlayerManager : MonoBehaviour, IEntity
         if (Input.GetKeyDown(KeyCode.K))
         {
             if (!isDead){
-                Debug.Log("💀 SUICIDE COMMAND ADMIN !"); 
+                Debug.Log("SUICIDE COMMAND ADMIN !"); 
                 ApplyDamage(9999f);
             }
         }

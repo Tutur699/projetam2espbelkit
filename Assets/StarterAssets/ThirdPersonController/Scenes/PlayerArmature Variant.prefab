@@ -555,6 +555,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  weaponSwayHolder: {fileID: 0}
   hudPrefab: {fileID: 7562603688829354324, guid: 88c828f36541b6343883182c36590669, type: 3}
   myHUDInstance: {fileID: 0}
   slots:
@@ -567,6 +568,7 @@ MonoBehaviour:
   selectedItemIndex: 0
   selectedItems: {fileID: 0}
   selectedSlot: -1
+  ammoText: {fileID: 0}
 --- !u!4 &6669648816683616215 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3893294197879345259, guid: 64dce48905ffd9b4293e595fa6941544, type: 3}
