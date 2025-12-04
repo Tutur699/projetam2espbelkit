@@ -30,8 +30,7 @@ public class SC_NPCEnemy : MonoBehaviour, IEntity
             GetComponent<Rigidbody>().isKinematic = true;
         }
 
-        // 👇 AJOUT : si le spawner n’a pas déjà mis playerTransform,
-        // on cherche l’instance réelle du joueur dans la scène
+
         if (playerTransform == null)
         {
             PlayerManager pm = FindFirstObjectByType<PlayerManager>();

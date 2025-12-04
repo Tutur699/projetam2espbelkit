@@ -1,130 +1,120 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class SC_EnemySpawner : MonoBehaviour
 {
     public GameObject enemyPrefab;
     public PlayerManager player;
-    public Texture crosshairTexture;
-    public float spawnInterval = 2; //Spawn new enemy each n seconds
-    public int enemiesPerWave = 5; //How many enemies per wave
     public Transform[] spawnPoints;
 
-    float nextSpawnTime = 0;
-    int waveNumber = 1;
-    bool waitingForWave = true;
-    float newWaveTimer = 0;
-    int enemiesToEliminate;
-    //How many enemies we already eliminated in the current wave
-    int enemiesEliminated = 0;
-    int totalEnemiesSpawned = 0;
+    public float startDelay = 10f; // 10 secondes avant le début de la partie
 
-    // Start is called before the first frame update
+    bool enemyAlive = false;
+    bool playerWon = false;
+    bool gameStarted = false;
+    bool gameOver = false;
+
+    float startTimer;
+
     void Start()
     {
-        //Lock cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        //Wait 10 seconds for new wave to start
-        newWaveTimer = 10;
-        waitingForWave = true;
+        startTimer = startDelay;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (waitingForWave)
+        // ⏳ Tant que le jeu n'a pas commencé, on fait le compte à rebours
+        if (!gameStarted)
         {
-            if(newWaveTimer >= 0)
-            {
-                newWaveTimer -= Time.deltaTime;
-            }
-            else
-            {
-                //Initialize new wave
-                enemiesToEliminate = waveNumber * enemiesPerWave;
-                enemiesEliminated = 0;
-                totalEnemiesSpawned = 0;
-                waitingForWave = false;
-            }
-        }
-        else
-        {
-            if(Time.time > nextSpawnTime)
-            {
-                nextSpawnTime = Time.time + spawnInterval;
+            startTimer -= Time.deltaTime;
 
-                //Spawn enemy 
-                if(totalEnemiesSpawned < enemiesToEliminate)
-                {
-                    Transform randomPoint = spawnPoints[Random.Range(0, spawnPoints.Length - 1)];
-
-                    GameObject enemy = Instantiate(enemyPrefab, randomPoint.position, Quaternion.identity);
-                    SC_NPCEnemy npc = enemy.GetComponent<SC_NPCEnemy>();
-                    npc.es = this;
-                    totalEnemiesSpawned++;
-                }
+            if (startTimer <= 0f)
+            {
+                gameStarted = true;
+                SpawnEnemy();
             }
+
+            return; // On ne fait rien d'autre tant que le jeu n'a pas commencé
         }
 
-        if (player.playerHP <= 0)
+        // 💀 Gestion de la mort du joueur
+        if (!gameOver && !playerWon && player.playerHP <= 0)
         {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                Scene scene = SceneManager.GetActiveScene();
-                SceneManager.LoadScene(scene.name);
-            }
+            gameOver = true;
         }
+
+        // 🏁 Si la partie est finie (victoire ou défaite) et qu'on appuie sur Espace → quitter
+        if ((playerWon || gameOver) && Input.GetKeyDown(KeyCode.Space))
+        {
+            #if UNITY_EDITOR
+            // Arrête le mode Play dans l'éditeur
+            UnityEditor.EditorApplication.isPlaying = false;
+            #else
+            // Quitte le jeu dans un build
+            Application.Quit();
+            #endif
+        }
+    }
+
+    void SpawnEnemy()
+    {
+        if (spawnPoints.Length == 0 || enemyPrefab == null) return;
+
+        Transform randomPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
+        GameObject enemy = Instantiate(enemyPrefab, randomPoint.position, Quaternion.identity);
+
+        SC_NPCEnemy npc = enemy.GetComponent<SC_NPCEnemy>();
+        if (npc != null)
+        {
+            // Pour que l'ennemi puisse appeler EnemyEliminated quand il meurt
+            npc.es = this;
+        }
+
+        enemyAlive = true;
     }
 
     void OnGUI()
     {
-        GUI.Box(new Rect(10, Screen.height - 35, 100, 25), ((int)player.playerHP).ToString() + " HP");
-
-            int bullets = 0;
-
-    if (player.weaponManager != null && player.weaponManager.selectedItems != null)
-    {
-        GItems gun = player.weaponManager.selectedItems as GItems;
-        if (gun != null)
+        // ⏳ Affichage du compte à rebours avant le début
+        if (!gameStarted)
         {
-            bullets = gun.bulletsPerMagazine;
-        }
-    }
-
-    GUI.Box(
-        new Rect(Screen.width / 2 - 35, Screen.height - 35, 70, 25),
-        bullets.ToString()
-    );
-
-        if(player.playerHP <= 0)
-        {
-            GUI.Box(new Rect(Screen.width / 2 - 85, Screen.height / 2 - 20, 170, 40), "Game Over\n(Press 'Space' to Restart)");
-        }
-        else
-        {
-            GUI.DrawTexture(new Rect(Screen.width / 2 - 3, Screen.height / 2 - 3, 6, 6), crosshairTexture);
+            GUI.Box(
+                new Rect(Screen.width / 2 - 125, Screen.height / 4 - 12, 250, 25),
+                "Game starts in " + Mathf.Ceil(startTimer).ToString() + "..."
+            );
+            return;
         }
 
-        GUI.Box(new Rect(Screen.width / 2 - 50, 10, 100, 25), (enemiesToEliminate - enemiesEliminated).ToString());
-
-        if (waitingForWave)
+        if (gameOver)
         {
-            GUI.Box(new Rect(Screen.width / 2 - 125, Screen.height / 4 - 12, 250, 25), "Waiting for Wave " + waveNumber.ToString() + " (" + ((int)newWaveTimer).ToString() + " seconds left...)");
+            GUI.Box(
+                new Rect(Screen.width / 2 - 85, Screen.height / 2 - 20, 170, 40),
+                "Game Over"
+            );
+            GUI.Label(
+                new Rect(Screen.width / 2 - 70, Screen.height / 2 + 30, 200, 40),
+                "Press SPACE to quit"
+            );
+        }
+
+        if (playerWon)
+        {
+            GUI.Box(
+                new Rect(Screen.width / 2 - 85, Screen.height / 2 - 20, 170, 40),
+                "YOU WIN !"
+            );
+            GUI.Label(
+                new Rect(Screen.width / 2 - 80, Screen.height / 2 + 30, 200, 40),
+                "Press SPACE to quit"
+            );
         }
     }
 
     public void EnemyEliminated(SC_NPCEnemy enemy)
     {
-        enemiesEliminated++;
-
-        if(enemiesToEliminate - enemiesEliminated <= 0)
-        {
-            //Start next wave
-            newWaveTimer = 10;
-            waitingForWave = true;
-            waveNumber++;
-        }
+        enemyAlive = false;
+        playerWon = true;
     }
 }
