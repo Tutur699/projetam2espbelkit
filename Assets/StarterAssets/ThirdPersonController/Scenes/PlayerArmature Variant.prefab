@@ -472,6 +472,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8e011000087cef4c86d6799312bd717, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PItems
+--- !u!114 &4932093402885281220 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3385238940356067960, guid: 64dce48905ffd9b4293e595fa6941544, type: 3}
+  m_PrefabInstance: {fileID: 7676552900700018620}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!114 &5669314771777592750 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2604746961233218066, guid: 64dce48905ffd9b4293e595fa6941544, type: 3}
@@ -500,7 +511,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2605424710
+  GlobalObjectIdHash: 3937202592
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -555,7 +566,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  weaponSwayHolder: {fileID: 0}
   hudPrefab: {fileID: 7562603688829354324, guid: 88c828f36541b6343883182c36590669, type: 3}
   myHUDInstance: {fileID: 0}
   slots:
@@ -568,7 +578,7 @@ MonoBehaviour:
   selectedItemIndex: 0
   selectedItems: {fileID: 0}
   selectedSlot: -1
-  ammoText: {fileID: 0}
+  ammoText: {fileID: 4932093402885281220}
 --- !u!4 &6669648816683616215 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3893294197879345259, guid: 64dce48905ffd9b4293e595fa6941544, type: 3}

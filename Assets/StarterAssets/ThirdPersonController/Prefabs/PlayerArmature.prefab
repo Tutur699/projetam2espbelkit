@@ -1040,7 +1040,6 @@ GameObject:
   - component: {fileID: 4416926081852918493}
   - component: {fileID: 4431951075176516682}
   - component: {fileID: 5225584136608815641}
-  - component: {fileID: 8242746503924400092}
   m_Layer: 8
   m_Name: PlayerArmature
   m_TagString: Player
@@ -1392,22 +1391,6 @@ MonoBehaviour:
   playerControler: {fileID: 4416926081852918490}
   weaponManager: {fileID: 0}
   crosshairTexture: {fileID: 2800000, guid: b889ef0124f73fa4298de5e962dac98b, type: 3}
---- !u!114 &8242746503924400092
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4416926081852918481}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fff0960ef4ea6e04eac66b4a7fd2189d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.RigBuilder
-  m_RigLayers:
-  - m_Rig: {fileID: 0}
-    m_Active: 1
-  m_Effectors: []
 --- !u!1 &4523139366846529165
 GameObject:
   m_ObjectHideFlags: 0
