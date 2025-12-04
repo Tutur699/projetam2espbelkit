@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.UI;
 using Unity.Netcode;
+using TMPro;
+
 
 public class WPManager : NetworkBehaviour
 {
@@ -23,6 +25,9 @@ public class WPManager : NetworkBehaviour
     [HideInInspector] public All_Items selectedItems;
 
     [HideInInspector] public int selectedSlot = -1;
+
+    [Header("UI References")]
+    public TextMeshProUGUI ammoText;
 
     public override void OnNetworkSpawn()
     {
@@ -64,6 +69,19 @@ public class WPManager : NetworkBehaviour
             slots.Sort((a, b) => a.transform.GetSiblingIndex().CompareTo(b.transform.GetSiblingIndex()));
             
             Debug.Log($"WPManager a configuré {slots.Count} slots depuis le HUD instancié.");
+
+            var allTexts = myHUDInstance.GetComponentsInChildren<TextMeshProUGUI>(true);
+            foreach(var t in allTexts)
+            {
+                if(t.gameObject.name == "AmmoText")
+                {
+                    ammoText = t;
+                    break;
+                }
+            }
+            
+            // Si on n'a pas trouvé par nom, on prend le premier venu (secours)
+            if (ammoText == null && allTexts.Length > 0) ammoText = allTexts[0];
         }
 
 
@@ -136,6 +154,34 @@ public class WPManager : NetworkBehaviour
                 selectedItems.ActivateWeapon(false);
                 selectedItems.isEquipped = false;
             }
+        }
+
+        if (!IsOwner || ammoText == null) return;
+
+        if (selectedItems != null)
+        {
+            // On vérifie si l'arme est une arme à feu (GItems) pour afficher les balles
+            // (Si tu as un couteau, pas besoin d'afficher "0/0")
+            if (selectedItems is GItems) 
+            {
+                ammoText.gameObject.SetActive(true); // On affiche le texte
+                
+                // On récupère les valeurs via les méthodes qu'on a créées dans All_Items
+                int current = selectedItems.GetCurrentAmmo();
+                int reserve = selectedItems.GetReserveAmmo();
+                
+                ammoText.text = $"{current} / {reserve}";
+            }
+            else
+            {
+                // C'est un couteau ou autre chose -> on cache le texte
+                ammoText.gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            // Rien dans les mains -> on cache le texte
+            ammoText.gameObject.SetActive(false);
         }
     }
 
