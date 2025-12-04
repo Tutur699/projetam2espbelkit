@@ -13,7 +13,6 @@ public class GItems : All_Items
     public float timeToReload = 1.5f;
     public AudioClip fireAudio;
     public AudioClip reloadAudio;
-    float nextFireTime = 0;
     AudioSource audioSource;
     public AudioClip emptyClickAudio;
 

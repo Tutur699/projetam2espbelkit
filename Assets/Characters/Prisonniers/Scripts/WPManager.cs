@@ -32,6 +32,11 @@ public class WPManager : NetworkBehaviour
         // Si je ne suis pas le propriétaire de ce perso, je ne crée pas d'interface
         if (!IsOwner) return;
 
+        if (playerCamera == null)
+        {
+            playerCamera = FindFirstObjectByType<Camera>();
+        }
+
 
         // --- ÉTAPE 1 : CRÉATION DE L'INTERFACE ---
         if (hudPrefab != null)
