@@ -18,8 +18,8 @@ public class WPManager : NetworkBehaviour
 
     public List<All_Items> allItems = new List<All_Items>(MAXITEMS); //Liste des items dans l'inventaire
 
-    [Header("Sway & Camera")]
-    public GameObject weaponSwayHolder;
+    /*[Header("Sway & Camera")]
+    public GameObject weaponSwayHolder;*/
 
     [Header("Inventory UI")]
     public GameObject hudPrefab;
@@ -50,7 +50,7 @@ public class WPManager : NetworkBehaviour
             playerCamera = FindFirstObjectByType<Camera>();
         }
 
-        if (playerCamera != null && weaponSwayHolder != null)
+        /*if (playerCamera != null && weaponSwayHolder != null)
         {
             // A. On active le script de Sway
             WeaponSway swayScript = weaponSwayHolder.GetComponent<WeaponSway>();
@@ -68,7 +68,7 @@ public class WPManager : NetworkBehaviour
         else
         {
             Debug.LogError("Impossible d'attacher les armes : Caméra ou SwayHolder manquant !");
-        }
+        }*/
         
 
 
