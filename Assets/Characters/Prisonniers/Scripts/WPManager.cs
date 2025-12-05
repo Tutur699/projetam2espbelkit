@@ -10,9 +10,13 @@ public class WPManager : NetworkBehaviour
 {
     public const int MAXITEMS = 5;
     public Camera playerCamera;
+    public Transform aimPoint;
 
-    [Header("Lien avec le joueur")]
+    public bool isAI = false;
+
+    [Header("Lien avec le contrôleur")]
     public PlayerManager playerManager;   // référence au joueur pour connaître ses PV
+    public IAEnemy enemyManager;   // référence à l'ennemi pour connaître ses PV
     public List<All_Items> weaponLibrary; //Liste de TOUS les items du jeu
     private bool _deathHandled = false;
 
@@ -42,13 +46,56 @@ public class WPManager : NetworkBehaviour
         // --- SÉCURITÉ MULTIJOUEUR ---
         // Si je ne suis pas le propriétaire de ce perso, je ne crée pas d'interface
         if (!IsOwner) return;
+         if(isAI)
+        {
+            while (allItems.Count < MAXITEMS) allItems.Add(null);
+            InitDefaultWeapons();
+            return;
+        }
 
         
 
-        if (playerCamera == null)
+        if (IsOwner && GetComponent<PlayerManager>() != null) // Si c'est un joueur humain
         {
-            playerCamera = FindFirstObjectByType<Camera>();
+            if (playerCamera == null) playerCamera = FindFirstObjectByType<Camera>();
+            
+            // Pour le joueur, la source de visée C'EST la caméra
+            if (playerCamera != null)
+            {
+                aimPoint = playerCamera.transform;
+            }
         }
+
+        if (isAI)
+        {
+            // 1. Si la case est vide, on cherche "EyesPos" partout dans les enfants
+            if (aimPoint == null)
+            {
+                Transform[] children = GetComponentsInChildren<Transform>();
+                foreach (Transform t in children)
+                {
+                    if (t.name == "EyesPos") // Vérifie bien l'orthographe !
+                    {
+                        aimPoint = t;
+                        break;
+                    }
+                }
+            }
+
+            // 2. ULTIME SECOURS : Si toujours vide, on prend l'IA elle-même
+            if (aimPoint == null)
+            {
+                Debug.LogWarning($"[WPManager] {name} : Impossible de trouver 'EyesPos'. Je vise avec mon corps.");
+                aimPoint = transform; // Au moins ça ne crashera pas
+            }
+        }
+        else if (IsOwner) // Pour le joueur
+        {
+             // ... (Recherche Caméra) ...
+             if (playerCamera != null) aimPoint = playerCamera.transform;
+        }
+
+       
 
         /*if (playerCamera != null && weaponSwayHolder != null)
         {
@@ -69,6 +116,7 @@ public class WPManager : NetworkBehaviour
         {
             Debug.LogError("Impossible d'attacher les armes : Caméra ou SwayHolder manquant !");
         }*/
+        
         
 
 
@@ -147,7 +195,12 @@ public class WPManager : NetworkBehaviour
 
         // --- ÉTAPE 4 : INITIALISATION DES ARMES ---
         // Cache la bibliothèque 3D
-        foreach (var weapon in weaponLibrary)
+        InitDefaultWeapons();
+    }
+
+    public void InitDefaultWeapons()
+
+    {  foreach (var weapon in weaponLibrary)
         {
             if (weapon != null)
             {
@@ -168,7 +221,7 @@ public class WPManager : NetworkBehaviour
         
         // Sélectionne le premier slot
         if (allItems[0] != null) ChangeSelectedSlot(0);
-    }
+        }
 
     public void HandleDeath()
     {
@@ -219,6 +272,7 @@ public class WPManager : NetworkBehaviour
         {
            if (_deathHandled) _deathHandled = false;
         }
+        if (isAI) return;
 
         if (!IsOwner || ammoText == null) return;
 
@@ -252,6 +306,11 @@ public class WPManager : NetworkBehaviour
     // --- Fonction utilitaire : savoir si le joueur peut utiliser ses armes ---
     private bool PlayerIsDead()
     {
+        if (isAI)
+        {
+            if (enemyManager == null) return false; // sécurité si non assigné
+            return !enemyManager.isAlive();
+        }
         if (playerManager == null) return false;   // sécurité si non assigné
         return !playerManager.IsAlive();
     }
@@ -263,6 +322,13 @@ public class WPManager : NetworkBehaviour
         {
             Debug.Log("Impossible de changer de slot : le joueur est mort.");
             return;
+        }
+
+        if (isAI)
+        {
+            selectedSlot = newIndex;
+            SelectItems(newIndex); // On active l'arme 3D
+            return; // STOP ! Ne pas toucher à la liste 'slots'
         }
 
         if (selectedSlot >= 0)
@@ -502,10 +568,15 @@ public class WPManager : NetworkBehaviour
         }
 
         if (slotIndex == -1 || slotIndex >= MAXITEMS) return false;
-
+        weaponToEquip.manager = this;
         // Logique Backend
         weaponToEquip.UnlockDynamically();
         allItems[slotIndex] = weaponToEquip;
+
+        if (isAI)
+        {
+            return true;
+        }
 
         // --- TEST DU COUPABLE N°2 : L'UI ---
         Slot targetSlot = slots[slotIndex];

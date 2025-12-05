@@ -28,13 +28,13 @@ public class PItems : All_Items
             if (Time.time > nextUseTime)
             {
                 nextUseTime = Time.time + item.useRate;
-                Vector3 hitPointPointerPosition = manager.playerCamera.transform.position + manager.playerCamera.transform.forward * 100;
+                Vector3 hitPointPointerPosition = manager.aimPoint.transform.position + manager.aimPoint.transform.forward * 100;
                 RaycastHit hit;
-                if (Physics.Raycast(manager.playerCamera.transform.position, manager.playerCamera.transform.forward, out hit, 100))
+                if (Physics.Raycast(manager.aimPoint.transform.position, manager.aimPoint.transform.forward, out hit, 100))
                 {
                     hitPointPointerPosition = hit.point;
                 }
-                if (hit.transform.CompareTag("Enemy")) //Enemy tag here is important because an item can be used on anything
+                if (hit.transform.CompareTag("Enemy")|| hit.transform.CompareTag("Player")) //Enemy tag here is important because an item can be used on anything
                 {
                     Debug.DrawLine(HitPoint.position, HitPoint.position + HitPoint.forward * 3f, Color.cyan);
 

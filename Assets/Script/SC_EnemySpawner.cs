@@ -114,10 +114,16 @@ public class SC_EnemySpawner : NetworkBehaviour
         }
         
         // Configurer le script de l'ennemi (s'il faut)
-        SC_NPCEnemy npc = enemy.GetComponent<SC_NPCEnemy>();
+        IAEnemy npc = enemy.GetComponent<IAEnemy>();
         if (npc != null)
         {
             npc.es = this; 
+            PlayerManager target = FindFirstObjectByType<PlayerManager>();
+            if (target != null)
+            {
+                npc.player = target.transform; // On donne la cible !
+                npc.playerTransform = target.transform;
+            }
         }
     }
 
@@ -147,7 +153,7 @@ public class SC_EnemySpawner : NetworkBehaviour
         }
     }
 
-    public void EnemyEliminated(SC_NPCEnemy enemy)
+    public void EnemyEliminated(IAEnemy enemy)
     {
         // L'ennemi doit appeler ça, et comme il est géré par le serveur, c'est bon.
         // Il faudrait idéalement une ClientRpc pour dire à tout le monde "Victoire !"

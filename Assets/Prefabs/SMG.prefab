@@ -78,7 +78,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -178,12 +178,16 @@ MonoBehaviour:
   item: {fileID: 11400000, guid: fe7e5f866c10676468aff5287c04a882, type: 2}
   manager: {fileID: 0}
   isEquipped: 0
+  isReloading: 0
   bulletPrefab: {fileID: 1124179450906470559, guid: e605bbbc8b8697f4499cde817b9dde8f, type: 3}
   firePoint: {fileID: 5130703292101055278}
+  reserveAmmo: 179
   bulletsPerMagazine: 40
+  maxclipSize: 30
   timeToReload: 1.5
   fireAudio: {fileID: 8300000, guid: be64544bade297e4d872dd74c66256d2, type: 3}
   reloadAudio: {fileID: 8300000, guid: e5198250a6a57408bb36e14bc4a322c4, type: 3}
+  emptyClickAudio: {fileID: 0}
 --- !u!1001 &5093607548994998164
 PrefabInstance:
   m_ObjectHideFlags: 0
