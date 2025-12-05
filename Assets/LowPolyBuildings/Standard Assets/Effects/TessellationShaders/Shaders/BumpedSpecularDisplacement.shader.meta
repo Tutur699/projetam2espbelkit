@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 0a4b0bce1e250a14bb534d70bce205fa
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 13173
+  packageName: Industrial Buildings & Props
+  packageVersion: 2.0.1
+  assetPath: Assets/LowPolyBuildings/Standard Assets/Effects/TessellationShaders/Shaders/BumpedSpecularDisplacement.shader
+  uploadId: 73022

@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: 438ddd58d82c84d9eb1fdc56111702e1
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 13173
+  packageName: Industrial Buildings & Props
+  packageVersion: 2.0.1
+  assetPath: Assets/LowPolyBuildings/Standard Assets/Effects/ImageEffects/Shaders/ColorCorrectionCurvesSimple.shader
+  uploadId: 73022
