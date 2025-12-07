@@ -26,21 +26,28 @@ public class BulletScript : MonoBehaviour
             Vector3 direction = newPos - oldPos;
             float distance = direction.magnitude;
             RaycastHit hit;
+            Debug.DrawLine(oldPos, newPos, Color.red, 1.0f);
 
             // Check if we hit anything on the way
             if (Physics.Raycast(oldPos, direction, out hit, distance))
             {
+                hasHit = true;
+                Debug.Log($"J'ai touché : {hit.transform.name} (Parent: {hit.transform.parent?.name})");
                 if (hit.rigidbody != null)
                 {
                     hit.rigidbody.AddForce(direction * hitForce);
-
-                    IEntity enemy = hit.transform.GetComponent<IEntity>();
-                    if (enemy != null)
-                    {
-                        //Apply damage to NPC
-                        enemy.ApplyDamage(damagePoints);
-                    }
                 }
+                IEntity enemy = hit.transform.GetComponentInParent<IEntity>();
+                if (enemy != null)
+                {//Apply damage to NPC
+                    Debug.Log(">>> Dégâts appliqués !"); // Confirmateur de succès
+                    enemy.ApplyDamage(damagePoints);
+                }
+                else
+                {
+                    Debug.Log(">>> Pas de script IEntity trouvé sur cet objet !");
+                }
+                
 
                 newPos = hit.point; //Adjust new position
                 StartCoroutine(DestroyBullet());

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 43fcc28c40e404d4eabfc88b1dbda7b5
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 13173
+  packageName: Industrial Buildings & Props
+  packageVersion: 2.0.1
+  assetPath: Assets/LowPolyBuildings/Standard Assets/Editor/ImageEffects/BloomEditor.cs
+  uploadId: 73022

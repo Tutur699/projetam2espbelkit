@@ -3,17 +3,28 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.UI;
 using Unity.Netcode;
+using TMPro;
+
 
 public class WPManager : NetworkBehaviour
 {
     public const int MAXITEMS = 5;
     public Camera playerCamera;
+    public Transform aimPoint;
 
-    [Header("Lien avec le joueur")]
+    public bool isAI = false;
+
+    [Header("Lien avec le contrôleur")]
     public PlayerManager playerManager;   // référence au joueur pour connaître ses PV
+    public IAEnemy enemyManager;   // référence à l'ennemi pour connaître ses PV
     public List<All_Items> weaponLibrary; //Liste de TOUS les items du jeu
+    private bool _deathHandled = false;
 
     public List<All_Items> allItems = new List<All_Items>(MAXITEMS); //Liste des items dans l'inventaire
+
+    /*[Header("Sway & Camera")]
+    public GameObject weaponSwayHolder;*/
+
     [Header("Inventory UI")]
     public GameObject hudPrefab;
     [HideInInspector] public GameObject myHUDInstance;
@@ -24,18 +35,89 @@ public class WPManager : NetworkBehaviour
 
     [HideInInspector] public int selectedSlot = -1;
 
+    [Header("UI References")]
+    public TextMeshProUGUI ammoText;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
+
         // --- SÉCURITÉ MULTIJOUEUR ---
         // Si je ne suis pas le propriétaire de ce perso, je ne crée pas d'interface
         if (!IsOwner) return;
-
-        if (playerCamera == null)
+         if(isAI)
         {
-            playerCamera = FindFirstObjectByType<Camera>();
+            while (allItems.Count < MAXITEMS) allItems.Add(null);
+            InitDefaultWeapons();
+            return;
         }
+
+        
+
+        if (IsOwner && GetComponent<PlayerManager>() != null) // Si c'est un joueur humain
+        {
+            if (playerCamera == null) playerCamera = FindFirstObjectByType<Camera>();
+            
+            // Pour le joueur, la source de visée C'EST la caméra
+            if (playerCamera != null)
+            {
+                aimPoint = playerCamera.transform;
+            }
+        }
+
+        if (isAI)
+        {
+            // 1. Si la case est vide, on cherche "EyesPos" partout dans les enfants
+            if (aimPoint == null)
+            {
+                Transform[] children = GetComponentsInChildren<Transform>();
+                foreach (Transform t in children)
+                {
+                    if (t.name == "EyesPos") // Vérifie bien l'orthographe !
+                    {
+                        aimPoint = t;
+                        break;
+                    }
+                }
+            }
+
+            // 2. ULTIME SECOURS : Si toujours vide, on prend l'IA elle-même
+            if (aimPoint == null)
+            {
+                Debug.LogWarning($"[WPManager] {name} : Impossible de trouver 'EyesPos'. Je vise avec mon corps.");
+                aimPoint = transform; // Au moins ça ne crashera pas
+            }
+        }
+        else if (IsOwner) // Pour le joueur
+        {
+             // ... (Recherche Caméra) ...
+             if (playerCamera != null) aimPoint = playerCamera.transform;
+        }
+
+       
+
+        /*if (playerCamera != null && weaponSwayHolder != null)
+        {
+            // A. On active le script de Sway
+            WeaponSway swayScript = weaponSwayHolder.GetComponent<WeaponSway>();
+            if (swayScript != null) swayScript.enabled = true;
+
+            // B. On détache le Holder du Joueur et on le colle sous la Caméra
+            weaponSwayHolder.transform.SetParent(playerCamera.transform);
+
+            // C. On réinitialise sa position pour qu'il soit bien au centre de la vue
+            weaponSwayHolder.transform.localPosition = Vector3.zero;
+            weaponSwayHolder.transform.localRotation = Quaternion.identity;
+
+            Debug.Log("Armes attachées à la caméra avec succès !");
+        }
+        else
+        {
+            Debug.LogError("Impossible d'attacher les armes : Caméra ou SwayHolder manquant !");
+        }*/
+        
+        
 
 
         // --- ÉTAPE 1 : CRÉATION DE L'INTERFACE ---
@@ -64,6 +146,19 @@ public class WPManager : NetworkBehaviour
             slots.Sort((a, b) => a.transform.GetSiblingIndex().CompareTo(b.transform.GetSiblingIndex()));
             
             Debug.Log($"WPManager a configuré {slots.Count} slots depuis le HUD instancié.");
+
+            var allTexts = myHUDInstance.GetComponentsInChildren<TextMeshProUGUI>(true);
+            foreach(var t in allTexts)
+            {
+                if(t.gameObject.name == "AmmoText")
+                {
+                    ammoText = t;
+                    break;
+                }
+            }
+            
+            // Si on n'a pas trouvé par nom, on prend le premier venu (secours)
+            if (ammoText == null && allTexts.Length > 0) ammoText = allTexts[0];
         }
 
 
@@ -100,7 +195,12 @@ public class WPManager : NetworkBehaviour
 
         // --- ÉTAPE 4 : INITIALISATION DES ARMES ---
         // Cache la bibliothèque 3D
-        foreach (var weapon in weaponLibrary)
+        InitDefaultWeapons();
+    }
+
+    public void InitDefaultWeapons()
+
+    {  foreach (var weapon in weaponLibrary)
         {
             if (weapon != null)
             {
@@ -121,6 +221,41 @@ public class WPManager : NetworkBehaviour
         
         // Sélectionne le premier slot
         if (allItems[0] != null) ChangeSelectedSlot(0);
+        }
+
+    public void HandleDeath()
+    {
+        if (_deathHandled) return; // On l'a déjà fait, on arrête
+        _deathHandled = true;
+
+        Debug.Log("Gestion de la mort du joueur dans WPManager...");
+
+        // 1. Désactiver l'arme en main
+        if (selectedItems != null)
+        {
+            selectedItems.ActivateWeapon(false);
+            selectedItems.isEquipped = false;
+            selectedItems.gameObject.SetActive(false); // On cache le modèle 3D
+            selectedItems = null; // On vide la référence
+            selectedItemIndex = -1;
+        }
+
+        // 2. Désactiver le HUD (Optionnel, si tu veux cacher l'inventaire quand on meurt)
+        if (myHUDInstance != null)
+        {
+            myHUDInstance.SetActive(false);
+        }
+
+        // 3. Désactiver le Weapon Sway (pour éviter que la caméra bouge bizarrement)
+        WeaponSway sway = GetComponentInChildren<WeaponSway>();
+        if (sway != null) sway.enabled = false;
+        
+        // 4. Désélectionner visuellement les slots
+        if (selectedSlot >= 0 && selectedSlot < slots.Count)
+        {
+            slots[selectedSlot].Deselect();
+            selectedSlot = -1;
+        }
     }
 
 
@@ -130,18 +265,52 @@ public class WPManager : NetworkBehaviour
         // mais comme PlayerManager gère déjà la mort, on n'est pas obligé
         if (PlayerIsDead())
         {
-            // On peut s'assurer que l'arme équipée est désactivée
-            if (selectedItems != null)
+            HandleDeath();
+            return;
+        }
+        else
+        {
+           if (_deathHandled) _deathHandled = false;
+        }
+        if (isAI) return;
+
+        if (!IsOwner || ammoText == null) return;
+
+        if (selectedItems != null)
+        {
+            // On vérifie si l'arme est une arme à feu (GItems) pour afficher les balles
+            // (Si tu as un couteau, pas besoin d'afficher "0/0")
+            if (selectedItems is GItems) 
             {
-                selectedItems.ActivateWeapon(false);
-                selectedItems.isEquipped = false;
+                ammoText.gameObject.SetActive(true); // On affiche le texte
+                
+                // On récupère les valeurs via les méthodes qu'on a créées dans All_Items
+                int current = selectedItems.GetCurrentAmmo();
+                int reserve = selectedItems.GetReserveAmmo();
+                
+                ammoText.text = $"{current} / {reserve}";
             }
+            else
+            {
+                // C'est un couteau ou autre chose -> on cache le texte
+                ammoText.gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            // Rien dans les mains -> on cache le texte
+            ammoText.gameObject.SetActive(false);
         }
     }
 
     // --- Fonction utilitaire : savoir si le joueur peut utiliser ses armes ---
     private bool PlayerIsDead()
     {
+        if (isAI)
+        {
+            if (enemyManager == null) return false; // sécurité si non assigné
+            return !enemyManager.isAlive();
+        }
         if (playerManager == null) return false;   // sécurité si non assigné
         return !playerManager.IsAlive();
     }
@@ -155,6 +324,13 @@ public class WPManager : NetworkBehaviour
             return;
         }
 
+        if (isAI)
+        {
+            selectedSlot = newIndex;
+            SelectItems(newIndex); // On active l'arme 3D
+            return; // STOP ! Ne pas toucher à la liste 'slots'
+        }
+
         if (selectedSlot >= 0)
         {
             slots[selectedSlot].Deselect();
@@ -166,6 +342,12 @@ public class WPManager : NetworkBehaviour
 
     public void AddItem(Items newItem, All_Items newItem3D) //Version pour allItems
     {
+        if(PlayerIsDead())
+        {
+            Debug.Log("Impossible d'ajouter un item : le joueur est mort.");
+            return;
+        }
+
         if (newItem == null)
         {
             Debug.LogError("Trying to add null item to inventory");
@@ -323,7 +505,6 @@ public class WPManager : NetworkBehaviour
     {
         if (PlayerIsDead())
         {
-            Debug.Log("Impossible d'équiper une arme : le joueur est mort.");
             return;
         }
 
@@ -387,10 +568,15 @@ public class WPManager : NetworkBehaviour
         }
 
         if (slotIndex == -1 || slotIndex >= MAXITEMS) return false;
-
+        weaponToEquip.manager = this;
         // Logique Backend
         weaponToEquip.UnlockDynamically();
         allItems[slotIndex] = weaponToEquip;
+
+        if (isAI)
+        {
+            return true;
+        }
 
         // --- TEST DU COUPABLE N°2 : L'UI ---
         Slot targetSlot = slots[slotIndex];

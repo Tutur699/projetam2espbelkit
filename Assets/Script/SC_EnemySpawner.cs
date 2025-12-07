@@ -1,130 +1,168 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
-
-public class SC_EnemySpawner : MonoBehaviour
+using Unity.Netcode;
+using TMPro;
+public class SC_EnemySpawner : NetworkBehaviour
 {
+    [Header("Configuration")]
     public GameObject enemyPrefab;
     public PlayerManager player;
-    public Texture crosshairTexture;
-    public float spawnInterval = 2; //Spawn new enemy each n seconds
-    public int enemiesPerWave = 5; //How many enemies per wave
     public Transform[] spawnPoints;
+    public float startDelay = 10f; // 10 secondes avant le début de la partie
 
-    float nextSpawnTime = 0;
-    int waveNumber = 1;
-    bool waitingForWave = true;
-    float newWaveTimer = 0;
-    int enemiesToEliminate;
-    //How many enemies we already eliminated in the current wave
-    int enemiesEliminated = 0;
-    int totalEnemiesSpawned = 0;
+    [Header("État du Jeu (NetworkVariable)")]
+    public NetworkVariable<float> netTimer = new NetworkVariable<float>(10f);
+    public NetworkVariable<bool> netGameStarted = new NetworkVariable<bool>(false);
 
-    // Start is called before the first frame update
-    void Start()
+    bool enemyAlive = false;
+    bool playerWon = false;
+    bool gameStarted = false;
+    bool gameOver = false;
+
+    float startTimer;
+
+    public override void OnNetworkSpawn()
     {
-        //Lock cursor
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        // On initialise le timer seulement si on est le Serveur (l'Hôte)
+        if (IsServer)
+        {
+            netTimer.Value = startDelay;
+            netGameStarted.Value = false;
+        }
 
-        //Wait 10 seconds for new wave to start
-        newWaveTimer = 10;
-        waitingForWave = true;
+        // On cherche notre propre PlayerManager local
+        // (Astuce : WPManager est sur le joueur, donc on peut chercher WPManager si IsOwner)
+        // Ou plus simple : on attendra l'Update pour le trouver
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (waitingForWave)
+        // 1. GESTION DU TIMER (Serveur Seulement)
+        if (IsServer)
         {
-            if(newWaveTimer >= 0)
+            if (!netGameStarted.Value)
             {
-                newWaveTimer -= Time.deltaTime;
-            }
-            else
-            {
-                //Initialize new wave
-                enemiesToEliminate = waveNumber * enemiesPerWave;
-                enemiesEliminated = 0;
-                totalEnemiesSpawned = 0;
-                waitingForWave = false;
-            }
-        }
-        else
-        {
-            if(Time.time > nextSpawnTime)
-            {
-                nextSpawnTime = Time.time + spawnInterval;
+                netTimer.Value -= Time.deltaTime;
 
-                //Spawn enemy 
-                if(totalEnemiesSpawned < enemiesToEliminate)
+                if (netTimer.Value <= 0f)
                 {
-                    Transform randomPoint = spawnPoints[Random.Range(0, spawnPoints.Length - 1)];
-
-                    GameObject enemy = Instantiate(enemyPrefab, randomPoint.position, Quaternion.identity);
-                    SC_NPCEnemy npc = enemy.GetComponent<SC_NPCEnemy>();
-                    npc.es = this;
-                    totalEnemiesSpawned++;
+                    netTimer.Value = 0f;
+                    netGameStarted.Value = true; // Le jeu commence pour tout le monde !
+                    SpawnEnemy(); // Le serveur fait apparaître l'ennemi
                 }
             }
         }
 
-        if (player.playerHP <= 0)
+        // 2. LOGIQUE CLIENT (Tout le monde exécute ça)
+        
+        // Si le jeu n'a pas commencé, on ne fait rien (on affiche juste le GUI)
+        if (!netGameStarted.Value) return;
+
+        // On essaie de trouver le joueur local si on ne l'a pas encore
+        if (player == null)
         {
-            if (Input.GetKeyDown(KeyCode.Space))
+            var players = FindObjectsByType<PlayerManager>(FindObjectsSortMode.None);
+            foreach(var p in players)
             {
-                Scene scene = SceneManager.GetActiveScene();
-                SceneManager.LoadScene(scene.name);
+                // On cherche celui qui appartient au client local
+                if (p.GetComponent<NetworkObject>().IsOwner) 
+                {
+                    player = p;
+                    break;
+                }
+            }
+        }
+
+        // Vérification Mort / Victoire (Localement)
+        if (player != null && !gameOver && !playerWon)
+        {
+            if (player.playerHP <= 0)
+            {
+                gameOver = true;
+                // On pourrait envoyer un ServerRpc pour dire "Je suis mort"
+            }
+        }
+        
+        // Input Quitter
+        if ((playerWon || gameOver) && Input.GetKeyDown(KeyCode.Space))
+        {
+             // Logique de fin de partie...
+             // En multi, on se déconnecte plutôt que de quitter l'app
+             NetworkManager.Singleton.Shutdown();
+             #if UNITY_EDITOR
+             UnityEditor.EditorApplication.isPlaying = false;
+             #else
+             Application.Quit();
+             #endif
+        }
+    }
+
+    void SpawnEnemy()
+    {
+        if (spawnPoints.Length == 0 || enemyPrefab == null) return;
+
+        Transform randomPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
+        
+        // Instantiation standard d'Unity
+        GameObject enemy = Instantiate(enemyPrefab, randomPoint.position, Quaternion.identity);
+
+        // --- MAGIE NETCODE ---
+        // Il faut dire au réseau que cet objet existe pour que les clients le voient
+        NetworkObject netObj = enemy.GetComponent<NetworkObject>();
+        if (netObj != null)
+        {
+            netObj.Spawn(); // L'ennemi apparaît sur tous les écrans !
+        }
+        
+        // Configurer le script de l'ennemi (s'il faut)
+        IAEnemy npc = enemy.GetComponent<IAEnemy>();
+        if (npc != null)
+        {
+            npc.es = this; 
+            PlayerManager target = FindFirstObjectByType<PlayerManager>();
+            if (target != null)
+            {
+                npc.player = target.transform; // On donne la cible !
+                npc.playerTransform = target.transform;
             }
         }
     }
 
     void OnGUI()
     {
-        GUI.Box(new Rect(10, Screen.height - 35, 100, 25), ((int)player.playerHP).ToString() + " HP");
+        // On n'affiche rien si on n'est pas connecté
+        if (!IsSpawned) return;
 
-            int bullets = 0;
+        // Affichage Timer (synchronisé via netTimer.Value)
+        if (!netGameStarted.Value)
+        {
+            GUI.Box(
+                new Rect(Screen.width / 2 - 125, Screen.height / 4 - 12, 250, 25),
+                "Game starts in " + Mathf.Ceil(netTimer.Value).ToString() + "..."
+            );
+            return;
+        }
 
-    if (player.weaponManager != null && player.weaponManager.selectedItems != null)
+        // Affichage Game Over / Win
+        if (gameOver)
+        {
+            GUI.Box(new Rect(Screen.width/2 - 85, Screen.height/2 - 20, 170, 40), "YOU DIED");
+        }
+        if (playerWon)
+        {
+            GUI.Box(new Rect(Screen.width/2 - 85, Screen.height/2 - 20, 170, 40), "VICTORY !");
+        }
+    }
+
+    public void EnemyEliminated(IAEnemy enemy)
     {
-        GItems gun = player.weaponManager.selectedItems as GItems;
-        if (gun != null)
-        {
-            bullets = gun.bulletsPerMagazine;
-        }
+        // L'ennemi doit appeler ça, et comme il est géré par le serveur, c'est bon.
+        // Il faudrait idéalement une ClientRpc pour dire à tout le monde "Victoire !"
+        VictoryClientRpc();
     }
-
-    GUI.Box(
-        new Rect(Screen.width / 2 - 35, Screen.height - 35, 70, 25),
-        bullets.ToString()
-    );
-
-        if(player.playerHP <= 0)
-        {
-            GUI.Box(new Rect(Screen.width / 2 - 85, Screen.height / 2 - 20, 170, 40), "Game Over\n(Press 'Space' to Restart)");
-        }
-        else
-        {
-            GUI.DrawTexture(new Rect(Screen.width / 2 - 3, Screen.height / 2 - 3, 6, 6), crosshairTexture);
-        }
-
-        GUI.Box(new Rect(Screen.width / 2 - 50, 10, 100, 25), (enemiesToEliminate - enemiesEliminated).ToString());
-
-        if (waitingForWave)
-        {
-            GUI.Box(new Rect(Screen.width / 2 - 125, Screen.height / 4 - 12, 250, 25), "Waiting for Wave " + waveNumber.ToString() + " (" + ((int)newWaveTimer).ToString() + " seconds left...)");
-        }
-    }
-
-    public void EnemyEliminated(SC_NPCEnemy enemy)
+    [ClientRpc]
+    void VictoryClientRpc()
     {
-        enemiesEliminated++;
-
-        if(enemiesToEliminate - enemiesEliminated <= 0)
-        {
-            //Start next wave
-            newWaveTimer = 10;
-            waitingForWave = true;
-            waveNumber++;
-        }
+        playerWon = true;
     }
+
 }

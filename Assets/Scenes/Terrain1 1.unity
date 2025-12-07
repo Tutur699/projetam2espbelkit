@@ -823,15 +823,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3287948611943350881, guid: 0f3d14a9a6b2ceb469c15d151552a614, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 487
+      value: 491.19
       objectReference: {fileID: 0}
     - target: {fileID: 3287948611943350881, guid: 0f3d14a9a6b2ceb469c15d151552a614, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 14.74
+      value: 22.77
       objectReference: {fileID: 0}
     - target: {fileID: 3287948611943350881, guid: 0f3d14a9a6b2ceb469c15d151552a614, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 376.5
+      value: 396.03
       objectReference: {fileID: 0}
     - target: {fileID: 3287948611943350881, guid: 0f3d14a9a6b2ceb469c15d151552a614, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1296,7 +1296,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1187311215}
   m_HandleRect: {fileID: 1187311214}
   m_Direction: 2
-  m_Value: 0
+  m_Value: -1.5641025
   m_Size: 0.61
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -3085,7 +3085,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 116.99999}
+  m_AnchoredPosition: {x: 0, y: 300}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1484557696
@@ -4094,11 +4094,6 @@ MonoBehaviour:
   choisirMurManuellement: 1
   murPorteManuel: 0
   murFenetreManuel: 3
-  creerEscalier: 1
-  EscalierPrefab: {fileID: 3705669956671962102, guid: 284ab2a39ce004742af97e2c01e5e060, type: 3}
-  escalierLargeur: 2
-  escalierLongueur: 2
-  escalierHauteur: 1
   Mur: {fileID: 7909222129892080376, guid: 0b8e2248aa19c3d4da92dcab90cd2a6b, type: 3}
   Porte: {fileID: 6424270456704572960, guid: 214b673e61a328f4b97a4c1f1bba63d3, type: 3}
   materialMur: {fileID: 2100000, guid: e429c8ff9e485574b8aa09ee44b4da19, type: 2}
@@ -4110,9 +4105,9 @@ MonoBehaviour:
   hmur: 5
   Lmur: 0.5
   choixWall: 
-  minLongueurX: 30
+  minLongueurX: 10
   maxLongueurX: 30
-  minLargeurZ: 20
+  minLargeurZ: 8
   maxLargeurZ: 20
   doorTargetScale: {x: 1.5, y: 1.5, z: 1.5}
   autoFitOpeningToDoor: 1
@@ -4150,7 +4145,7 @@ Transform:
   m_GameObject: {fileID: 1821261364}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 484.393, y: 17.13, z: 394.8}
+  m_LocalPosition: {x: 484.393, y: 17.13, z: 415.169}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

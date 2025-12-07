@@ -1915,7 +1915,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WPManager
   ShowTopMostFoldoutHeaderGroup: 1
   playerCamera: {fileID: 1489390490}
+  aimPoint: {fileID: 0}
+  isAI: 0
   playerManager: {fileID: 0}
+  enemyManager: {fileID: 0}
   weaponLibrary: []
   allItems: []
   hudPrefab: {fileID: 0}
@@ -1930,6 +1933,7 @@ MonoBehaviour:
   selectedItemIndex: 0
   selectedItems: {fileID: 0}
   selectedSlot: -1
+  ammoText: {fileID: 0}
 --- !u!1 &1831715974
 GameObject:
   m_ObjectHideFlags: 0

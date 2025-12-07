@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Scenes/ArthurTest.unity
+    path: Assets/Tiny Teacup Studio/Military Base Pack/Demo/DemoScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
     path: Assets/Scenes/Menu.unity
@@ -32,6 +32,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Terrain1 1.unity
     guid: 51e0f0cb53dfad24a89373f9a2f6f228
+  - enabled: 1
+    path: Assets/Scenes/DjessyTest2 IA.unity
+    guid: 75b8fcdae768d3041bb29dff54fec9f0
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings: {fileID: 11400000, guid: 9e7be553448fa2546aea5752021cbcf7, type: 2}

@@ -310,13 +310,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5df9b3c0805dd94aacb3b9c8fad8f37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SC_EnemySpawner
-  enemyPrefab: {fileID: 5935061091641120274, guid: 7a174e50977552e4f90b41da10ba0485, type: 3}
+  ShowTopMostFoldoutHeaderGroup: 1
+  enemyPrefab: {fileID: 8216016718542468759, guid: 52e2b06414d56bb45a87d69d4c23225b, type: 3}
   player: {fileID: 1060217933382428719, guid: 1199957ba4b584842a2a56ad0aa780d2, type: 3}
-  crosshairTexture: {fileID: 2800000, guid: b889ef0124f73fa4298de5e962dac98b, type: 3}
-  spawnInterval: 1
-  enemiesPerWave: 1
   spawnPoints:
   - {fileID: 96022436}
+  startDelay: 10
+  netTimer:
+    m_InternalValue: 10
+  netGameStarted:
+    m_InternalValue: 0
 --- !u!4 &96022436
 Transform:
   m_ObjectHideFlags: 0
@@ -2516,7 +2519,7 @@ Transform:
   m_GameObject: {fileID: 1988337050}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0.12218326, z: 0, w: 0.9925076}
-  m_LocalPosition: {x: 559.3726, y: 20.5308, z: 445.63153}
+  m_LocalPosition: {x: 481.00388, y: 18.346487, z: 464.96555}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2604,7 +2607,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1071335110}
   m_HandleRect: {fileID: 1071335109}
   m_Direction: 2
-  m_Value: -1.564112
+  m_Value: -1.5641025
   m_Size: 0.61
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -2682,7 +2685,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 300.00107}
+  m_AnchoredPosition: {x: 0, y: 300}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2098174661

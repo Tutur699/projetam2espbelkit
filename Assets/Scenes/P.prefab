@@ -408,7 +408,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 938523315
+  GlobalObjectIdHash: 1673685660
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -434,6 +434,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  isPaused: 0
   localControllers: []
   localOnlyObjects: []
   worldModel: {fileID: 0}
@@ -507,6 +508,7 @@ MonoBehaviour:
   jump: 0
   sprint: 0
   shoot: 0
+  reload: 0
   analogMovement: 0
   cursorLocked: 1
   cursorInputForLook: 1
@@ -696,6 +698,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d308448992bde44482ef52b72fc50ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WPManager
+  ShowTopMostFoldoutHeaderGroup: 1
   playerCamera: {fileID: 8722457148870883024}
   playerManager: {fileID: 1060217933382428719}
   weaponLibrary:
@@ -712,6 +715,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  hudPrefab: {fileID: 7562603688829354324, guid: 88c828f36541b6343883182c36590669, type: 3}
+  myHUDInstance: {fileID: 0}
   slots:
   - {fileID: 6800136401339710079, guid: 9a9a2d3a2461a1e4699321e273a9ddc7, type: 3}
   - {fileID: 6800136401339710079, guid: 9a9a2d3a2461a1e4699321e273a9ddc7, type: 3}
@@ -1093,12 +1098,16 @@ MonoBehaviour:
   item: {fileID: 11400000, guid: 6426db39bef90aa4ba451e4c1e1e3499, type: 2}
   manager: {fileID: 0}
   isEquipped: 0
+  isReloading: 0
   bulletPrefab: {fileID: 1124179450906470559, guid: e605bbbc8b8697f4499cde817b9dde8f, type: 3}
   firePoint: {fileID: 2506515334868031933}
+  reserveAmmo: 179
   bulletsPerMagazine: 30
+  maxclipSize: 30
   timeToReload: 1.5
   fireAudio: {fileID: 8300000, guid: 0ee79c63beb5fe44bb0e014d888228d6, type: 3}
   reloadAudio: {fileID: 8300000, guid: e5198250a6a57408bb36e14bc4a322c4, type: 3}
+  emptyClickAudio: {fileID: 0}
 --- !u!1 &1064593368532967701
 GameObject:
   m_ObjectHideFlags: 0
@@ -1723,12 +1732,16 @@ MonoBehaviour:
   item: {fileID: 11400000, guid: 71d6c682b81a0454fa4a8d52814ac237, type: 2}
   manager: {fileID: 0}
   isEquipped: 0
+  isReloading: 0
   bulletPrefab: {fileID: 1124179450906470559, guid: e605bbbc8b8697f4499cde817b9dde8f, type: 3}
   firePoint: {fileID: 3889618139931114344}
+  reserveAmmo: 179
   bulletsPerMagazine: 5
+  maxclipSize: 30
   timeToReload: 2
   fireAudio: {fileID: 8300000, guid: fecc3e7a0166a104cb810435f6fdf37b, type: 3}
   reloadAudio: {fileID: 8300000, guid: e5198250a6a57408bb36e14bc4a322c4, type: 3}
+  emptyClickAudio: {fileID: 0}
 --- !u!1 &2368568735503104532
 GameObject:
   m_ObjectHideFlags: 0
@@ -1810,6 +1823,7 @@ MonoBehaviour:
   item: {fileID: 11400000, guid: 020d0ed7ac2be64499cb19150f7a3ade, type: 2}
   manager: {fileID: 0}
   isEquipped: 0
+  isReloading: 0
   HitPoint: {fileID: 1442405491983199233}
 --- !u!1 &2583700922397179269
 GameObject:
@@ -1860,6 +1874,7 @@ MonoBehaviour:
   item: {fileID: 11400000, guid: b990f30368e71d246b69d99f5453c470, type: 2}
   manager: {fileID: 0}
   isEquipped: 0
+  isReloading: 0
   HitPoint: {fileID: 2450582055879346957}
 --- !u!1 &2640961520330988877
 GameObject:
@@ -2327,12 +2342,16 @@ MonoBehaviour:
   item: {fileID: 11400000, guid: 765c228f66c329a4cae773929b56b3b9, type: 2}
   manager: {fileID: 0}
   isEquipped: 0
+  isReloading: 0
   bulletPrefab: {fileID: 1124179450906470559, guid: e605bbbc8b8697f4499cde817b9dde8f, type: 3}
   firePoint: {fileID: 856089528433970941}
+  reserveAmmo: 179
   bulletsPerMagazine: 30
+  maxclipSize: 30
   timeToReload: 1.5
   fireAudio: {fileID: 8300000, guid: 79ee7751ab191f548b7f3232381afa0a, type: 3}
   reloadAudio: {fileID: 8300000, guid: e5198250a6a57408bb36e14bc4a322c4, type: 3}
+  emptyClickAudio: {fileID: 0}
 --- !u!1 &4061240266638026627
 GameObject:
   m_ObjectHideFlags: 0
@@ -3205,12 +3224,16 @@ MonoBehaviour:
   item: {fileID: 11400000, guid: ef0482f5a8c32e14bbd0c4839da1491a, type: 2}
   manager: {fileID: 0}
   isEquipped: 0
+  isReloading: 0
   bulletPrefab: {fileID: 1124179450906470559, guid: e605bbbc8b8697f4499cde817b9dde8f, type: 3}
   firePoint: {fileID: 4739408404191858584}
+  reserveAmmo: 179
   bulletsPerMagazine: 30
+  maxclipSize: 30
   timeToReload: 1.5
   fireAudio: {fileID: 8300000, guid: 1b145bcffd767854fb0c71c37678ebaa, type: 3}
   reloadAudio: {fileID: 8300000, guid: e5198250a6a57408bb36e14bc4a322c4, type: 3}
+  emptyClickAudio: {fileID: 0}
 --- !u!1 &5309684276594343103
 GameObject:
   m_ObjectHideFlags: 0
@@ -4356,12 +4379,16 @@ MonoBehaviour:
   item: {fileID: 11400000, guid: fe7e5f866c10676468aff5287c04a882, type: 2}
   manager: {fileID: 0}
   isEquipped: 0
+  isReloading: 0
   bulletPrefab: {fileID: 1124179450906470559, guid: e605bbbc8b8697f4499cde817b9dde8f, type: 3}
   firePoint: {fileID: 1298082795374612795}
+  reserveAmmo: 179
   bulletsPerMagazine: 40
+  maxclipSize: 30
   timeToReload: 1.5
   fireAudio: {fileID: 8300000, guid: be64544bade297e4d872dd74c66256d2, type: 3}
   reloadAudio: {fileID: 8300000, guid: e5198250a6a57408bb36e14bc4a322c4, type: 3}
+  emptyClickAudio: {fileID: 0}
 --- !u!1 &7203289097073067586
 GameObject:
   m_ObjectHideFlags: 0
