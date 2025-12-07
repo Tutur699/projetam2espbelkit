@@ -32,7 +32,7 @@ public class PlayerNetwork : NetworkBehaviour
         }
 
         // On récupère la CinemachineVirtualCamera présente dans la scène
-        CinemachineVirtualCamera vcam = FindObjectOfType<CinemachineVirtualCamera>();
+        CinemachineVirtualCamera vcam = FindFirstObjectByType<CinemachineVirtualCamera>();
         if (vcam == null)
         {
             Debug.LogError("Aucune CinemachineVirtualCamera trouvée dans la scène.");

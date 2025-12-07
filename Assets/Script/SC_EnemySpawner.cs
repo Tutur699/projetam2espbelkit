@@ -60,7 +60,7 @@ public class SC_EnemySpawner : NetworkBehaviour
         // On essaie de trouver le joueur local si on ne l'a pas encore
         if (player == null)
         {
-            var players = FindObjectsOfType<PlayerManager>();
+            var players = FindObjectsByType<PlayerManager>(FindObjectsSortMode.None);
             foreach(var p in players)
             {
                 // On cherche celui qui appartient au client local
