@@ -3,6 +3,7 @@ using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
 
+[RequireComponent(typeof(NavMeshAgent))]
 public class IAEnemy : MonoBehaviour, IEntity
 {
     [Header("IA Enemy Stats")]
@@ -58,17 +59,20 @@ public class IAEnemy : MonoBehaviour, IEntity
 
    public void ApplyDamage(float points)
     {
-        if (isDead) return;
+        Debug.Log($"[IA] AIE ! J'ai reçu {points} dégâts. Ma vie avant : {npcHP}");
+        //if (isDead) return;
         npcHP -= points;
+        Debug.Log($"[IA] Ma vie après : {npcHP}");
         if (npcHP <= 0)
         {
-            npcHP = 0;
+            Debug.Log($"[IA] Je suis mort");
             DeadNPC();
         }
     }
 
     private void DeadNPC()
     {
+        Debug.Log($"On m'appelle");
         isDead = true;
         GameObject npcDead = Instantiate(npcDeadPrefab, transform.position, transform.rotation);
             npcDead.GetComponent<Rigidbody>().linearVelocity =

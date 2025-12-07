@@ -19,3 +19,4 @@ MonoBehaviour:
   useRate: 0.3
   singleUse: 0
   weaponDamage: 5
+  isAutomatic: 0

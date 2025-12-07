@@ -89,7 +89,7 @@ public class IdleState : State
 
     public override void Enter()
     {
-        anim.SetTrigger("isIdle"); //set the animator to idle
+        //anim.SetTrigger("isIdle"); //set the animator to idle
         base.Enter();
     }
 
@@ -109,7 +109,7 @@ public class IdleState : State
 
     public override void Exit()
     {
-        anim.ResetTrigger("isIdle"); //reset the idle trigger on the animator
+        //anim.ResetTrigger("isIdle"); //reset the idle trigger on the animator
         base.Exit();
     }
 }
@@ -128,7 +128,7 @@ public class Patrol : State
         //set destination to the player's position
         Vector3 patrolPoint = npc.transform.position + new Vector3(Random.Range(-10, 10), 0, Random.Range(-10, 10));
         agent.SetDestination(patrolPoint);
-        anim.SetTrigger("isWalking"); //set the animator to walking
+        //anim.SetTrigger("isWalking"); //set the animator to walking
         base.Enter();
     }
 
@@ -146,7 +146,7 @@ public class Patrol : State
 
     public override void Exit()
     {
-        anim.ResetTrigger("isWalking"); //reset the walking trigger on the animator
+       // anim.ResetTrigger("isWalking"); //reset the walking trigger on the animator
         base.Exit();
     }
 }
@@ -156,13 +156,13 @@ public class Pursue : State
     public Pursue(GameObject _npc, NavMeshAgent _agent, Animator _anim, Transform _player) : base(_npc, _agent, _anim, _player)
     {
         name = STATE.PURSUE; //set the name of the state to pursue
-        agent.speed = 5; //set the speed of the agent to 4 if the agent has a path to follow
+        agent.speed = 2; //set the speed of the agent to 4 if the agent has a path to follow
         agent.isStopped = false; //set the agent to not be stopped
     }
 
     public override void Enter()
     {
-        anim.SetTrigger("isRunning"); //set the animator to running
+        //anim.SetTrigger("isRunning"); //set the animator to running
         base.Enter();
     }
 
@@ -186,7 +186,7 @@ public class Pursue : State
 
     public override void Exit()
     {
-        anim.ResetTrigger("isRunning"); //reset the running trigger on the animator
+       // anim.ResetTrigger("isRunning"); //reset the running trigger on the animator
         base.Exit();
     }
 }
@@ -204,7 +204,7 @@ public class Attack : State
 
     public override void Enter()
     {
-        anim.SetTrigger("isShooting"); // Animation de tir
+       // anim.SetTrigger("isShooting"); // Animation de tir
         agent.isStopped = true;       // On s'arrête
         
         // Sécurité : Si l'arme n'est pas sortie, on la sort maintenant
@@ -256,7 +256,7 @@ public class Attack : State
 
     public override void Exit()
     {
-        anim.ResetTrigger("isShooting");
+        //anim.ResetTrigger("isShooting");
         agent.isStopped = false; // On autorise le mouvement à nouveau
         base.Exit();
     }
