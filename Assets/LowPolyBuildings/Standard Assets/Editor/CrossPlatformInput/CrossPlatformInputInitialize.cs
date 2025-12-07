@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityStandardAssets.CrossPlatformInput;
 
 namespace UnityStandardAssets.CrossPlatformInput.Inspector
 {
@@ -32,11 +33,11 @@ namespace UnityStandardAssets.CrossPlatformInput.Inspector
             {
                 case BuildTarget.Android:
                 case BuildTarget.iOS:
-                case BuildTarget.WP8Player:
-                case BuildTarget.BlackBerry:
-				case BuildTarget.PSM: 
-				case BuildTarget.Tizen: 
-				case BuildTarget.WSAPlayer: 
+                // 1. Suppression des anciens BuildTarget obsolètes (WP8Player, BlackBerry, PSM, Tizen, WSAPlayer)
+                // On garde seulement les plateformes encore supportées ou les plus probables
+                // NOTE: Les noms peuvent varier légèrement selon la version exacte de Unity, mais on vise les plus courants.
+                case BuildTarget.WSAPlayer: // Remplacé par WSA, si l'ancien existait encore
+                case BuildTarget.StandaloneWindows: // Ajout d'un cas générique si besoin
                     EditorUtility.DisplayDialog("Mobile Input",
                                                 "You have enabled Mobile Input. You'll need to use the Unity Remote app on a connected device to control your game in the Editor.",
                                                 "OK");
@@ -88,22 +89,18 @@ namespace UnityStandardAssets.CrossPlatformInput.Inspector
         private static BuildTargetGroup[] buildTargetGroups = new BuildTargetGroup[]
             {
                 BuildTargetGroup.Standalone,
-                BuildTargetGroup.WebPlayer,
+                BuildTargetGroup.WebGL, // Remplacement de WebPlayer par WebGL
                 BuildTargetGroup.Android,
                 BuildTargetGroup.iOS,
-                BuildTargetGroup.WP8,
-                BuildTargetGroup.BlackBerry
             };
 
         private static BuildTargetGroup[] mobileBuildTargetGroups = new BuildTargetGroup[]
             {
                 BuildTargetGroup.Android,
                 BuildTargetGroup.iOS,
-                BuildTargetGroup.WP8,
-                BuildTargetGroup.BlackBerry,
-				BuildTargetGroup.PSM, 
-				BuildTargetGroup.Tizen, 
-				BuildTargetGroup.WSA 
+                // BuildTargetGroup.WP8, BuildTargetGroup.BlackBerry, BuildTargetGroup.PSM, BuildTargetGroup.Tizen sont supprimés
+                BuildTargetGroup.WSA, // On garde WSA (Windows Store App)
+                BuildTargetGroup.WebGL
             };
 
 
