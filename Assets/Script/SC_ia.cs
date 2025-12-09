@@ -109,7 +109,7 @@ public class SC_NPCEnemy : MonoBehaviour, IEntity
 
     public void ApplyDamage(float points)
     {
-        npcHP -= points;
+        /*npcHP -= points;
         if (npcHP <= 0)
         {
             GameObject npcDead = Instantiate(npcDeadPrefab, transform.position, transform.rotation);
@@ -120,6 +120,6 @@ public class SC_NPCEnemy : MonoBehaviour, IEntity
             Destroy(npcDead, 10);
             es.EnemyEliminated(this);
             Destroy(gameObject);
-        }
+        }*/
     }
 }

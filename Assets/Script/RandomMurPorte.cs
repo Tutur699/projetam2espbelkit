@@ -32,6 +32,12 @@ public class RandomMurPorte : MonoBehaviour
     [Tooltip("0 = bas, 1 = haut, 2 = gauche, 3 = droit")]
     [Range(0,3)] public int murFenetreManuel = 1;
 
+    [Header("Escalier")]
+    public bool creerEscalier = true;
+    public GameObject EscalierPrefab;   // un simple cube / escalier pur flemme....
+    public float escalierLargeur  = 3f; // largeur (gauche/droite)
+    public float escalierLongueur = 2f; // profondeur (vers l'extérieur)
+    public float escalierHauteur  = 1f; // hauteur totale
 
     
     [Header("Prefabs")]
@@ -59,7 +65,7 @@ public class RandomMurPorte : MonoBehaviour
     System.Random _rng;
 
     [Header("Porte – calibration auto")]
-    public Vector3 doorTargetScale = new Vector3(1.5f, 1.5f, 1.5f); // remplace ton 1.5f hardcodé
+    public Vector3 doorTargetScale = new Vector3(1.5f, 1.5f, 1.5f);
     public bool autoFitOpeningToDoor = true; // si true, on taille l’ouverture sur la vraie porte
     [Tooltip("Épaisseur visuelle de la porte en proportion de l'épaisseur du mur (0.1 = 10%)")]
     [Range(0.05f, 1f)] public float doorThicknessRatio = 0.25f;
@@ -154,10 +160,9 @@ public class RandomMurPorte : MonoBehaviour
     public void Generate(int seed)
     {
         _rng = new System.Random(seed ^ StableHash(GetHierarchyPath(transform)));// sel local pour varier par objet si tu veux
-        // Option : force la même qualité partout
         QualitySettings.SetQualityLevel(2, true);
 
-        Build(); // ta méthode existante
+        Build(); // builds le bâtiment
     }
     string GetHierarchyPath(Transform t)
     {
@@ -184,8 +189,8 @@ public class RandomMurPorte : MonoBehaviour
 
     // Utilitaires déterministes
     float RandomRange(float min, float max) => min + (float)_rng.NextDouble() * (max - min);
-    int   RandomInt(int min, int max)       => _rng.Next(min, max); // max exclu
-    bool  RandomBool(float proba=0.5f)      => _rng.NextDouble() < proba;
+    int   RandomInt(int min, int max) => _rng.Next(min, max); // max exclu
+    bool  RandomBool(float proba=0.5f) => _rng.NextDouble() < proba;
 
     Material ResolveWallMaterial()
     {
@@ -530,7 +535,7 @@ public class RandomMurPorte : MonoBehaviour
         }
     }
 
-    // ===================== BSP : DECOUPE EN PIECES + OUVERTURES =====================
+    // BSP interne : cellule rectangulaire
     struct Cell
     {
         public float x0, x1, z0, z1;
@@ -586,8 +591,7 @@ public class RandomMurPorte : MonoBehaviour
                 }
             }
         }
-
-        // (Optionnel) fusionne les intervalles qui se chevauchent
+        // fusionne les intervalles recouvrants
         res.Sort((u,v) => u.a.CompareTo(v.a));
         var merged = new System.Collections.Generic.List<Interval>();
         foreach (var iv in res)
@@ -647,7 +651,6 @@ public class RandomMurPorte : MonoBehaviour
     void BuildRoomsBSP(float lX, float lZ)
     {
         _partsForValidation.Clear();
-        // === Mesures du prefab de PORTE pour dimensionner les OUVERTURES internes ===
         Vector3 parentScale = transform.lossyScale;
         bool hasDoor = Porte != null && autoFitOpeningToDoor;
 
@@ -665,7 +668,7 @@ public class RandomMurPorte : MonoBehaviour
         float doorWidthForX   = Mathf.Max(0.001f, (hasDoor ? doorSzX_world.x : lporte) / Mathf.Max(0.0001f, parentScale.x)); // murs // X
         if (!generateRooms || nombrePieces <= 1) return;
 
-        // 1) Génère N cellules par BSP
+        // 1) BSP : découpe récursive en cellules
         var cells = new System.Collections.Generic.List<Cell>();
         var parts = new System.Collections.Generic.List<Partition>();
         cells.Add(new Cell(0f, lX, 0f, lZ));
@@ -718,7 +721,7 @@ public class RandomMurPorte : MonoBehaviour
             }
         }
 
-        // 2) Pose les cloisons + ouvre une porte dans CHAQUE cloison (+ instancie la porte visuelle)
+        // 2) Pour chaque cloison, créer une ouverture en évitant les zones interdites
         for (int i = 0; i < parts.Count; i++)
         {
             var p = parts[i];
@@ -824,6 +827,65 @@ public class RandomMurPorte : MonoBehaviour
         float maxWidth = Mathf.Max(0f, wallLen - 2f * margin);
         return Mathf.Min(desiredWidth, maxWidth);
     }
+    void CreateStairsAtDoor(GameObject door)
+    {
+        if (!creerEscalier || EscalierPrefab == null)
+            return;
+
+        // 1) Bounds MONDE de la porte
+        var rends = door.GetComponentsInChildren<Renderer>(true);
+        if (rends.Length == 0) return;
+
+        Bounds b = rends[0].bounds;
+        for (int i = 1; i < rends.Length; i++)
+            b.Encapsulate(rends[i].bounds);
+
+        // centre bas de la porte (monde)
+        Vector3 bottomCenter = new Vector3(
+            (b.min.x + b.max.x) * 0.5f,
+            b.min.y,
+            (b.min.z + b.max.z) * 0.5f
+        );
+
+        // direction "extérieur" de la porte
+        Vector3 outward = door.transform.forward.normalized;
+
+        // 2) On choisit un point devant la porte pour poser l'escalier
+        Vector3 frontPoint = bottomCenter + outward * (escalierLongueur * 0.5f + 0.1f);
+
+        // 3) On trouve le Y du sol sous ce point (terrain / colliders)
+        float groundY = GetGroundYUnder(frontPoint);
+
+        // 4) Hauteur nécessaire = de ce sol jusqu’au bas de la porte
+        float topY = bottomCenter.y;
+        float height = Mathf.Max(0.2f, topY - groundY); // évite 0
+
+        // centre vertical de l’escalier
+        float centerY = groundY + height * 0.5f;
+        Vector3 stairPos = new Vector3(frontPoint.x, centerY, frontPoint.z);
+
+        // 5) Instanciation + rotation
+        var esc = Instantiate(EscalierPrefab, transform);
+        esc.name = "Escalier";
+        esc.transform.position = stairPos;
+        esc.transform.rotation = Quaternion.LookRotation(outward, Vector3.up)
+                         * Quaternion.Euler(0f, 90f, 0f);
+        // ou -90f si c'est dans l'autre sens :
+        /*
+        esc.transform.rotation = Quaternion.LookRotation(outward, Vector3.up)
+                                * Quaternion.Euler(0f, -90f, 0f);
+        */
+
+
+        // 6) On scale pour remplir pile la hauteur entre sol et porte
+        esc.transform.localScale = new Vector3(
+            escalierLargeur,   // latéral
+            height,            // vertical = distance sol/porte
+            escalierLongueur   // profondeur
+        );
+    }
+
+
 
 
     void Build()
@@ -917,7 +979,7 @@ public class RandomMurPorte : MonoBehaviour
         }
 
 
-        // ======== FENÊTRES MULTIPLES (hauteur uniforme) ========
+        // Fenetres
         bool placeFenetre = (Fenetre != null) && RandomBool(probaFenetre);
         bool[] hasWindow = new bool[4];
         float[] f_xMin = new float[4], f_xMax = new float[4], f_yMin = new float[4], f_yMax = new float[4];
@@ -1047,6 +1109,8 @@ public class RandomMurPorte : MonoBehaviour
             }
 
             AlignDoorBottomToParentGround(p, transform);
+            //ajout de l'escalier
+            CreateStairsAtDoor(p);
         }
 
         // Fenêtres visuelles (0..4 selon hasWindow)

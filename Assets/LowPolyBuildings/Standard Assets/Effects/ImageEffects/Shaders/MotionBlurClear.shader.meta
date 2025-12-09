@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: 7699c5fbfa27745a1abe111ab7bf9785
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 13173
+  packageName: Industrial Buildings & Props
+  packageVersion: 2.0.1
+  assetPath: Assets/LowPolyBuildings/Standard Assets/Effects/ImageEffects/Shaders/MotionBlurClear.shader
+  uploadId: 73022

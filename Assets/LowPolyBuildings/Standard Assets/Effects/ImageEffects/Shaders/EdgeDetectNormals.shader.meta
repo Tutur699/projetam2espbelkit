@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: 0d1644bdf064147baa97f235fc5b4903
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 13173
+  packageName: Industrial Buildings & Props
+  packageVersion: 2.0.1
+  assetPath: Assets/LowPolyBuildings/Standard Assets/Effects/ImageEffects/Shaders/EdgeDetectNormals.shader
+  uploadId: 73022

@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: b0249d8c935344451aa4de6db76f0688
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 13173
+  packageName: Industrial Buildings & Props
+  packageVersion: 2.0.1
+  assetPath: Assets/LowPolyBuildings/Standard Assets/Effects/ImageEffects/Shaders/NoiseAndGrain.shader
+  uploadId: 73022

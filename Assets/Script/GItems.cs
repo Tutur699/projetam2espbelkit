@@ -16,7 +16,7 @@ public class GItems : All_Items
     AudioSource audioSource;
     public AudioClip emptyClickAudio;
 
-    void Start()
+    void Awake()
     {
         if (manager == null) {
         manager = FindFirstObjectByType<WPManager>();
@@ -62,6 +62,7 @@ public class GItems : All_Items
 
     public override void ReloadWeapon()
     {
+        if (!gameObject.activeInHierarchy) return;
         // On ne recharge pas si : déjà en cours OU chargeur plein OU pas de réserve
         if (isReloading || bulletsPerMagazine >= maxclipSize || reserveAmmo <= 0) return;
 
@@ -90,12 +91,19 @@ public class GItems : All_Items
 
     public void Fire()
     {
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
         if (item !=null)
         {
+            if (manager.aimPoint == null) // ou aimPoint selon ton nom de variable
+            {
+                Debug.LogError("Erreur critique : L'IA n'a pas de point de visée (AimSource) !");
+                return;
+            }
+            Transform aimTransform = manager.aimPoint;
             //Point fire point at the current center of Camera
-            Vector3 firePointPointerPosition = manager.playerCamera.transform.position + manager.playerCamera.transform.forward * 100;
+            Vector3 firePointPointerPosition = aimTransform.transform.position + aimTransform.transform.forward  * 100;
             RaycastHit hit;
-            if (Physics.Raycast(manager.playerCamera.transform.position, manager.playerCamera.transform.forward, out hit, 100))
+            if (Physics.Raycast(aimTransform.transform.position, aimTransform.transform.forward, out hit, 100))
             {
                 firePointPointerPosition = hit.point;
             }

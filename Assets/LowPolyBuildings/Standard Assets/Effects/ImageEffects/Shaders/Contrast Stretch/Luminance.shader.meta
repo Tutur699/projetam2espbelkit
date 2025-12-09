@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: befbb4b9c320b4b18a08ef7afb93b6c9
+ShaderImporter:
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 13173
+  packageName: Industrial Buildings & Props
+  packageVersion: 2.0.1
+  assetPath: Assets/LowPolyBuildings/Standard Assets/Effects/ImageEffects/Shaders/Contrast
+    Stretch/Luminance.shader
+  uploadId: 73022

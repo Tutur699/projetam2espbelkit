@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 37fac21d1f093d344816942d1abce94e
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 13173
+  packageName: Industrial Buildings & Props
+  packageVersion: 2.0.1
+  assetPath: Assets/LowPolyBuildings/Standard Assets/Utility/TimedObjectDestructor.cs
+  uploadId: 73022

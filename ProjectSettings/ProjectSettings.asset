@@ -829,7 +829,11 @@ PlayerSettings:
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
   scriptingDefineSymbols:
-    Standalone: APP_UI_EDITOR_ONLY
+    Android: CROSS_PLATFORM_INPUT;MOBILE_INPUT
+    Standalone: APP_UI_EDITOR_ONLY;CROSS_PLATFORM_INPUT
+    WebGL: CROSS_PLATFORM_INPUT;MOBILE_INPUT
+    Windows Store Apps: MOBILE_INPUT
+    iPhone: CROSS_PLATFORM_INPUT;MOBILE_INPUT
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
