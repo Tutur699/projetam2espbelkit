@@ -352,10 +352,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78bf25964713b314db91cad6f65af87c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IAEnemy
+  difficulty: 4
+  reactionTime: 0
+  accuracyError: 0
+  trackingSpeed: 0
+  burstTime: 0
+  burstPause: 0
+  startingWeaponIndices: 000000000100000002000000
+  switchWeaponDistance: 20
+  weaponSwitchCooldown: 0
+  viewAngle: 90
+  viewRadius: 30
   npcHP: 100
   player: {fileID: 6670744979348997169, guid: 8a8174ee2f97cc8408cbcf9ff72dcf84, type: 3}
   npcDeadPrefab: {fileID: 7029871476922515918, guid: 6ce62108b7e650c4386280a18bd16eee, type: 3}
   em: {fileID: 6897560805149871544}
+  waypoints: []
   es: {fileID: 0}
   playerTransform: {fileID: 0}
 --- !u!114 &6897560805149871544
@@ -377,11 +389,11 @@ MonoBehaviour:
   playerManager: {fileID: 0}
   enemyManager: {fileID: 3668391726793016117}
   weaponLibrary:
-  - {fileID: 5852774514215255831}
   - {fileID: 6730591834486753846}
-  - {fileID: 1702883378657322835}
-  - {fileID: 6976956115059905157}
   - {fileID: 3227251624264330065}
+  - {fileID: 5852774514215255831}
+  - {fileID: 6976956115059905157}
+  - {fileID: 1702883378657322835}
   - {fileID: 1566481338819642896}
   - {fileID: 1460958784742483974}
   allItems:
