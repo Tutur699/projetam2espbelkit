@@ -20,6 +20,11 @@ public class IAEnemy : MonoBehaviour, IEntity
     // Distance à partir de laquelle l'IA sort l'arme principale (Slot 1)
     public float switchWeaponDistance = 10.0f; 
 
+    [Header("Portée des Armes")]
+    public float shortRange = 15f; // Portée pour Slot 0 (Pistolet/Pompe)
+    public float longRange = 30f;  // Portée pour Slot 1 (Fusil)
+    public float verylongRange = 40f; //Portée pour Slot 2 (Sniper)
+
     // Timer pour éviter que l'IA change d'arme 10 fois par seconde (clignotement)
     [HideInInspector] public float weaponSwitchCooldown = 0f;
 
@@ -124,6 +129,27 @@ public class IAEnemy : MonoBehaviour, IEntity
         return new Vector3(Mathf.Sin(angleInDegrees * Mathf.Deg2Rad), 0, Mathf.Cos(angleInDegrees * Mathf.Deg2Rad));
     }
 
+    public float GetCurrentWeaponRange()
+    {
+        // Sécurité : si pas de manager, on retourne une valeur par défaut
+        if (em == null) return shortRange;
+
+        // Si on tient l'arme secondaire (Slot 0)
+        if (em.selectedSlot == 0)
+        {
+            return shortRange;
+        }
+        if(em.selectedSlot == 2)
+        {
+            return verylongRange;
+        }
+        // Si on tient l'arme principale (Slot 1)
+        else
+        {
+            return longRange;
+        }
+    }
+
     public void ManageWeaponChoice(float distanceToPlayer)
     {
         if (em == null) return;
@@ -140,7 +166,7 @@ public class IAEnemy : MonoBehaviour, IEntity
         // LOGIQUE SIMPLE :
         // Si la cible est loin (> 10m) ET qu'on a une arme principale (Slot 1)
         // Alors on prend l'arme principale.
-        if (distanceToPlayer > switchWeaponDistance + 15.0f && em.allItems.Count > 1 && em.allItems[2] != null)
+        if (distanceToPlayer > switchWeaponDistance + 30.0f && em.allItems.Count > 1 && em.allItems[2] != null)
         {
             bestSlot = 2;
         }
@@ -157,7 +183,7 @@ public class IAEnemy : MonoBehaviour, IEntity
         if (em.selectedSlot != bestSlot)
         {
             em.ChangeSelectedSlot(bestSlot);
-            weaponSwitchCooldown = 2.0f; // On attend 2s avant de pouvoir rechanger (latence humaine)
+            weaponSwitchCooldown = 1.0f; // On attend 2s avant de pouvoir rechanger (latence humaine)
         }
     }
 

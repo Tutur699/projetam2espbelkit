@@ -23,7 +23,6 @@ public class State
     protected WPManager pm; //the player manager
     protected IAEnemy enemyScript;
     protected Transform player; //the player transform
-    float shootDistance = 7.0f; //the distance the npc can attack from
 
     public State(GameObject _npc, NavMeshAgent _agent, Animator _anim, Transform _player)
     {
@@ -87,14 +86,22 @@ public class State
         return false; 
     }
 
-    public bool CanAttackPlayer() //check if the player is in attack range
+    public bool CanAttackPlayer() 
     {
-        Vector3 direction = player.position - npc.transform.position; //get the direction to the player
-        if (direction.magnitude < shootDistance) //if the player is within the shoot distance
+        if (player == null) return false;
+
+        Vector3 direction = player.position - npc.transform.position;
+        
+        // --- CHANGEMENT ICI ---
+        // Au lieu d'utiliser la variable fixe 'shootDistance',
+        // on appelle la fonction dynamique de l'IA.
+        float dynamicRange = enemyScript.GetCurrentWeaponRange();
+
+        if (direction.magnitude < dynamicRange) 
         {
-            return true; //return true
+            return true;
         }
-        return false; //return false if the player is not in attack range
+        return false; 
     }
         
         
@@ -165,30 +172,34 @@ public class Patrol : State
 
     public override void Update()
     {
-        if (agent.remainingDistance < 1) //if the agent is close to the destination or has no path
+        // --- PRIORITÉ ABSOLUE : LA VISION ---
+        if (CanSeePlayer())
         {
-            if (CanSeePlayer()) //if the npc can see the player
+            // Raccourci intelligent :
+            // Si on est DÉJÀ à portée de tir, on attaque direct !
+            // Sinon, on poursuit.
+            if (CanAttackPlayer())
             {
-                nextState = new Pursue(npc, agent, anim, player); //switch to pursue state
-                stage = EVENT.EXIT; //set the stage to exit
-                return;
+                nextState = new Attack(npc, agent, anim, player);
             }
-            if (enemyScript.waypoints.Count == 0) return;
-
-            if (agent.remainingDistance < 1.0f && !agent.pathPending)
+            else
             {
-            // On passe au point suivant
-            currentIndex++;
+                nextState = new Pursue(npc, agent, anim, player);
+            }
             
-            // Si on dépasse la fin de la liste, on boucle au début (0)
-            if (currentIndex >= enemyScript.waypoints.Count)
-            {
-                currentIndex = 0;
-            }
+            stage = EVENT.EXIT;
+            return; // On arrête tout le reste, on change d'état immédiatement
+        }
+        // ------------------------------------
 
-            // On donne la nouvelle destination
+        // La suite (le déplacement vers les Waypoints) ne s'exécute que si on ne voit PERSONNE
+        if (enemyScript.waypoints.Count == 0) return;
+
+        if (agent.remainingDistance < 1.0f && !agent.pathPending)
+        {
+            currentIndex++;
+            if (currentIndex >= enemyScript.waypoints.Count) currentIndex = 0;
             agent.SetDestination(enemyScript.waypoints[currentIndex].position);
-            }
         }
     }
     
@@ -205,7 +216,7 @@ public class Pursue : State
     public Pursue(GameObject _npc, NavMeshAgent _agent, Animator _anim, Transform _player) : base(_npc, _agent, _anim, _player)
     {
         name = STATE.PURSUE; //set the name of the state to pursue
-        agent.speed = 2; //set the speed of the agent to 4 if the agent has a path to follow
+        agent.speed = 7; //set the speed of the agent to 4 if the agent has a path to follow
         agent.isStopped = false; //set the agent to not be stopped
     }
 
@@ -217,20 +228,24 @@ public class Pursue : State
 
     public override void Update()
     {
-        agent.SetDestination(player.position); //set the agent's destination to the player's position
-        if (agent.hasPath)
+        // 1. Est-ce qu'on peut DÉJÀ tirer ? (Priorité)
+        if (CanAttackPlayer())
         {
-            if (CanAttackPlayer()) //if the npc can attack the player
-            {
-                nextState = new Attack(npc, agent, anim, player); //switch to attack state
-                stage = EVENT.EXIT; //set the stage to exit
-            }
-            else if (!CanSeePlayer()) //if the npc cannot see the player
-            {
-                nextState = new IdleState(npc, agent, anim, player); //switch to idle state
-                stage = EVENT.EXIT; //set the stage to exit
-            }
+            nextState = new Attack(npc, agent, anim, player);
+            stage = EVENT.EXIT;
+            return;
         }
+
+        // 2. Est-ce qu'on a perdu le joueur de vue ?
+        if (!CanSeePlayer())
+        {
+            nextState = new Patrol(npc, agent, anim, player); // Ou Idle
+            stage = EVENT.EXIT;
+            return;
+        }
+
+        // 3. Sinon, on court vers lui
+        agent.SetDestination(player.position);
     }
 
     public override void Exit()

@@ -360,9 +360,12 @@ MonoBehaviour:
   burstPause: 0
   startingWeaponIndices: 000000000100000002000000
   switchWeaponDistance: 20
+  shortRange: 15
+  longRange: 30
+  verylongRange: 40
   weaponSwitchCooldown: 0
-  viewAngle: 90
-  viewRadius: 30
+  viewAngle: 120
+  viewRadius: 40
   npcHP: 100
   player: {fileID: 6670744979348997169, guid: 8a8174ee2f97cc8408cbcf9ff72dcf84, type: 3}
   npcDeadPrefab: {fileID: 7029871476922515918, guid: 6ce62108b7e650c4386280a18bd16eee, type: 3}
@@ -389,9 +392,9 @@ MonoBehaviour:
   playerManager: {fileID: 0}
   enemyManager: {fileID: 3668391726793016117}
   weaponLibrary:
+  - {fileID: 5852774514215255831}
   - {fileID: 6730591834486753846}
   - {fileID: 3227251624264330065}
-  - {fileID: 5852774514215255831}
   - {fileID: 6976956115059905157}
   - {fileID: 1702883378657322835}
   - {fileID: 1566481338819642896}
