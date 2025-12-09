@@ -408,7 +408,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1673685660
+  GlobalObjectIdHash: 2134176393
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -700,7 +700,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WPManager
   ShowTopMostFoldoutHeaderGroup: 1
   playerCamera: {fileID: 8722457148870883024}
+  aimPoint: {fileID: 0}
+  isAI: 0
   playerManager: {fileID: 1060217933382428719}
+  enemyManager: {fileID: 0}
   weaponLibrary:
   - {fileID: 3336001864759068796}
   - {fileID: 2455933977890487645}
@@ -727,6 +730,7 @@ MonoBehaviour:
   selectedItemIndex: 0
   selectedItems: {fileID: 0}
   selectedSlot: -1
+  ammoText: {fileID: 0}
 --- !u!1 &559588602860371966
 GameObject:
   m_ObjectHideFlags: 0

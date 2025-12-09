@@ -225,12 +225,12 @@ public class WPManager : NetworkBehaviour
 
     public void HandleDeath()
     {
-        if (_deathHandled) return; // On l'a déjà fait, on arrête
+        if (_deathHandled) return;
         _deathHandled = true;
 
         Debug.Log("Gestion de la mort du joueur dans WPManager...");
 
-        // 1. Désactiver l'arme en main
+    
         if (selectedItems != null)
         {
             selectedItems.ActivateWeapon(false);
@@ -240,23 +240,16 @@ public class WPManager : NetworkBehaviour
             selectedItemIndex = -1;
         }
 
-        // 2. Désactiver le HUD (Optionnel, si tu veux cacher l'inventaire quand on meurt)
-        if (myHUDInstance != null)
-        {
-            myHUDInstance.SetActive(false);
-        }
-
-        // 3. Désactiver le Weapon Sway (pour éviter que la caméra bouge bizarrement)
         WeaponSway sway = GetComponentInChildren<WeaponSway>();
         if (sway != null) sway.enabled = false;
-        
-        // 4. Désélectionner visuellement les slots
+    
+    
         if (selectedSlot >= 0 && selectedSlot < slots.Count)
         {
             slots[selectedSlot].Deselect();
             selectedSlot = -1;
         }
-    }
+}
 
 
     private void Update()
