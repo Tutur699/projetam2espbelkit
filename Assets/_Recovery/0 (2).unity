@@ -2420,6 +2420,11 @@ MonoBehaviour:
   choisirMurManuellement: 1
   murPorteManuel: 0
   murFenetreManuel: 3
+  creerEscalier: 1
+  EscalierPrefab: {fileID: 0}
+  escalierLargeur: 3
+  escalierLongueur: 2
+  escalierHauteur: 1
   Mur: {fileID: 7909222129892080376, guid: 0b8e2248aa19c3d4da92dcab90cd2a6b, type: 3}
   Porte: {fileID: 6424270456704572960, guid: 214b673e61a328f4b97a4c1f1bba63d3, type: 3}
   materialMur: {fileID: 2100000, guid: e429c8ff9e485574b8aa09ee44b4da19, type: 2}
