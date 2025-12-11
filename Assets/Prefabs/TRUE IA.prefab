@@ -388,6 +388,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   playerCamera: {fileID: 0}
   aimPoint: {fileID: 3866347002888226184}
+  defaultBulletPrefab: {fileID: 1124179450906470559, guid: e605bbbc8b8697f4499cde817b9dde8f, type: 3}
   isAI: 1
   playerManager: {fileID: 0}
   enemyManager: {fileID: 3668391726793016117}
@@ -2769,11 +2770,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2108224362223555530, guid: b8d03592a47749349996d6b5ea338b2d, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2713638554236317085, guid: b8d03592a47749349996d6b5ea338b2d, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2745638583175612879, guid: b8d03592a47749349996d6b5ea338b2d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2789,7 +2790,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3475621012167282466, guid: b8d03592a47749349996d6b5ea338b2d, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3542128124599249690, guid: b8d03592a47749349996d6b5ea338b2d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2805,7 +2806,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3586641393796875492, guid: b8d03592a47749349996d6b5ea338b2d, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3594703514337212842, guid: b8d03592a47749349996d6b5ea338b2d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2817,7 +2818,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3734983590768693025, guid: b8d03592a47749349996d6b5ea338b2d, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3813108904618237605, guid: b8d03592a47749349996d6b5ea338b2d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2925,7 +2926,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6525211381740876681, guid: b8d03592a47749349996d6b5ea338b2d, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7618573487426388120, guid: b8d03592a47749349996d6b5ea338b2d, type: 3}
       propertyPath: m_Name
@@ -2933,7 +2934,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8075893247929862827, guid: b8d03592a47749349996d6b5ea338b2d, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9111980976559499342, guid: b8d03592a47749349996d6b5ea338b2d, type: 3}
       propertyPath: m_IsActive
