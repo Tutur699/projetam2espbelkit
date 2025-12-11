@@ -148,7 +148,7 @@ public class Patrol : State
     public Patrol(GameObject _npc, NavMeshAgent _agent, Animator _anim, Transform _player) : base(_npc, _agent, _anim, _player)
     {
         name = STATE.PATROL; //set the name of the state to patrol
-        agent.speed = 2f; //set the speed of the agent to 2 if the agent has a path to follow
+        agent.speed = 3.5f; //set the speed of the agent to 2 if the agent has a path to follow
         agent.isStopped = false; //set the agent to not be stopped
     }
 
