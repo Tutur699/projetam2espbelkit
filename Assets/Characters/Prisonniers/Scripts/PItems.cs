@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.Netcode;
 public class PItems : All_Items
 {
     public Transform HitPoint;
@@ -23,6 +24,7 @@ public class PItems : All_Items
     }
     public override void Use()
     {
+        if(!IsOwner) return; // S'assure que seul le propriétaire utilise l'item
         if (canUse && item != null)
         {
             if (Time.time > nextUseTime)

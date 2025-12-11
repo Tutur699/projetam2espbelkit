@@ -62,7 +62,7 @@ public class SC_EnemySpawner : NetworkBehaviour
         // Vérification Mort / Game Over
         if (player != null && !gameOver && !playerWon)
         {
-            if (player.playerHP <= 0) gameOver = true;
+            if (player.playerHP.Value <= 0) gameOver = true;
         }
     }
 

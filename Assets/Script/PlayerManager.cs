@@ -2,11 +2,15 @@ using StarterAssets;
 using UnityEngine;
 using Unity.Netcode; 
 
-public class PlayerManager : MonoBehaviour, IEntity
+public class PlayerManager : NetworkBehaviour, IEntity
 {
     [Header("Vie du joueur")]
     public float maxHP = 100f;
-    public float playerHP = 100f;
+    public NetworkVariable<float> playerHP = new NetworkVariable<float>(
+        100f, 
+        NetworkVariableReadPermission.Everyone, 
+        NetworkVariableWritePermission.Server
+    );
 
     [Header("Références")]
     public FPC_PLAYER playerControler;
@@ -20,18 +24,51 @@ public class PlayerManager : MonoBehaviour, IEntity
     private bool isDead = false;
     private bool hasWon = false;
 
-    void Start()
+    public override void OnNetworkSpawn()
     {
+        if (IsServer)
+        {
+            playerHP.Value = maxHP;
+        }
         positionDepart = transform.position;
         rotationDepart = transform.rotation;
-        playerHP = Mathf.Clamp(playerHP, 0, maxHP);
+
+        if (IsOwner)
+        {
+            if (weaponManager != null)
+        {
+            weaponManager.EquipItemFromLibrary(0, 0); 
+            weaponManager.ChangeSelectedSlot(0);
+        }
+        }
     }
+
 
     public void ResetDuJoueur()
     {
+        if(IsServer)ResetLogicServer();
+        else ResetDuJoueurServerRpc();
+    }
+
+    [ServerRpc]
+    private void ResetDuJoueurServerRpc()
+    {
+        ResetLogicServer();
+    }
+    private void ResetLogicServer()
+    {
+        playerHP.Value = maxHP;
+        ResetDuJoueurClientRpc();
+    } 
+
+    [ClientRpc]
+    void ResetDuJoueurClientRpc()
+    {
         isDead = false;
         hasWon = false;
-        playerHP = maxHP;
+        if(IsOwner)
+        {
+        
 
         if (playerControler != null)
         {
@@ -51,21 +88,26 @@ public class PlayerManager : MonoBehaviour, IEntity
         // Réactivation de l'UI non nécessaire ici (WPManager la gère)
         // si (weaponUIObject != null) weaponUIObject.SetActive(true); 
 
-        if (weaponManager != null)
-        {
-            weaponManager.EquipItemFromLibrary(0, 0); 
-            weaponManager.ChangeSelectedSlot(0);
+        
         }
     }
 
     public void ApplyDamage(float points)
     {
-        if (isDead || hasWon) return;
-        playerHP -= points;
-        if (playerHP <= 0) { playerHP = 0; Die(); }
+        if(IsClient) ApplyDamageServerRpc(points);
+        
     }
 
-    private void Die()
+    [ServerRpc]
+    void ApplyDamageServerRpc(float points)
+    {
+        if (isDead || hasWon) return;
+        playerHP.Value -= points;
+        if (playerHP.Value <= 0) { playerHP.Value = 0; DieClientRpc(); }
+    }
+
+    [ClientRpc]
+    private void DieClientRpc()
     {
         isDead = true;
         DisableControls();
@@ -78,6 +120,19 @@ public class PlayerManager : MonoBehaviour, IEntity
 
     public void Win()
     {
+        if(IsServer) WinClientRpc();
+        else if(IsClient) WinServerRpc();
+    }
+    [ServerRpc]
+    private void WinServerRpc()
+    {
+        WinClientRpc();
+    }
+    
+    
+    [ClientRpc]
+    private void WinClientRpc()
+    {
         if (isDead || hasWon) return;
         hasWon = true;
         DisableControls();
@@ -87,6 +142,7 @@ public class PlayerManager : MonoBehaviour, IEntity
 
     void DisableControls()
     {
+        if(!IsOwner) return;
         if (playerControler != null)
         {
             playerControler.LockCameraPosition = true;
@@ -100,7 +156,8 @@ public class PlayerManager : MonoBehaviour, IEntity
 
 void OnGUI()
     {
-        GUI.Box(new Rect(10, Screen.height - 35, 100, 30), ((int)playerHP).ToString() + " HP");
+        if(!IsOwner) return; // S'assure que seul le propriétaire affiche l'UI
+        GUI.Box(new Rect(10, Screen.height - 35, 100, 30), playerHP.Value.ToString() + " HP");
 
         if (GameManager.instance != null)
         {

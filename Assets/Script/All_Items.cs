@@ -1,6 +1,7 @@
 using UnityEngine;
+using Unity.Netcode;
 
-public abstract class All_Items : MonoBehaviour
+public abstract class All_Items : NetworkBehaviour
 {
     [Header("PARAMÈTRES DE L'ITEM")]
     public Items item;

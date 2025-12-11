@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using Unity.Netcode; 
 
 [RequireComponent(typeof(AudioSource))]
 
@@ -92,6 +93,8 @@ public class GItems : All_Items
     public void Fire()
     {
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
+        if(!IsOwner) return; // S'assure que seul le propriétaire tire
+        FireServerRpc(manager.aimPoint.position, manager.aimPoint.rotation);
         if (item !=null)
         {
             if (manager.aimPoint == null) // ou aimPoint selon ton nom de variable
@@ -117,6 +120,16 @@ public class GItems : All_Items
             audioSource.clip = fireAudio;
             audioSource.Play();
         } 
+    }
+    [ServerRpc]
+    void FireServerRpc(Vector3 position, Quaternion rotation)
+    {
+        GameObject bulletObject = Instantiate(bulletPrefab, position, rotation);
+        BulletScript bullet = bulletObject.GetComponent<BulletScript>();
+        //Set bullet damage according to weapon damage value
+        bullet.SetDamage(item.weaponDamage);
+        // Spawn the bullet on the network
+        bulletObject.GetComponent<NetworkObject>().Spawn();
     }
     public override int GetCurrentAmmo() {return bulletsPerMagazine;}
     public override int GetReserveAmmo() { return reserveAmmo;}
