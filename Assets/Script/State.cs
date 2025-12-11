@@ -216,7 +216,7 @@ public class Pursue : State
     public Pursue(GameObject _npc, NavMeshAgent _agent, Animator _anim, Transform _player) : base(_npc, _agent, _anim, _player)
     {
         name = STATE.PURSUE; //set the name of the state to pursue
-        agent.speed = 7; //set the speed of the agent to 4 if the agent has a path to follow
+        agent.speed = 5; //set the speed of the agent to 4 if the agent has a path to follow
         agent.isStopped = false; //set the agent to not be stopped
     }
 
