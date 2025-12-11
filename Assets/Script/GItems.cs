@@ -17,16 +17,26 @@ public class GItems : All_Items
     AudioSource audioSource;
     public AudioClip emptyClickAudio;
 
-    void Awake()
+   public override void OnNetworkSpawn()
     {
-        if (manager == null) {
-        manager = FindFirstObjectByType<WPManager>();
-    }
-        bulletsPerMagazine = maxclipSize;
+        base.OnNetworkSpawn();
+        
         audioSource = GetComponent<AudioSource>();
-        audioSource.playOnAwake = false;
-        //Make sound 3D
-        audioSource.spatialBlend = 1f;
+        if (audioSource != null)
+        {
+            audioSource.playOnAwake = false;
+            audioSource.spatialBlend = 1f;
+        }
+
+        if (IsOwner && manager == null)
+        {
+            manager = FindAnyObjectByType<WPManager>();
+        }
+
+        if (IsOwner)
+        {
+            bulletsPerMagazine = maxclipSize;
+        }
     }
 
     public override void ActivateWeapon(bool activate)
@@ -38,6 +48,7 @@ public class GItems : All_Items
 
     public override void Use()
     {
+        if (!IsOwner) return;
         if(bulletsPerMagazine <= 0)
         {
             if(!isReloading && reserveAmmo > 0)
@@ -63,7 +74,7 @@ public class GItems : All_Items
 
     public override void ReloadWeapon()
     {
-        if (!gameObject.activeInHierarchy) return;
+        if (!IsOwner || !gameObject.activeInHierarchy) return;
         // On ne recharge pas si : déjà en cours OU chargeur plein OU pas de réserve
         if (isReloading || bulletsPerMagazine >= maxclipSize || reserveAmmo <= 0) return;
 
@@ -93,8 +104,6 @@ public class GItems : All_Items
     public void Fire()
     {
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
-        if(!IsOwner) return; // S'assure que seul le propriétaire tire
-        FireServerRpc(manager.aimPoint.position, manager.aimPoint.rotation);
         if (item !=null)
         {
             if (manager.aimPoint == null) // ou aimPoint selon ton nom de variable
@@ -118,18 +127,28 @@ public class GItems : All_Items
             bullet.SetDamage(item.weaponDamage);
             bulletsPerMagazine--;
             audioSource.clip = fireAudio;
-            audioSource.Play();
+            audioSource.Play(); 
+            FireServerRpc(firePoint.position, firePoint.rotation);
         } 
     }
     [ServerRpc]
     void FireServerRpc(Vector3 position, Quaternion rotation)
     {
         GameObject bulletObject = Instantiate(bulletPrefab, position, rotation);
+        
         BulletScript bullet = bulletObject.GetComponent<BulletScript>();
-        //Set bullet damage according to weapon damage value
-        bullet.SetDamage(item.weaponDamage);
-        // Spawn the bullet on the network
-        bulletObject.GetComponent<NetworkObject>().Spawn();
+        if (bullet != null)
+        {
+            bullet.SetDamage(item.weaponDamage);
+        }
+
+        // 5. SYNCHRONISATION RÉSEAU
+        // C'est ici qu'on fait exister la balle pour tout le monde
+        NetworkObject netObj = bulletObject.GetComponent<NetworkObject>();
+        if (netObj != null)
+        {
+            netObj.Spawn(); 
+        }
     }
     public override int GetCurrentAmmo() {return bulletsPerMagazine;}
     public override int GetReserveAmmo() { return reserveAmmo;}

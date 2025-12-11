@@ -42,89 +42,41 @@ public class WPManager : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-
-        // --- SÉCURITÉ MULTIJOUEUR ---
-        // Si je ne suis pas le propriétaire de ce perso, je ne crée pas d'interface
-        if (!IsOwner) return;
-         if(isAI)
-        {
-            while (allItems.Count < MAXITEMS) allItems.Add(null);
-            InitDefaultWeapons();
-            return;
-        }
-
-        
-
-        if (IsOwner && GetComponent<PlayerManager>() != null) // Si c'est un joueur humain
-        {
-            if (playerCamera == null) playerCamera = FindFirstObjectByType<Camera>();
-            
-            // Pour le joueur, la source de visée C'EST la caméra
-            if (playerCamera != null)
-            {
-                aimPoint = playerCamera.transform;
-            }
-        }
-
+        // --- SÉCURITÉ IA ---
         if (isAI)
         {
-            // 1. Si la case est vide, on cherche "EyesPos" partout dans les enfants
+            if (!IsOwner) return; // L'IA est gérée par le serveur ou son owner
+            while (allItems.Count < MAXITEMS) allItems.Add(null);
+            
+            // Configuration AimPoint IA
             if (aimPoint == null)
             {
                 Transform[] children = GetComponentsInChildren<Transform>();
                 foreach (Transform t in children)
                 {
-                    if (t.name == "EyesPos") // Vérifie bien l'orthographe !
-                    {
-                        aimPoint = t;
-                        break;
-                    }
+                    if (t.name == "EyesPos") { aimPoint = t; break; }
                 }
+                if (aimPoint == null) aimPoint = transform; 
             }
-
-            // 2. ULTIME SECOURS : Si toujours vide, on prend l'IA elle-même
-            if (aimPoint == null)
-            {
-                Debug.LogWarning($"[WPManager] {name} : Impossible de trouver 'EyesPos'. Je vise avec mon corps.");
-                aimPoint = transform; // Au moins ça ne crashera pas
-            }
-        }
-        else if (IsOwner) // Pour le joueur
-        {
-             // ... (Recherche Caméra) ...
-             if (playerCamera != null) aimPoint = playerCamera.transform;
+            InitDefaultWeapons();
+            return;
         }
 
-       
+        // --- SÉCURITÉ JOUEUR ---
+        if (!IsOwner) return; // Je ne gère pas l'inventaire des autres joueurs sur mon écran
 
-        /*if (playerCamera != null && weaponSwayHolder != null)
+        // 1. Setup Caméra
+        if (playerManager != null)
         {
-            // A. On active le script de Sway
-            WeaponSway swayScript = weaponSwayHolder.GetComponent<WeaponSway>();
-            if (swayScript != null) swayScript.enabled = true;
-
-            // B. On détache le Holder du Joueur et on le colle sous la Caméra
-            weaponSwayHolder.transform.SetParent(playerCamera.transform);
-
-            // C. On réinitialise sa position pour qu'il soit bien au centre de la vue
-            weaponSwayHolder.transform.localPosition = Vector3.zero;
-            weaponSwayHolder.transform.localRotation = Quaternion.identity;
-
-            Debug.Log("Armes attachées à la caméra avec succès !");
+            if (playerCamera == null) playerCamera = FindFirstObjectByType<Camera>();
+            if (playerCamera != null) aimPoint = playerCamera.transform;
         }
-        else
-        {
-            Debug.LogError("Impossible d'attacher les armes : Caméra ou SwayHolder manquant !");
-        }*/
-        
-        
 
-
-        // --- ÉTAPE 1 : CRÉATION DE L'INTERFACE ---
+        // 2. CRÉATION DE L'INTERFACE (HUD)
         if (hudPrefab != null)
         {
             myHUDInstance = Instantiate(hudPrefab);
-            myHUDInstance.name = "HUD_LocalPlayer"; // Petit nom pour le retrouver
+            myHUDInstance.name = "HUD_LocalPlayer";
         }
         else
         {
@@ -132,69 +84,43 @@ public class WPManager : NetworkBehaviour
             return;
         }
 
-
-        // --- ÉTAPE 2 : AUTO-RECHERCHE CIBLÉE ---
-        // On ne cherche pas dans toute la scène, mais JUSTE dans le HUD qu'on vient de créer
+        // 3. RECUPERATION DES SLOTS
         if (myHUDInstance != null)
         {
-            // true = on inclut les enfants inactifs au cas où
-            Slot[] foundScripts = myHUDInstance.GetComponentsInChildren<Slot>(true); 
-            
+            Slot[] foundScripts = myHUDInstance.GetComponentsInChildren<Slot>(true);
             slots = new List<Slot>(foundScripts);
-
-            // TRI CRUCIAL : On trie selon l'ordre dans la hiérarchie (Slot 1, Slot 2...)
+            
+            // Tri pour garantir l'ordre 1, 2, 3...
             slots.Sort((a, b) => a.transform.GetSiblingIndex().CompareTo(b.transform.GetSiblingIndex()));
-            
-            Debug.Log($"WPManager a configuré {slots.Count} slots depuis le HUD instancié.");
 
+            // Récup AmmoText
             var allTexts = myHUDInstance.GetComponentsInChildren<TextMeshProUGUI>(true);
-            foreach(var t in allTexts)
+            foreach (var t in allTexts)
             {
-                if(t.gameObject.name == "AmmoText")
-                {
-                    ammoText = t;
-                    break;
-                }
+                if (t.gameObject.name == "AmmoText") { ammoText = t; break; }
             }
-            
-            // Si on n'a pas trouvé par nom, on prend le premier venu (secours)
             if (ammoText == null && allTexts.Length > 0) ammoText = allTexts[0];
         }
 
+        // 4. PREPARATION LISTE LOGIQUE
+        while (allItems.Count < MAXITEMS) allItems.Add(null);
 
-        // --- ÉTAPE 3 : INITIALISATION & NETTOYAGE VISUEL ---
-        // (Le code qu'on avait fait pour nettoyer les carrés blancs du prefab)
+        // 5. CONNEXION SLOTS -> MANAGER (Sans Destroy inutile)
         if (slots != null)
         {
-            // On initialise la liste logique interne
-             while (allItems.Count < MAXITEMS) allItems.Add(null);
-
             foreach (var slotScript in slots)
             {
                 if (slotScript != null)
                 {
-                    // A. On se connecte
-                    slotScript.manager = this; 
-
-                    // B. On détruit les "carrés blancs" par défaut du prefab
-                    List<GameObject> childrenToKill = new List<GameObject>();
-                    foreach (Transform child in slotScript.transform)
-                    {
-                        childrenToKill.Add(child.gameObject);
-                    }
-                    foreach (GameObject child in childrenToKill)
-                    {
-                        Destroy(child);
-                    }
-                    
-                    // C. On reset la couleur
+                    slotScript.manager = this;
                     slotScript.Deselect();
+                    // NOTE : On ne fait pas de Destroy ici pour éviter les conflits avec EquipItemFromLibrary
+                    // On laisse les carrés blancs pour l'instant, ils seront écrasés par l'arme ou resteront vides
                 }
             }
         }
 
-        // --- ÉTAPE 4 : INITIALISATION DES ARMES ---
-        // Cache la bibliothèque 3D
+        // 6. INITIALISATION ARMES
         InitDefaultWeapons();
     }
 
@@ -524,34 +450,17 @@ public class WPManager : NetworkBehaviour
             Debug.Log("Arme équipée : " + selectedItems.name);
         }
     }
-   public bool EquipItemFromLibrary(int libraryIndex, int slotIndex = -1)
+  public bool EquipItemFromLibrary(int libraryIndex, int slotIndex = -1)
     {
-        // Sécurité index
-        if (libraryIndex < 0 || libraryIndex >= weaponLibrary.Count) 
-        {
-            Debug.LogError($"[DEBUG] Index {libraryIndex} hors limite dans la Library !");
-            return false;
-        }
-        
+        if (libraryIndex < 0 || libraryIndex >= weaponLibrary.Count) return false;
+
         All_Items weaponToEquip = weaponLibrary[libraryIndex];
+        if (weaponToEquip == null || weaponToEquip.item == null) return false;
 
-        // --- TEST DU COUPABLE N°1 : L'ARME ---
-        if (weaponToEquip == null)
-        {
-            Debug.LogError($"[DEBUG] L'objet arme à l'index {libraryIndex} est NULL dans la WeaponLibrary !");
-            return false;
-        }
-
-        if (weaponToEquip.item == null)
-        {
-            // C'EST SOUVENT LUI LE COUPABLE !
-            Debug.LogError($"[DEBUG] ALERTE ROUGE : L'arme '{weaponToEquip.gameObject.name}' existe, MAIS son champ 'Item' (ScriptableObject) est VIDE ! Vérifie le préfab du Player !");
-            return false;
-        }
-        // -------------------------------------
-
+        // Éviter les doublons (sauf si logique spécifique)
         if (allItems.Contains(weaponToEquip)) return false;
 
+        // Trouver un slot vide si pas précisé
         if (slotIndex == -1)
         {
             for (int i = 0; i < allItems.Count; i++)
@@ -561,42 +470,45 @@ public class WPManager : NetworkBehaviour
         }
 
         if (slotIndex == -1 || slotIndex >= MAXITEMS) return false;
+
+        // --- LOGIQUE METIER (Data) ---
         weaponToEquip.manager = this;
-        // Logique Backend
         weaponToEquip.UnlockDynamically();
         allItems[slotIndex] = weaponToEquip;
 
-        if (isAI)
-        {
-            return true;
-        }
+        // Si c'est l'IA ou pas le propriétaire, on s'arrête à la logique Data
+        if (isAI || !IsOwner) return true;
 
-        // --- TEST DU COUPABLE N°2 : L'UI ---
+        // --- LOGIQUE VISUELLE (UI) ---
         Slot targetSlot = slots[slotIndex];
-        
-        // Nettoyage UI
-        for (int i = targetSlot.transform.childCount - 1; i >= 0; i--)
+
+        // 1. Nettoyage propre des enfants (le carré blanc ou l'ancienne icône)
+        foreach (Transform child in targetSlot.transform)
         {
-             DestroyImmediate(targetSlot.transform.GetChild(i).gameObject);
+            Destroy(child.gameObject);
         }
 
-        if (slotPrefab == null)
+        if (slotPrefab != null)
         {
-            Debug.LogError("[DEBUG] SlotPrefab est manquant dans WPManager !");
-            return false;
-        }
+            // 2. Instantiation
+            GameObject newItemUIObj = Instantiate(slotPrefab, targetSlot.transform);
+            
+            // 3. CORRECTION DU TRANSFORM (Le fix magique pour le sprite invisible)
+            // Unity UI bug souvent sur l'échelle lors d'un instantiate dynamique
+            RectTransform rect = newItemUIObj.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                rect.localScale = Vector3.one;       // Force l'échelle à 1,1,1
+                rect.localPosition = Vector3.zero;   // Centre l'image
+                rect.anchoredPosition = Vector2.zero;
+            }
 
-        GameObject newItemUIObj = Instantiate(slotPrefab, targetSlot.transform);
-        InventoryItem newItemUI = newItemUIObj.GetComponent<InventoryItem>();
-
-        if (newItemUI != null)
-        {
-            Debug.Log($"[DEBUG] Succès ! J'envoie l'image '{weaponToEquip.item.name}' vers le slot {slotIndex}");
-            newItemUI.InitializeItem(weaponToEquip.item);
-        }
-        else
-        {
-            Debug.LogError("[DEBUG] Le SlotPrefab n'a pas de script InventoryItem !");
+            // 4. Assignation Sprite
+            InventoryItem newItemUI = newItemUIObj.GetComponent<InventoryItem>();
+            if (newItemUI != null)
+            {
+                newItemUI.InitializeItem(weaponToEquip.item);
+            }
         }
 
         return true;
