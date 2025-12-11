@@ -2716,8 +2716,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1187311215}
   m_HandleRect: {fileID: 1187311214}
   m_Direction: 2
-  m_Value: -0.000000260834
-  m_Size: 0.6099963
+  m_Value: -0.000000521668
+  m_Size: 0.6098867
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -10051,7 +10051,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 117.000015}
+  m_AnchoredPosition: {x: 0, y: 117.00005}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1484557696
@@ -11664,16 +11664,7 @@ MonoBehaviour:
   enemyPrefab: {fileID: 1098098822346146605, guid: a4c2b0e23bd83f243bd0030fd690396d, type: 3}
   player: {fileID: 1060217933382428719, guid: 1199957ba4b584842a2a56ad0aa780d2, type: 3}
   spawnPoints:
-  - {fileID: 426069218}
-  - {fileID: 898055314}
-  - {fileID: 144239425}
-  - {fileID: 258689585}
-  - {fileID: 1728669929}
-  - {fileID: 595842087}
-  - {fileID: 865508426}
-  - {fileID: 510581902}
-  - {fileID: 570209865}
-  - {fileID: 1876949847}
+  - {fileID: 1773409037}
   startDelay: 10
   netTimer:
     m_InternalValue: 10
@@ -11688,7 +11679,7 @@ Transform:
   m_GameObject: {fileID: 1773409035}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 463.85, y: 16.85142, z: 443.55}
+  m_LocalPosition: {x: 464.85, y: 16.85142, z: 449.65}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
