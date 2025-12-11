@@ -48,29 +48,16 @@ public class GameManager : MonoBehaviour
         if (scoreJoueur >= pointsPourGagnerMatch)
         {
             matchTermine = true;
-            messageFin = "🏆 VICTOIRE DU MATCH ! 🏆";
+            messageFin = "VICTOIRE DU MATCH !";
         }
         else if (scoreEnnemi >= pointsPourGagnerMatch)
         {
             matchTermine = true;
-            messageFin = "☠️ MATCH PERDU... ☠️";
+            messageFin = "MATCH PERDU... ";
         }
         else
         {
             StartCoroutine(ResetRoundSansChargement()); 
-        }
-    }
-
-    public void ResetMatchTotal()
-    {
-        scoreJoueur = 0;
-        scoreEnnemi = 0;
-        matchTermine = false;
-        
-        PlayerManager[] tousLesJoueurs = FindObjectsOfType<PlayerManager>();
-        foreach (PlayerManager joueur in tousLesJoueurs)
-        {
-            joueur.ResetDuJoueur();
         }
     }
 
@@ -88,11 +75,6 @@ public class GameManager : MonoBehaviour
 
             GUI.Box(new Rect(Screen.width / 2 - 200, Screen.height / 2 - 100, 400, 200), "RÉSULTAT FINAL");
             GUI.Label(new Rect(Screen.width / 2 - 190, Screen.height / 2 - 50, 380, 50), messageFin, styleTexte);
-
-            if (GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height / 2 + 30, 200, 50), "REJOUER LE MATCH"))
-            {
-                ResetMatchTotal();
-            }
         }
     }
 

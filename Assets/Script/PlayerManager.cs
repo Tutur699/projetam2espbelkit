@@ -12,9 +12,7 @@ public class PlayerManager : MonoBehaviour, IEntity
     public FPC_PLAYER playerControler;
     public WPManager weaponManager;
     public Texture crosshairTexture;
-    
-    // Réf. UI retirée car le WPManager gère l'UI (myHUDInstance)
-    // public GameObject weaponUIObject; 
+     
 
     private Vector3 positionDepart;
     private Quaternion rotationDepart;
@@ -98,19 +96,46 @@ public class PlayerManager : MonoBehaviour, IEntity
         Cursor.visible = true;
     }
 
-    void OnGUI()
+    // Dans PlayerManager.cs
+
+void OnGUI()
     {
         GUI.Box(new Rect(10, Screen.height - 35, 100, 30), ((int)playerHP).ToString() + " HP");
 
         if (GameManager.instance != null)
         {
-            string scoreTexte = "Score: " + GameManager.instance.scoreJoueur + " / " + GameManager.instance.pointsPourGagnerMatch;
-            GUI.Box(new Rect(Screen.width / 2 - 50, 10, 100, 30), scoreTexte);
+        
+            int matchPoints = GameManager.instance.pointsPourGagnerMatch;
+            int playerScore = GameManager.instance.scoreJoueur;
+            int enemyScore = GameManager.instance.scoreEnnemi;
+
+            float boxWidth = 120;
+            float spacing = 10;
+            float totalWidth = (2 * boxWidth) + spacing;
+            float startX = (Screen.width / 2) - (totalWidth / 2);
+
+            string playerScoreTexte = $"Your Score: {playerScore} / {matchPoints}";
+            GUI.Box(new Rect(startX, 10, boxWidth, 30), playerScoreTexte);
+        
+            string enemyScoreTexte = $"Enemy Score: {enemyScore} / {matchPoints}";
+            GUI.Box(new Rect(startX + boxWidth + spacing, 10, boxWidth, 30), enemyScoreTexte);
+
+        
         }
 
-        if (isDead) GUI.Box(new Rect(Screen.width / 2 - 85, Screen.height / 2 - 20, 170, 40), "Manche Perdue...");
-        else if (hasWon) GUI.Box(new Rect(Screen.width / 2 - 85, Screen.height / 2 - 20, 170, 40), "Manche Gagnée !");
-        else if (crosshairTexture != null) GUI.DrawTexture(new Rect(Screen.width / 2 - 3, Screen.height / 2 - 3, 6, 6), crosshairTexture);
+
+        if (isDead) 
+        {
+            GUI.Box(new Rect(Screen.width / 2 - 85, Screen.height / 2 - 20, 170, 40), "Manche Perdue...");
+        }
+        else if (hasWon) 
+        {
+            GUI.Box(new Rect(Screen.width / 2 - 85, Screen.height / 2 - 20, 170, 40), "Manche Gagnée !");
+        }
+        else if (crosshairTexture != null) 
+        {
+            GUI.DrawTexture(new Rect(Screen.width / 2 - 3, Screen.height / 2 - 3, 6, 6), crosshairTexture);
+        }
     }
     
     public bool IsAlive() { return !isDead; }
