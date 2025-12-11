@@ -20,7 +20,7 @@ public class PlayerSpawn : NetworkBehaviour
 
         Debug.Log("[PlayerSpawn] Spawn trouvé à " + spawn.transform.position);
 
-        // VERSION SIMPLE : on met le joueur légèrement au-dessus du spawn
+
         Vector3 targetPos = spawn.transform.position + Vector3.up * 1.5f;
         transform.position = targetPos;
 

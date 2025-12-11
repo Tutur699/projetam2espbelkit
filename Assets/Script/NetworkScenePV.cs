@@ -22,6 +22,14 @@ public class NetworkScenePV : MonoBehaviour
             enabled = false;
             return;
         }
+        if (!nm.IsServer)
+        {
+            if (statusText != null)
+                statusText.gameObject.SetActive(false);
+
+            enabled = false;
+            return;
+        }
          nm.OnClientConnectedCallback += OnClientConnected;
          nm.OnClientDisconnectCallback += OnClientDisconnected;
         if(statusText != null)
