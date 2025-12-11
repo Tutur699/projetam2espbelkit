@@ -111,12 +111,15 @@ public class NetworkStartUI : MonoBehaviour
     }
     private void NameField()
     {
-        string nom = nameInputField ? nameInputField.text.Trim() : "";
-        if (string.IsNullOrEmpty(nom))
+        if (nameInputField != null && !string.IsNullOrWhiteSpace(nameInputField.text))
         {
-            nom = "Player" + Random.Range(1, 9999);
+            PlayerProfile.PlayerNom = nameInputField.text.Trim();
         }
-        PlayerProfile.PlayerNom = nom;
+
+        if (string.IsNullOrWhiteSpace(PlayerProfile.PlayerNom))
+        {
+            PlayerProfile.PlayerNom = "Player" + Random.Range(1, 9999);
+        }
         Debug.Log("[NET] Nom du joueur défini sur : " + PlayerProfile.PlayerNom);
     }
 
