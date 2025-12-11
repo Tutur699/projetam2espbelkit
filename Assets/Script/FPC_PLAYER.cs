@@ -14,6 +14,10 @@ namespace StarterAssets
     public class FPC_PLAYER : NetworkBehaviour
     {
         public bool isPaused = false;
+
+        [SerializeField] private GameObject nameCanvas;
+
+
         [Header("Local Only Components")]
         [SerializeField] private MonoBehaviour[] localControllers;
         [SerializeField] private GameObject[] localOnlyObjects;
@@ -135,6 +139,8 @@ namespace StarterAssets
                 {
                     worldModel.SetActive(false);
                 }
+                if (nameCanvas != null)
+                nameCanvas.SetActive(false);
             }
             else
             {
@@ -151,15 +157,15 @@ namespace StarterAssets
                 {
                     obj.SetActive(false);
                 }
+                if (nameCanvas != null)
+                nameCanvas.SetActive(true);
             }
             base.OnNetworkSpawn();
             PlayerName.OnValueChanged += (oldValue, newValue) =>
-                {
-                    if (nameText != null)
-                    {
-                        nameText.text = newValue.ToString();
-                    }
-                };
+            {
+                if (nameText != null)
+                    nameText.text = newValue.ToString();
+            };
             if(nameText != null)
             {
                 nameText.text = PlayerName.Value.ToString();
