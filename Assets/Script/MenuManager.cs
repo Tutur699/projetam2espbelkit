@@ -14,6 +14,6 @@ public class MenuManager : MonoBehaviour
         }
         PlayerProfile.PlayerNom = nom;
         Debug.Log("[MENU] Nom du joueur défini sur : " + PlayerProfile.PlayerNom);
-        SceneManager.LoadScene("Terrain1 1"); 
+        SceneManager.LoadScene("Lobby"); 
     }
 }

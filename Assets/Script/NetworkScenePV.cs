@@ -16,29 +16,29 @@ public class NetworkScenePV : MonoBehaviour
     private void Awake()
     {
         var nm = NetworkManager.Singleton;
-        if(nm == null)
+        if (nm == null)
         {
             Debug.LogError("no network manager");
             enabled = false;
             return;
         }
-        if (!nm.IsServer)
-        {
-            if (statusText != null)
-                statusText.gameObject.SetActive(false);
 
-            enabled = false;
-            return;
-        }
-         nm.OnClientConnectedCallback += OnClientConnected;
-         nm.OnClientDisconnectCallback += OnClientDisconnected;
-        if(statusText != null)
+        nm.OnClientConnectedCallback += OnClientConnected;
+        nm.OnClientDisconnectCallback += OnClientDisconnected;
+        if (statusText != null)
+            statusText.gameObject.SetActive(false);
+    }
+    private void Start()
+    {
+        var nm = NetworkManager.Singleton;
+        // Si on est déjà host au moment du Start (rare), on affiche le texte
+        if (nm != null && nm.IsServer && statusText != null)
         {
             statusText.gameObject.SetActive(true);
             statusText.text = "En attente de joueurs...";
+            Debug.Log("[MATCH] Start : Host détecté");
         }
     }
-
     private void OnDestroy()
     {
         var nm = NetworkManager.Singleton;
@@ -52,6 +52,7 @@ public class NetworkScenePV : MonoBehaviour
     private void OnClientConnected(ulong clientID)
     {
         var nm = NetworkManager.Singleton;
+        if (nm == null) return;
         if (!nm.IsServer)
         {
             return;
@@ -59,28 +60,49 @@ public class NetworkScenePV : MonoBehaviour
         if(startpartie){
             return;
         }
-
         int playCount = nm.ConnectedClientsList.Count;
+        if (statusText != null)
+        {
+            statusText.gameObject.SetActive(true);
+            statusText.text = $"En attente de joueurs... ({playCount}/2)";
+        }
+
+        if (startpartie)
+        {
+            Debug.Log("[MATCH] Partie déjà démarrée, OnClientConnected ignoré.");
+            return;
+        }
         if(playCount == 2)
         {
-            statusText.gameObject.SetActive(false);
+            Debug.Log("[MATCH] 2 joueurs connectés, lancement de la partie.");
+            if (statusText != null)
+                statusText.gameObject.SetActive(false);
             StartMatch();
         }
+
         if (playCount > 2)
         {
             NetworkManager.Singleton.DisconnectClient(clientID);
-            return;
+            Debug.Log($"[MATCH] Client {clientID} déconnecté (trop de joueurs).");
         }
+        
+
+
+        
     }
     private void OnClientDisconnected(ulong clientId)
     {
         var nm = NetworkManager.Singleton;
+        if (nm == null || !nm.IsServer) return;
 
-        if (!nm || !nm.IsServer) return;
-        statusText.gameObject.SetActive(true);
-        statusText.text = "Un joueur s'est déconnecté. En attente de joueurs...";
+        int playCount = nm.ConnectedClientsList.Count;
+        Debug.Log($"[MATCH] Client déconnecté (id={clientId}). Joueurs restants = {playCount}");
 
-        Debug.Log($"[MATCH] Client {clientId} déconnecté.");
+        if (!startpartie && statusText != null)
+        {
+            statusText.gameObject.SetActive(true);
+            statusText.text = "Un joueur s'est déconnecté. En attente de joueurs...";
+        }
     }
     private void StartMatch()
     {
