@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Unity.Collections;
 using Unity.Netcode;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -55,6 +56,11 @@ namespace StarterAssets
         public float BottomClamp = -30.0f;
         public float CameraAngleOverride = 0.0f;
         public bool LockCameraPosition = false;
+        public NetworkVariable<FixedString64Bytes> PlayerName =
+    new NetworkVariable<FixedString64Bytes>(
+        writePerm: NetworkVariableWritePermission.Owner);
+
+        [SerializeField] private TMPro.TextMeshProUGUI nameText;
 
         [Tooltip("Rotation speed of the character")]
         public float RotationSpeed = 1.0f;
@@ -147,6 +153,17 @@ namespace StarterAssets
                 }
             }
             base.OnNetworkSpawn();
+            PlayerName.OnValueChanged += (oldValue, newValue) =>
+                {
+                    if (nameText != null)
+                    {
+                        nameText.text = newValue.ToString();
+                    }
+                };
+            if(nameText != null)
+            {
+                nameText.text = PlayerName.Value.ToString();
+            }
 
             _controller   = GetComponent<CharacterController>();
             _input        = GetComponent<StarterAssetsInputs>();
@@ -163,6 +180,7 @@ namespace StarterAssets
 
                 if (Camera.main != null)
                     _mainCamera = Camera.main.gameObject;
+                PlayerName.Value = PlayerProfile.PlayerNom;
             }
 
             Debug.Log($"[FPC_PLAYER] Spawn {name} - IsOwner={IsOwner}, IsServer={IsServer}, OwnerClientId={OwnerClientId}, LocalClientId={NetworkManager.Singleton.LocalClientId}");

@@ -7,6 +7,8 @@ using TMPro;
 
 public class NetworkStartUI : MonoBehaviour
 {
+    [Header("Player")]
+    [SerializeField] private TMP_InputField nameInputField;
     [Header("Netcode")]
     [SerializeField] private NetworkManager nm;
     [SerializeField] private UnityTransport utp;
@@ -56,7 +58,6 @@ public class NetworkStartUI : MonoBehaviour
 
     private void Update()
     {
-        // ❌ NE PLUS rafraîchir la liste ici, sinon ça recrée les boutons en boucle
         UpdateStatusLabel();
     }
 
@@ -82,6 +83,7 @@ public class NetworkStartUI : MonoBehaviour
         }
 
         ushort gamePort = (ushort)lanDiscovery.GetGamePort();
+        NameField();
 
         // Le host écoute sur toutes les interfaces
         utp.SetConnectionData("0.0.0.0", gamePort);
@@ -106,6 +108,16 @@ public class NetworkStartUI : MonoBehaviour
         nm.Shutdown();
         lanDiscovery.StopBroadcasting();
         Debug.Log("[NET] Réseau arrêté.");
+    }
+    private void NameField()
+    {
+        string nom = nameInputField ? nameInputField.text.Trim() : "";
+        if (string.IsNullOrEmpty(nom))
+        {
+            nom = "Player" + Random.Range(1, 9999);
+        }
+        PlayerProfile.PlayerNom = nom;
+        Debug.Log("[NET] Nom du joueur défini sur : " + PlayerProfile.PlayerNom);
     }
 
     // ---------- Liste de serveurs ----------
