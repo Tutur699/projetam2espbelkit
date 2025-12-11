@@ -11,7 +11,6 @@ public class W_Condition : MonoBehaviour
             
             if (playerScript != null)
             {
-                // Appelle la fonction de victoire centralisée dans le PlayerManager
                 playerScript.Win(); 
             }
         }

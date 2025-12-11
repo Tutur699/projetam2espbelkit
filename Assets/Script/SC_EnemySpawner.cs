@@ -89,20 +89,6 @@ public class SC_EnemySpawner : NetworkBehaviour
         }
     }
 
-    void OnGUI()
-    {
-        if (!IsSpawned) return;
-
-        if (!netGameStarted.Value)
-        {
-            GUI.Box(new Rect(Screen.width / 2 - 125, Screen.height / 4 - 12, 250, 25), "Game starts in " + Mathf.Ceil(netTimer.Value).ToString() + "...");
-            return;
-        }
-
-        if (gameOver) GUI.Box(new Rect(Screen.width/2 - 85, Screen.height/2 - 20, 170, 40), "YOU DIED");
-        if (playerWon) GUI.Box(new Rect(Screen.width/2 - 85, Screen.height/2 - 20, 170, 40), "VICTORY !");
-    }
-
     public void EnemyEliminated(IAEnemy enemy)
     {
      
