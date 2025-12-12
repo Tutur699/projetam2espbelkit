@@ -11,10 +11,10 @@ public class Items : ScriptableObject
     public bool isDefaultItem = false;
 
     [Header("Weapon Properties")]
-    public GameObject prefab; //The actual item object in the scene
+    public GameObject prefab; 
     public float useRate = 0.1f;
     public bool singleUse = false;
-    public float weaponDamage = 5; //How much damage should this weapon deal
+    public float weaponDamage = 5;
     public bool isAutomatic = false;
 
 }

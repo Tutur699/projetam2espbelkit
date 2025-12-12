@@ -25,7 +25,7 @@ public abstract class All_Items : NetworkBehaviour
 
     public virtual void ReloadWeapon()
     {
-        // Méthode virtuelle à surcharger dans les armes qui se rechargent
+        // Méthode virtuelle
     }
 
     public virtual int GetCurrentAmmo() { return 0; }
