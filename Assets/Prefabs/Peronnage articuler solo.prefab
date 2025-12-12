@@ -568,11 +568,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6669648816683616215, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 490
+      value: 480
       objectReference: {fileID: 0}
     - target: {fileID: 6669648816683616215, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 40
+      value: 22.31204
       objectReference: {fileID: 0}
     - target: {fileID: 6669648816683616215, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
       propertyPath: m_LocalPosition.z
@@ -692,6 +692,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6324332533516885357, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1700964867572403532}
+    - targetCorrespondingSourceObject: {fileID: 6324332533516885357, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5251704325660605575}
   m_SourcePrefab: {fileID: 100100000, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
 --- !u!114 &192447611868129180 stripped
 MonoBehaviour:
@@ -704,6 +707,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 033401ff15d1b3248802745bb85bf986, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GItems
+--- !u!114 &928253176872504290 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 936102404997531652, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
+  m_PrefabInstance: {fileID: 7992856263869414}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6330072728151858827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d308448992bde44482ef52b72fc50ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WPManager
 --- !u!114 &4162431325269076894 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4170201629209290872, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}
@@ -774,6 +788,50 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5251704325660605575
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6330072728151858827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 533efec596c7b9e46b9073dc61598e8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StarterAssets.FPC_Player_Solo
+  isPaused: 0
+  nameCanvas: {fileID: 0}
+  localControllers: []
+  localOnlyObjects: []
+  worldModel: {fileID: 0}
+  cinemachineVirtualCamera: {fileID: 0}
+  manager: {fileID: 928253176872504290}
+  SelectAction: {fileID: 8442482467394042456, guid: 4419d82f33d36e848b3ed5af4c8da37e, type: 3}
+  MoveSpeed: 2
+  SprintSpeed: 5.335
+  RotationSmoothTime: 0.12
+  SpeedChangeRate: 10
+  LandingAudioClip: {fileID: 8300000, guid: ff697d3070687ce4583faa0561a145a2, type: 3}
+  FootstepAudioClips: []
+  FootstepAudioVolume: 0.5
+  JumpHeight: 1.2
+  Gravity: -15
+  JumpTimeout: 0.5
+  FallTimeout: 0.15
+  Grounded: 1
+  GroundedOffset: -0.14
+  GroundedRadius: 0.28
+  GroundLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  CinemachineCameraTarget: {fileID: 0}
+  TopClamp: 70
+  BottomClamp: -30
+  CameraAngleOverride: 0
+  LockCameraPosition: 0
+  nameText: {fileID: 0}
+  RotationSpeed: 1
 --- !u!114 &6576509686881756340 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6582030383458150226, guid: 0889377d0c32fd445b43a8da854a6d28, type: 3}

@@ -224,13 +224,10 @@ public class IAEnemy : MonoBehaviour, IEntity
                 break;
 
             case Difficulty.HUMAN_LIKE: // "Test de Turing"
-                // Un bon joueur humain réagit vite (0.2s - 0.3s)
-                reactionTime = Random.Range(0.2f, 0.4f); 
-                // Il vise globalement bien, mais avec une petite marge d'erreur naturelle
+                
+                reactionTime = Random.Range(0.1f, 0.4f); 
                 accuracyError = 0.8f; 
-                // Il suit la cible fluidement, pas robotiquement
                 trackingSpeed = 6.0f; 
-                // Il gère ses munitions (rafales contrôlées)
                 burstTime = Random.Range(0.5f, 1.5f); 
                 burstPause = Random.Range(0.1f, 0.4f); 
                 break;

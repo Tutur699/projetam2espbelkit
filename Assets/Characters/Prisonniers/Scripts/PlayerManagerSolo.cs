@@ -1,0 +1,120 @@
+// PlayerManagerSolo.cs - Version sans réseau
+using StarterAssets;
+using UnityEngine;
+
+public class PlayerManagerSolo : MonoBehaviour, IEntity
+{
+    [Header("Vie du joueur")]
+    public float maxHP = 100f;
+    [SerializeField] private float playerHP;
+    
+    [Header("Références")]
+    public FPC_Player_Solo playerControler;
+    public WPManager weaponManager;
+    public Texture crosshairTexture;
+    
+    private Vector3 positionDepart;
+    private Quaternion rotationDepart;
+    private bool isDead = false;
+    private bool hasWon = false;
+    
+    private void Start()
+    {
+        playerHP = maxHP;
+        positionDepart = transform.position;
+        rotationDepart = transform.rotation;
+        
+        // Initialisation armes
+        if (weaponManager != null)
+        {
+            // Appel direct sans réseau
+            weaponManager.InitDefaultWeapons();
+        }
+    }
+    
+    public void ApplyDamage(float points)
+    {
+        if (isDead || hasWon) return;
+        
+        playerHP -= points;
+        if (playerHP <= 0)
+        {
+            playerHP = 0;
+            Die();
+        }
+    }
+    
+    private void Die()
+    {
+        isDead = true;
+        DisableControls();
+        
+        // C'est ici que la mort est signalée au WPManager pour cacher l'arme 3D
+        if(weaponManager != null) weaponManager.HandleDeath(); 
+        
+        if(GameManager.instance != null) GameManager.instance.EnnemiGagneManche();
+    }
+    
+    public void Win()
+    {
+        if (isDead || hasWon) return;
+        hasWon = true;
+        DisableControls();
+        
+        if (GameManager.instance != null) GameManager.instance.JoueurGagneManche();
+    }
+    
+    private void DisableControls()
+    {
+        if (playerControler != null)
+        {
+            playerControler.LockCameraPosition = true;
+            playerControler.enabled = false;
+        }
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+    
+    private void OnGUI()
+    {
+        GUI.Box(new Rect(10, Screen.height - 35, 100, 30), playerHP.ToString() + " HP");
+
+        if (GameManager.instance != null)
+        {
+        
+            int matchPoints = GameManager.instance.pointsPourGagnerMatch;
+            int playerScore = GameManager.instance.scoreJoueur;
+            int enemyScore = GameManager.instance.scoreEnnemi;
+
+            float boxWidth = 120;
+            float spacing = 10;
+            float totalWidth = (2 * boxWidth) + spacing;
+            float startX = (Screen.width / 2) - (totalWidth / 2);
+
+            string playerScoreTexte = $"Your Score: {playerScore} / {matchPoints}";
+            GUI.Box(new Rect(startX, 10, boxWidth, 30), playerScoreTexte);
+        
+            string enemyScoreTexte = $"Enemy Score: {enemyScore} / {matchPoints}";
+            GUI.Box(new Rect(startX + boxWidth + spacing, 10, boxWidth, 30), enemyScoreTexte);
+
+        
+        }
+
+
+        if (isDead) 
+        {
+            GUI.Box(new Rect(Screen.width / 2 - 85, Screen.height / 2 - 20, 170, 40), "Manche Perdue...");
+        }
+        else if (hasWon) 
+        {
+            GUI.Box(new Rect(Screen.width / 2 - 85, Screen.height / 2 - 20, 170, 40), "Manche Gagnée !");
+        }
+        else if (crosshairTexture != null) 
+        {
+            GUI.DrawTexture(new Rect(Screen.width / 2 - 3, Screen.height / 2 - 3, 6, 6), crosshairTexture);
+        }
+    }
+    
+    public bool IsAlive() { return !isDead; }
+    public float GetCurrentHP() { return playerHP; }
+}

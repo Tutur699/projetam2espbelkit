@@ -10,18 +10,6 @@ public abstract class All_Items : NetworkBehaviour
     private bool _isDynamicallyUnlocked = false;
     public bool isReloading = false;
 
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-        if (IsOwner)
-        {
-          if (manager == null)
-          {
-              manager = GetComponentInParent<WPManager>();
-          }   
-        }
-    }
-
     public bool IsOwned
     {
         // Une arme est "possédée" si elle est marquée par défaut dans le SO

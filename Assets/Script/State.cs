@@ -6,11 +6,11 @@ public class State
 {
     public enum STATE
     {
-        IDLE,PATROL, PURSUE, ATTACK, SLEEP //describe the state
+        IDLE,PATROL, PURSUE, ATTACK, SLEEP //les états
     };
     public enum EVENT
     {
-        ENTER, UPDATE, EXIT //describe the state event
+        ENTER, UPDATE, EXIT //les événements
     };
 
     public STATE name; //name of the state based on the enum
@@ -147,9 +147,9 @@ public class Patrol : State
     int currentIndex = 0;
     public Patrol(GameObject _npc, NavMeshAgent _agent, Animator _anim, Transform _player) : base(_npc, _agent, _anim, _player)
     {
-        name = STATE.PATROL; //set the name of the state to patrol
-        agent.speed = 3.5f; //set the speed of the agent to 2 if the agent has a path to follow
-        agent.isStopped = false; //set the agent to not be stopped
+        name = STATE.PATROL;
+        agent.speed = 3.5f; 
+        agent.isStopped = false;
     }
 
     public override void Enter()
@@ -172,12 +172,8 @@ public class Patrol : State
 
     public override void Update()
     {
-        // --- PRIORITÉ ABSOLUE : LA VISION ---
         if (CanSeePlayer())
         {
-            // Raccourci intelligent :
-            // Si on est DÉJÀ à portée de tir, on attaque direct !
-            // Sinon, on poursuit.
             if (CanAttackPlayer())
             {
                 nextState = new Attack(npc, agent, anim, player);
@@ -188,15 +184,13 @@ public class Patrol : State
             }
             
             stage = EVENT.EXIT;
-            return; // On arrête tout le reste, on change d'état immédiatement
+            return; 
         }
-        // ------------------------------------
-
         // La suite (le déplacement vers les Waypoints) ne s'exécute que si on ne voit PERSONNE
         if (enemyScript.waypoints.Count == 0) return;
 
         if (agent.remainingDistance < 1.0f && !agent.pathPending)
-        {
+        {   
             currentIndex++;
             if (currentIndex >= enemyScript.waypoints.Count) currentIndex = 0;
             agent.SetDestination(enemyScript.waypoints[currentIndex].position);
