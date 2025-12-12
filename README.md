@@ -10,19 +10,18 @@ Il s’agit de mettre en œuvre les compétences acquises en programmation, conc
 ### Fonctionnalités principales  
 - Mise en place d’une scène de jeu avec environnement, personnage contrôlable, interface utilisateur.  
 - Gestion des interactions (IA, ennemis, collisions, récoltes, etc.).  
-- Menu principal / pause / score / progression.  
-- Exportation PC (et éventuellement WebGL ou mobile selon les choix).  
+- Menu principal / pause / score.
+- Jeu en réseau.
 
 ### Périmètre / limites  
 - Version minimale réalisable dans le module (prototype de jeu).  
-- Le scope pourra être étendu (par ex. niveaux supplémentaires, multijoueur, sauvegarde) selon le temps disponible.  
+- Le scope pourra être étendu (par ex. niveaux supplémentaires, sauvegarde etc) selon le temps disponible.  
 
 ## 3. Architecture & technologies  
 - Moteur : Unity 6.  
 - Langage de script : C#.  
 - Organisation du projet : dossier `Assets/`, `Packages/`, `ProjectSettings/`.  
 - Branches Git : `main` pour la version stable, branches de fonctionnalités pour le développement.  
-- Modèle de classes : prévoir un diagramme UML (classe Personnage, Ennemi, GameManager, UIManager, etc.).  
 
 ## 4. Installation & démarrage  
 ### Prérequis  
@@ -38,8 +37,8 @@ cd projetam2espbelkit
 ### Ouvrir dans Unity  
 1. Lancez Unity Hub → ouvrez le dossier cloné comme projet.  
 2. Attendez que le projet soit importé/compilé.  
-3. Dans Unity, ouvrez la scène principale (par ex. `Assets/Scenes/Menu.unity`).  
-4. Cliquez sur « Play » pour tester.
+3. Dans Unity, cliquez sur Ctrl + B (Build & Run)
+4. Lancer le .exe
 
 ### Build (export)  
 - Dans Unity : *File → Build Settings* → sélectionner la plateforme (PC, WebGL…) → Build.  
@@ -61,7 +60,6 @@ cd projetam2espbelkit
 
 ## 7. État actuel & version  
 - Version du prototype : **v0.1**.  
-- Liste des tâches restantes (TODO) :
 
 ## 8. Auteurs  
 - Belalem Kaisse  
