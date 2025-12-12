@@ -24,13 +24,10 @@ public class WPManager : NetworkBehaviour
 
     public List<All_Items> allItems = new List<All_Items>(MAXITEMS); //Liste des items dans l'inventaire
 
-    /*[Header("Sway & Camera")]
-    public GameObject weaponSwayHolder;*/
-
     [Header("Inventory UI")]
     public GameObject hudPrefab;
     [HideInInspector] public GameObject myHUDInstance;
-    public List<Slot> slots = new List<Slot>(MAXITEMS); //List of items(Scriptable Objects)
+    public List<Slot> slots = new List<Slot>(MAXITEMS); //Liste des items (Scriptable Objects)
     public GameObject slotPrefab;
     [HideInInspector] public int selectedItemIndex;
     [HideInInspector] public All_Items selectedItems;
@@ -40,6 +37,9 @@ public class WPManager : NetworkBehaviour
     [Header("UI References")]
     public TextMeshProUGUI ammoText;
 
+    /**
+        * Méthode appelée lors de la création en réseau de l'objet
+    */
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -47,7 +47,6 @@ public class WPManager : NetworkBehaviour
         if(isSoloPlayer && GetComponent<PlayerManager>() != null) return;
 
         // --- SÉCURITÉ MULTIJOUEUR ---
-        // Si je ne suis pas le propriétaire de ce perso, je ne crée pas d'interface
         if (!IsOwner) return;
          if(isAI)
         {
@@ -62,22 +61,20 @@ public class WPManager : NetworkBehaviour
         {
             if (playerCamera == null) playerCamera = FindFirstObjectByType<Camera>();
             
-            // Pour le joueur, la source de visée C'EST la caméra
             if (playerCamera != null)
             {
                 aimPoint = playerCamera.transform;
             }
         }
 
-        if (isAI)
+        if (isAI) // Pour l'ia
         {
-            // 1. Si la case est vide, on cherche "EyesPos" partout dans les enfants
             if (aimPoint == null)
             {
                 Transform[] children = GetComponentsInChildren<Transform>();
                 foreach (Transform t in children)
                 {
-                    if (t.name == "EyesPos") // Vérifie bien l'orthographe !
+                    if (t.name == "EyesPos")
                     {
                         aimPoint = t;
                         break;
@@ -85,49 +82,26 @@ public class WPManager : NetworkBehaviour
                 }
             }
 
-            // 2. ULTIME SECOURS : Si toujours vide, on prend l'IA elle-même
+            // Si par tout hasard on n'a pas EyesPos, on prend l'IA elle-même
             if (aimPoint == null)
             {
                 Debug.LogWarning($"[WPManager] {name} : Impossible de trouver 'EyesPos'. Je vise avec mon corps.");
-                aimPoint = transform; // Au moins ça ne crashera pas
+                aimPoint = transform;
             }
         }
-        else if (IsOwner) // Pour le joueur
+        else if (IsOwner)
         {
-             // ... (Recherche Caméra) ...
              if (playerCamera != null) aimPoint = playerCamera.transform;
         }
 
-       
-
-        /*if (playerCamera != null && weaponSwayHolder != null)
-        {
-            // A. On active le script de Sway
-            WeaponSway swayScript = weaponSwayHolder.GetComponent<WeaponSway>();
-            if (swayScript != null) swayScript.enabled = true;
-
-            // B. On détache le Holder du Joueur et on le colle sous la Caméra
-            weaponSwayHolder.transform.SetParent(playerCamera.transform);
-
-            // C. On réinitialise sa position pour qu'il soit bien au centre de la vue
-            weaponSwayHolder.transform.localPosition = Vector3.zero;
-            weaponSwayHolder.transform.localRotation = Quaternion.identity;
-
-            Debug.Log("Armes attachées à la caméra avec succès !");
-        }
-        else
-        {
-            Debug.LogError("Impossible d'attacher les armes : Caméra ou SwayHolder manquant !");
-        }*/
-        
-        
+          
 
 
-        // --- ÉTAPE 1 : CRÉATION DE L'INTERFACE ---
+        //--- CRÉATION DE L'INTERFACE ---
         if (hudPrefab != null)
         {
             myHUDInstance = Instantiate(hudPrefab);
-            myHUDInstance.name = "HUD_LocalPlayer"; // Petit nom pour le retrouver
+            myHUDInstance.name = "HUD_LocalPlayer";
         }
         else
         {
@@ -136,16 +110,14 @@ public class WPManager : NetworkBehaviour
         }
 
 
-        // --- ÉTAPE 2 : AUTO-RECHERCHE CIBLÉE ---
-        // On ne cherche pas dans toute la scène, mais JUSTE dans le HUD qu'on vient de créer
+        //-+-- AUTO-RECHERCHE CIBLÉE DES SLOTS D'INVENTAIRE ---
         if (myHUDInstance != null)
         {
-            // true = on inclut les enfants inactifs au cas où
             Slot[] foundScripts = myHUDInstance.GetComponentsInChildren<Slot>(true); 
             
             slots = new List<Slot>(foundScripts);
 
-            // TRI CRUCIAL : On trie selon l'ordre dans la hiérarchie (Slot 1, Slot 2...)
+            // Tri des slots par ordre d'apparition dans la hiérarchie
             slots.Sort((a, b) => a.transform.GetSiblingIndex().CompareTo(b.transform.GetSiblingIndex()));
             
             Debug.Log($"WPManager a configuré {slots.Count} slots depuis le HUD instancié.");
@@ -165,21 +137,17 @@ public class WPManager : NetworkBehaviour
         }
 
 
-        // --- ÉTAPE 3 : INITIALISATION & NETTOYAGE VISUEL ---
-        // (Le code qu'on avait fait pour nettoyer les carrés blancs du prefab)
+        // --- INITIALISATION & NETTOYAGE VISUEL ---
         if (slots != null)
         {
-            // On initialise la liste logique interne
              while (allItems.Count < MAXITEMS) allItems.Add(null);
 
             foreach (var slotScript in slots)
             {
                 if (slotScript != null)
                 {
-                    // A. On se connecte
                     slotScript.manager = this; 
 
-                    // B. On détruit les "carrés blancs" par défaut du prefab
                     List<GameObject> childrenToKill = new List<GameObject>();
                     foreach (Transform child in slotScript.transform)
                     {
@@ -190,7 +158,6 @@ public class WPManager : NetworkBehaviour
                         Destroy(child);
                     }
                     
-                    // C. On reset la couleur
                     slotScript.Deselect();
                 }
             }
@@ -200,10 +167,13 @@ public class WPManager : NetworkBehaviour
             if(weapon != null) weapon.gameObject.SetActive(false);
         }
 
-        // --- ÉTAPE 4 : INITIALISATION DES ARMES ---
-        // Cache la bibliothèque 3D
+        // --- INITIALISATION DES ARMES ---
         InitDefaultWeapons();
     }
+
+    /**
+        * Initialise les armes par défaut au début de la partie
+    */
 
     public void InitDefaultWeapons()
 
@@ -226,9 +196,12 @@ public class WPManager : NetworkBehaviour
             }
         }
         
-        // Sélectionne le premier slot
         if (allItems[0] != null) ChangeSelectedSlot(0);
         }
+
+    /*
+        * Gère la mort du joueur : déséquipe les armes, désactive le sway, etc.
+        */
 
     public void HandleDeath()
     {
@@ -242,13 +215,10 @@ public class WPManager : NetworkBehaviour
         {
             selectedItems.ActivateWeapon(false);
             selectedItems.isEquipped = false;
-            selectedItems.gameObject.SetActive(false); // On cache le modèle 3D
-            selectedItems = null; // On vide la référence
+            selectedItems.gameObject.SetActive(false); 
+            selectedItems = null;
             selectedItemIndex = -1;
         }
-
-        WeaponSway sway = GetComponentInChildren<WeaponSway>();
-        if (sway != null) sway.enabled = false;
     
     
         if (selectedSlot >= 0 && selectedSlot < slots.Count)
@@ -261,8 +231,6 @@ public class WPManager : NetworkBehaviour
 
     private void Update()
     {
-        // Si tu veux, tu peux ici rajouter un comportement spécial
-        // mais comme PlayerManager gère déjà la mort, on n'est pas obligé
         if (PlayerIsDead())
         {
             HandleDeath();
@@ -279,12 +247,10 @@ public class WPManager : NetworkBehaviour
         if (selectedItems != null)
         {
             // On vérifie si l'arme est une arme à feu (GItems) pour afficher les balles
-            // (Si tu as un couteau, pas besoin d'afficher "0/0")
             if (selectedItems is GItems) 
             {
-                ammoText.gameObject.SetActive(true); // On affiche le texte
+                ammoText.gameObject.SetActive(true);
                 
-                // On récupère les valeurs via les méthodes qu'on a créées dans All_Items
                 int current = selectedItems.GetCurrentAmmo();
                 int reserve = selectedItems.GetReserveAmmo();
                 
@@ -292,35 +258,38 @@ public class WPManager : NetworkBehaviour
             }
             else
             {
-                // C'est un couteau ou autre chose -> on cache le texte
                 ammoText.gameObject.SetActive(false);
             }
         }
         else
         {
-            // Rien dans les mains -> on cache le texte
             ammoText.gameObject.SetActive(false);
         }
     }
 
-    // --- Fonction utilitaire : savoir si le joueur peut utiliser ses armes ---
+    /*
+    * Fonction utilitaire : savoir si le joueur peut utiliser ses armes 
+    */
     private bool PlayerIsDead()
     {
         if (isAI)
         {
-            if (enemyManager == null) return false; // sécurité si non assigné
+            if (enemyManager == null) return false; 
             return !enemyManager.isAlive();
         }
         if( isSoloPlayer)
         {
-            if (playerManagerSolo == null) return false;   // sécurité si non assigné
+            if (playerManagerSolo == null) return false;
             return !playerManagerSolo.IsAlive();
         }
-        if (playerManager == null) return false;   // sécurité si non assigné
+        if (playerManager == null) return false;
         return !playerManager.IsAlive();
     }
 
-
+    /*
+    * Change l'arme sélectionnée en fonction de l'index du slot
+    *@param newIndex L'index du nouveau slot à sélectionner
+    */
     public void ChangeSelectedSlot(int newIndex)
     {
         if (PlayerIsDead())
@@ -332,8 +301,8 @@ public class WPManager : NetworkBehaviour
         if (isAI)
         {
             selectedSlot = newIndex;
-            SelectItems(newIndex); // On active l'arme 3D
-            return; // STOP ! Ne pas toucher à la liste 'slots'
+            SelectItems(newIndex);
+            return;
         }
 
         if (selectedSlot >= 0)
@@ -345,7 +314,12 @@ public class WPManager : NetworkBehaviour
         SelectItems(newIndex);
     }
 
-    public void AddItem(Items newItem, All_Items newItem3D) //Version pour allItems
+    /**
+        * Ajoute un item dans le premier slot vide de l'inventaire => utile pour le ramassage
+        *@param newItem L'item (ScriptableObject) à ajouter
+        *@param newItem3D L'item 3D (All_Items) à ajouter
+        */
+    public void AddItem(Items newItem, All_Items newItem3D)
     {
         if(PlayerIsDead())
         {
@@ -367,7 +341,7 @@ public class WPManager : NetworkBehaviour
             Debug.Log($"Slot {i} child count: {slotTransform.childCount}");
             if (slotTransform.childCount == 0)
             {
-                // Create a new InventoryItem UI element
+                // on crée l'UI de l'item
                 GameObject newItemUIObj = Instantiate(slotPrefab, slots[i].transform);
                 InventoryItem newItemUI = newItemUIObj.GetComponent<InventoryItem>();
                 if (newItemUI != null)
@@ -380,7 +354,7 @@ public class WPManager : NetworkBehaviour
                     Debug.LogError("InventoryItem component missing on slotPrefab");
                 }
 
-                // Add the 3D item to the list
+                // On ajoute l'item 3D dans l'inventaire
                 if (newItem3D != null)
                 {
                     while (allItems.Count < slots.Count)
@@ -414,6 +388,12 @@ public class WPManager : NetworkBehaviour
         Debug.LogWarning("No empty slots available for item: " + newItem.name);
     }
 
+
+    /**
+    * Sélectionne un item dans l'inventaire en fonction de l'index du slot
+    @param index L'index du slot à sélectionner
+    */
+
     public void SelectItems(int index)
     {
         if (PlayerIsDead()){ 
@@ -423,8 +403,7 @@ public class WPManager : NetworkBehaviour
 
         if (index < 0 || index >= allItems.Count) return;
 
-        // --- ETAPE 1 : RESET COMPLET (On éteint tout le monde) ---
-        // On parcourt toute la bibliothèque (ou allItems) pour être sûr que RIEN ne traîne
+        // --- RESET COMPLET (On éteint tout le monde) ---
         foreach (var weapon in allItems)
         {
             if (weapon != null)
@@ -435,32 +414,31 @@ public class WPManager : NetworkBehaviour
             }
         }
 
-        // --- ETAPE 2 : GESTION DE LA CASE VIDE ---
+        // --- GESTION DE LA CASE VIDE ---
         if (allItems[index] == null)
         {
-            // Si la case est vide, on ne fait rien de plus
-            selectedItems = null; // TRES IMPORTANT : On dit au code qu'on a rien en main
+            selectedItems = null;
             selectedItemIndex = -1; 
             Debug.Log("Case vide sélectionnée : mains nues.");
             return;
         }
 
-        // --- ETAPE 3 : VÉRIFICATION DE PROPRIÉTÉ ---
+        // ---  VÉRIFICATION DE PROPRIÉTÉ ---
         if (allItems[index].IsOwned == false)
         {
             Debug.Log("Tu ne possèdes pas encore cette arme !");
-            selectedItems = null; // On s'assure de ne rien avoir en main
+            selectedItems = null; 
             return;
         }
 
-        // --- ETAPE 4 : ACTIVATION DE LA NOUVELLE ARME ---
+        // --- ACTIVATION DE LA NOUVELLE ARME ---
         All_Items newWeapon = allItems[index];
         
         newWeapon.gameObject.SetActive(true);
         newWeapon.ActivateWeapon(true);
         newWeapon.isEquipped = true;
         
-        selectedItems = newWeapon;            // Mise à jour de la référence actuelle
+        selectedItems = newWeapon;
         selectedItemIndex = index;
 
         Debug.Log("Arme équipée : " + newWeapon.item.name);
@@ -468,7 +446,11 @@ public class WPManager : NetworkBehaviour
 
 
 
-   
+   /**
+   * Déplace un item d'un slot à un autre dans l'inventaire
+   *@param oldIndex L'index du slot source
+    *@param newIndex L'index du slot destination
+    */
     public void MoveItemSlot(int oldIndex, int newIndex)
     {
         if (PlayerIsDead()) return;
@@ -479,25 +461,17 @@ public class WPManager : NetworkBehaviour
 
         if (allItems[oldIndex] == null) return;
 
-        // --- 1. LE DÉPLACEMENT DANS LA LISTE (BACKEND) ---
-        // On échange ou on déplace les références dans la liste
+        //--- DÉPLACEMENT DANS LA LISTE ---
         All_Items movedItem = allItems[oldIndex];
         
-        // Si la destination n'est pas vide (Swap), on gère l'échange
         All_Items targetItem = allItems[newIndex];
 
         allItems[newIndex] = movedItem;
-        allItems[oldIndex] = targetItem; // Sera null si la case cible était vide, ou l'autre arme si échange
+        allItems[oldIndex] = targetItem; 
 
         Debug.Log($"Item déplacé de {oldIndex} vers {newIndex}");
 
-
-        // --- 2. LE RAFRAÎCHISSEMENT IMMÉDIAT (LA SOLUTION) ---
-        
-        // On vérifie simplement : "Qu'est-ce qu'il y a DÉSORMAIS dans le slot que je regarde ?"
-        // Si selectedSlot vaut 0, et que j'ai bougé mon arme du slot 0 au 4 :
-        // Le code va relancer SelectItems(0).
-        // SelectItems(0) va voir que c'est vide -> Il va désactiver l'arme (mains vides).
+        //--- MISE À JOUR DE L'UI ---
         
         if (selectedSlot != -1)
         {
@@ -505,6 +479,10 @@ public class WPManager : NetworkBehaviour
         }
     }
 
+    /**
+    * Équipe une arme en fonction de son index dans l'inventaire
+    *@param index L'index de l'arme à équiper
+    */
 
     public void EquipWeapon(int index)
     {
@@ -536,6 +514,14 @@ public class WPManager : NetworkBehaviour
             Debug.Log("Arme équipée : " + selectedItems.name);
         }
     }
+
+    /**
+    * Équipe un item depuis la bibliothèque d'armes vers un slot spécifique
+    *@param libraryIndex L'index de l'arme dans la bibliothèque
+    *@param slotIndex L'index du slot où équiper l'arme (optionnel)
+    *@return true si l'arme a été équipée avec succès, false sinon
+    */
+
    public bool EquipItemFromLibrary(int libraryIndex, int slotIndex = -1)
     {
         // Sécurité index
@@ -547,7 +533,7 @@ public class WPManager : NetworkBehaviour
         
         All_Items weaponToEquip = weaponLibrary[libraryIndex];
 
-        // --- TEST DU COUPABLE N°1 : L'ARME ---
+        // --- TEST DE L'ARME ---
         if (weaponToEquip == null)
         {
             Debug.LogError($"[DEBUG] L'objet arme à l'index {libraryIndex} est NULL dans la WeaponLibrary !");
@@ -556,11 +542,10 @@ public class WPManager : NetworkBehaviour
 
         if (weaponToEquip.item == null)
         {
-            // C'EST SOUVENT LUI LE COUPABLE !
             Debug.LogError($"[DEBUG] ALERTE ROUGE : L'arme '{weaponToEquip.gameObject.name}' existe, MAIS son champ 'Item' (ScriptableObject) est VIDE ! Vérifie le préfab du Player !");
             return false;
         }
-        // -------------------------------------
+
 
         if (allItems.Contains(weaponToEquip)) return false;
 
@@ -589,7 +574,7 @@ public class WPManager : NetworkBehaviour
             return true;
         }
 
-        // --- TEST DU COUPABLE N°2 : L'UI ---
+        // --- TEST DE L'UI ---
         Slot targetSlot = slots[slotIndex];
         
         // Nettoyage UI
